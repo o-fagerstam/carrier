@@ -9,5 +9,9 @@ public class Shell : MonoBehaviour {
 
     private void Update() {
         transform.forward = ShellRigidBody.velocity.normalized;
+
+        if (transform.position.y < -5) {
+            Destroy(gameObject);
+        }
     }
 }

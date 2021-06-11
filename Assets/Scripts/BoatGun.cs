@@ -11,12 +11,13 @@ public class BoatGun : MonoBehaviour {
     [SerializeField] private float horizontalRotationSpeed = 2f;
     [SerializeField] private float reloadTime = 3f;
     [SerializeField] private float verticalElevationSpeed = 1f;
+    private Vector3 MuzzlePosition => gunElevationTransform.position + gunElevationTransform.forward;
     public Vector3 CurrentAimPoint => GetCurrentAimPoint();
 
     private void Update() {
-        if (GameCamera.RayCastMadeHit) {
+        if (GameCamera.RayCastMadeWaterHit) {
             var desiredFiringAngle = Vector3.zero;
-            var deltaPosition = GameCamera.RaycastHit.point - transform.position;
+            var deltaPosition = GameCamera.RayCastWaterHit.point - MuzzlePosition;
             HandleAim(deltaPosition, out desiredFiringAngle);
             _hasAllowedFiringAngle = CheckAllowedFiringAngle(desiredFiringAngle);
         }
@@ -45,7 +46,8 @@ public class BoatGun : MonoBehaviour {
     }
 
     private float RotateGunElevation(Vector3 deltaPosition) {
-        var angleOfLaunch = CalculateFiringAngle(deltaPosition.magnitude);
+        var angleOfLaunch = CalculateFiringAngle(deltaPosition);
+        Debug.Log($"Calculated angle of launch {angleOfLaunch}");
         if (float.IsNaN(angleOfLaunch)) {
             return -90;
         }
@@ -66,30 +68,27 @@ public class BoatGun : MonoBehaviour {
         if (_hasAllowedFiringAngle) {
             return angleToTarget < 3f;
         }
+
         return angleToTarget < 2f;
     }
 
     private void HandleGunFire() {
         _timeSinceLastFired += Time.deltaTime;
-        if (_timeSinceLastFired >= reloadTime &&
-            _hasAllowedFiringAngle
+        if (_hasAllowedFiringAngle &&
+            _timeSinceLastFired >= reloadTime
         ) {
             _timeSinceLastFired = 0f; // Should be made more accurate with a subtraction instead
-            var instantiateLocation = gunElevationTransform.position + transform.forward;
-            var firedShell = Instantiate(ammunition, instantiateLocation, gunElevationTransform.rotation);
+            var firedShell = Instantiate(ammunition, MuzzlePosition, gunElevationTransform.rotation);
             var firedShellRigidBody = firedShell.GetComponent<Rigidbody>();
             firedShellRigidBody.velocity = firedShell.transform.forward * _gunPower;
         }
     }
 
     private Vector3 GetCurrentAimPoint() {
-        var gunForward = gunElevationTransform.forward;
-        var groundForward = new Vector3(gunForward.x, 0f, gunForward.z).normalized;
-        var angle = Vector3.Angle(gunForward, groundForward);
-        var firingDistance = CalculateFiringDistance(angle);
-        Debug.Log($"gunForward {gunForward}\ngroundForward {groundForward}\nangle {angle}\nfiringDistance {firingDistance}");
-        Debug.Log(gunElevationTransform.position + " " + gunElevationTransform + groundForward * firingDistance);
-        return gunElevationTransform.position + groundForward * firingDistance;
+        var forward = gunElevationTransform.forward;
+        var firingDistance = CalculateFiringDistance(forward, MuzzlePosition.y);
+        var groundForward = new Vector3(forward.x, 0f, forward.z);
+        return MuzzlePosition + groundForward * firingDistance;
     }
 
     private float CalculateFiringAngle(float distance) {
@@ -98,13 +97,42 @@ public class BoatGun : MonoBehaviour {
                Mathf.Rad2Deg;
     }
 
+    private float CalculateFiringAngle(Vector3 deltaPosition) {
+        var d = new Vector2(deltaPosition.x, deltaPosition.z).magnitude;
+        var h = -deltaPosition.y;
+        var g = -Physics.gravity.y;
+        var twiceOfAngleMinusFaceAngle = Mathf.Acos(
+                                             (g * d * d / (_gunPower * _gunPower) - h) /
+                                             Mathf.Sqrt(h * h + d * d)
+                                         ) * Mathf.Rad2Deg;
+        var faceAngle = Mathf.Atan(d / h) * Mathf.Rad2Deg;
+        return (twiceOfAngleMinusFaceAngle + faceAngle) / 2 - 90f;
+    }
+
     private float CalculateFiringDistance(float angle) {
         // Assumes 0 height difference
-        var Vx = Mathf.Sin(angle * Mathf.Deg2Rad) * _gunPower;
-        var Vy = Mathf.Cos(angle * Mathf.Deg2Rad) * _gunPower;
+        var angleRadians = angle * Mathf.Deg2Rad;
+        var Vx = Mathf.Sin(angleRadians) * _gunPower;
+        var Vy = Mathf.Cos(angleRadians) * _gunPower;
         var g = -Physics.gravity.y;
         var h = 0;
-        Debug.Log($"angle {angle} Vx {Vx} Vy {Vy}");
-        return (Vx / g) * (Vy + Mathf.Sqrt(Vy * Vy + 2 * g * h));
+        return Vx / g * (Vy + Mathf.Sqrt(Vy * Vy + 2 * g * h));
+    }
+    
+    private float CalculateFiringDistance(Vector3 directionOfFire, float heightDiff) {
+        var directionOfGround = new Vector3(directionOfFire.x, 0f, directionOfFire.z).normalized;
+        var angleRadians = Vector3.Angle(directionOfFire, directionOfGround) * Mathf.Deg2Rad;
+        var vx = Mathf.Sin(angleRadians) * _gunPower;
+        var vy = Mathf.Cos(angleRadians) * _gunPower;
+        var g = -Physics.gravity.y;
+        var h = heightDiff;
+        return vx / g * (vy + Mathf.Sqrt(vy * vy + 2 * g * h));
+    }
+
+    private void OnDrawGizmos() {
+        if (GameCamera.RayCastMadeWaterHit) {
+            var hit = GameCamera.RayCastWaterHit;
+            Gizmos.DrawLine(gunElevationTransform.position, hit.point);
+        }
     }
 }

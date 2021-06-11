@@ -10,8 +10,8 @@ public class DistanceText : MonoBehaviour {
     }
 
     private void Update() {
-        if (GameCamera.RayCastMadeHit) {
-            var distance = (GameCamera.RaycastHit.point - _gameCamera.position).magnitude;
+        if (GameCamera.RayCastMadeWaterHit) {
+            var distance = (GameCamera.RayCastWaterHit.point - _gameCamera.position).magnitude;
             _text.text = distance.ToString();
         }
         else {

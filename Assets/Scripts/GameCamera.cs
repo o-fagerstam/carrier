@@ -2,21 +2,21 @@ using UnityEngine;
 
 public class GameCamera : MonoBehaviour {
     public static Ray MouseRay;
-    public static RaycastHit RaycastHit;
-    public static bool RayCastMadeHit;
-    public static Camera currentCamera { get; private set; }
+    public static RaycastHit RayCastWaterHit;
+    public static bool RayCastMadeWaterHit;
     private static float xRotation;
-    [SerializeField] private LayerMask layerMask;
+    private LayerMask _waterLayerMask;
     public float MouseSensitivity = 10f;
 
     public Transform objectToFollow;
 
     public Transform swivel, stick, cameraTransform;
+    public static Camera currentCamera { get; private set; }
 
     public static float YRotation { get; private set; }
 
     private void Start() {
-        Debug.Log(layerMask.value);
+        Debug.Log(_waterLayerMask.value);
         currentCamera = Camera.main;
 
         swivel = transform.GetChild(0);
@@ -29,12 +29,13 @@ public class GameCamera : MonoBehaviour {
     }
 
     private void Awake() {
+        _waterLayerMask = LayerMask.GetMask("Water");
         currentCamera = Camera.main;
     }
 
     private void Update() {
         MouseRay = currentCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f));
-        RayCastMadeHit = Physics.Raycast(MouseRay, out RaycastHit, 10000f, layerMask);
+        RayCastMadeWaterHit = Physics.Raycast(MouseRay, out RayCastWaterHit, 10000f, _waterLayerMask);
 
         var mouseX = Input.GetAxis("Mouse X") * MouseSensitivity * Time.deltaTime;
         var mouseY = Input.GetAxis("Mouse Y") * MouseSensitivity * Time.deltaTime;
@@ -54,9 +55,9 @@ public class GameCamera : MonoBehaviour {
     }
 
     private void OnDrawGizmos() {
-        if (RayCastMadeHit) {
+        if (RayCastMadeWaterHit) {
             Gizmos.color = Color.yellow;
-            Gizmos.DrawSphere(RaycastHit.point, 1);
+            Gizmos.DrawSphere(RayCastWaterHit.point, 1);
         }
     }
 }
