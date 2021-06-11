@@ -34,13 +34,13 @@ public class GunMarkerDrawer : MonoBehaviour {
     }
 
     private void MoveMarkerToWorldPoint(GunMarker marker, Vector3 worldPosition) {
-        Vector2 viewPortPosition = GameCamera.currentCamera.WorldToViewportPoint(worldPosition);
+        Vector2 viewPortPosition = GameCamera.CurrentCamera.WorldToViewportPoint(worldPosition);
         var canvasSizeDelta = _canvasRectTransform.sizeDelta;
         var proportionalPosition = new Vector2(
             viewPortPosition.x * canvasSizeDelta.x,
             viewPortPosition.y * canvasSizeDelta.y
         );
-        var distanceToCamera = (worldPosition - GameCamera.currentCamera.transform.position).magnitude;
+        var distanceToCamera = (worldPosition - GameCamera.CurrentCamera.transform.position).magnitude;
         var markerScale = 1 / Mathf.Sqrt(distanceToCamera) * 100f;
         marker.SetScale(markerScale);
         marker.SetLocalPosition(proportionalPosition - uiOffset);
