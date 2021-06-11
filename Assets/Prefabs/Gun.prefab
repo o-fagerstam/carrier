@@ -142,12 +142,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b28d1257e2d6949409af01f7853e98b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ammunition: {fileID: 967554145729119165, guid: be1869c6dd7eb8f46b44c3713784d324, type: 3}
+  ammunitionPrefab: {fileID: 967554145729119165, guid: be1869c6dd7eb8f46b44c3713784d324, type: 3}
   gunElevationTransform: {fileID: 5374174656327603756}
   horizontalRotationSpeed: 2
   reloadTime: 0.1
   verticalElevationSpeed: 1
-  gunTargetMarker: {fileID: 0}
 --- !u!1001 &2000096124785868839
 PrefabInstance:
   m_ObjectHideFlags: 0

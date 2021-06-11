@@ -3,10 +3,9 @@ using UnityEngine;
 
 public class BoatGun : MonoBehaviour {
     private readonly float _gunPower = 50f;
-    private bool _gunTargetMarkerValid;
     private bool _hasAllowedFiringAngle;
     private float _timeSinceLastFired;
-    [SerializeField] public GameObject ammunition;
+    [SerializeField] public GameObject ammunitionPrefab;
     [SerializeField] private Transform gunElevationTransform;
     [SerializeField] private float horizontalRotationSpeed = 2f;
     [SerializeField] private float reloadTime = 3f;
@@ -47,7 +46,6 @@ public class BoatGun : MonoBehaviour {
 
     private float RotateGunElevation(Vector3 deltaPosition) {
         var angleOfLaunch = CalculateFiringAngle(deltaPosition);
-        Debug.Log($"Calculated angle of launch {angleOfLaunch}");
         if (float.IsNaN(angleOfLaunch)) {
             return -90;
         }
@@ -78,7 +76,7 @@ public class BoatGun : MonoBehaviour {
             _timeSinceLastFired >= reloadTime
         ) {
             _timeSinceLastFired = 0f; // Should be made more accurate with a subtraction instead
-            var firedShell = Instantiate(ammunition, MuzzlePosition, gunElevationTransform.rotation);
+            var firedShell = Instantiate(ammunitionPrefab, MuzzlePosition, gunElevationTransform.rotation);
             var firedShellRigidBody = firedShell.GetComponent<Rigidbody>();
             firedShellRigidBody.velocity = firedShell.transform.forward * _gunPower;
         }
