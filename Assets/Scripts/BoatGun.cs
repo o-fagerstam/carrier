@@ -41,7 +41,7 @@ public class BoatGun : MonoBehaviour {
 
     private float RotateTurret(Vector3 deltaPosition) {
         var turretLookRotation = Quaternion.LookRotation(deltaPosition);
-        var turretRotation = Quaternion.Lerp(
+        var turretRotation = Quaternion.RotateTowards(
                 transform.rotation,
                 turretLookRotation,
                 Time.deltaTime * horizontalRotationSpeed
@@ -58,7 +58,7 @@ public class BoatGun : MonoBehaviour {
         }
 
         var targetGunElevation = Quaternion.Euler(angleOfLaunch, 0f, 0f);
-        var gunElevation = Quaternion.Lerp(
+        var gunElevation = Quaternion.RotateTowards(
             gunElevationTransform.localRotation,
             targetGunElevation,
             Time.deltaTime * verticalElevationSpeed
