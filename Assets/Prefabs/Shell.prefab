@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5190563054851097251}
   - component: {fileID: 1582805129152917545}
   - component: {fileID: 8357447388892018008}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: ShellBody
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -90,7 +90,7 @@ CapsuleCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 959085703475726498}
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 0.5000001
   m_Height: 2
@@ -107,7 +107,7 @@ GameObject:
   - component: {fileID: 7871178811168923883}
   - component: {fileID: 6769962326619836744}
   - component: {fileID: 4096043700518103695}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Shell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -144,7 +144,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!114 &4096043700518103695
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -157,3 +157,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8946e1318937cc445b246784b5056a9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShellPower: 1000

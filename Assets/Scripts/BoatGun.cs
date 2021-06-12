@@ -5,15 +5,22 @@ public class BoatGun : MonoBehaviour {
     private readonly float _gunPower = 50f;
     private bool _hasAllowedFiringAngle;
     private float _timeSinceLastFired;
-    [SerializeField] public GameObject ammunitionPrefab;
+    [SerializeField] public Shell ammunitionPrefab;
     [SerializeField] private Transform gunElevationTransform;
     [SerializeField] private float horizontalRotationSpeed = 2f;
     [SerializeField] private float reloadTime = 3f;
     [SerializeField] private float verticalElevationSpeed = 1f;
-    private Vector3 MuzzlePosition => gunElevationTransform.position + gunElevationTransform.forward;
+    private Vector3 MuzzlePosition => gunElevationTransform.position + gunElevationTransform.forward * 2;
     public Vector3 CurrentAimPoint => GetCurrentAimPoint();
+    public BoatMovement parentBoat;
 
     private void Update() {
+        if (parentBoat.controller == Controller.Human) {
+            HandlePlayerControl();
+        }
+    }
+
+    private void HandlePlayerControl() {
         if (GameCamera.RayCastMadeWaterHit) {
             var desiredFiringAngle = Vector3.zero;
             var deltaPosition = GameCamera.RayCastWaterHit.point - MuzzlePosition;
@@ -76,7 +83,8 @@ public class BoatGun : MonoBehaviour {
             _timeSinceLastFired >= reloadTime
         ) {
             _timeSinceLastFired = 0f; // Should be made more accurate with a subtraction instead
-            var firedShell = Instantiate(ammunitionPrefab, MuzzlePosition, gunElevationTransform.rotation);
+            var firedShell = Instantiate<Shell>(ammunitionPrefab, MuzzlePosition, gunElevationTransform.rotation);
+            firedShell.shellOwner = transform.parent;
             var firedShellRigidBody = firedShell.GetComponent<Rigidbody>();
             firedShellRigidBody.velocity = firedShell.transform.forward * _gunPower;
         }
