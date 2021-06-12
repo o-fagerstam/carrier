@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 public class ShellImpact : MonoBehaviour {
@@ -11,15 +10,6 @@ public class ShellImpact : MonoBehaviour {
 
     public void CalculateImpact(Vector3 impactPosition, Vector3 directionVector, float shellPower) {
         var hitComponents = GenerateHitComponentsList(impactPosition, directionVector);
-
-        #if UNITY_EDITOR
-        var b = new StringBuilder();
-        foreach (var hit in hitComponents) {
-            b.Append(hit.name).Append(" ");
-        }
-        Debug.Log("Hit components: " + b);
-        #endif
-        
         CalculateDamage(hitComponents, shellPower);
     }
 
