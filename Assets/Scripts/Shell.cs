@@ -33,7 +33,6 @@ public class Shell : MonoBehaviour {
     }
 
     private void OnTriggerEnter(Collider other) {
-        Debug.Log(other.gameObject.name + " layer " + other.gameObject.layer);
         if (((1 << other.gameObject.layer) & ShellImpact.ShellTargetableLayerMask) != 0 &&
             other.transform != shellOwner) {
             Debug.Log("Hit another boat");
