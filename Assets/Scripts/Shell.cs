@@ -18,24 +18,9 @@ public class Shell : MonoBehaviour {
         }
     }
 
-    private void OnCollisionEnter(Collision other) {
-        Debug.Log(other.gameObject.name + " layer " + other.gameObject.layer);
-        if (((1 << other.gameObject.layer) & ShellImpact.ShellTargetableLayerMask) != 0 &&
-            other.transform != shellOwner) {
-            Debug.Log("Hit another boat");
-            var forward = transform.forward;
-            var contactPoint = other.GetContact(0).point;
-            var contactDirection = (contactPoint - transform.position).normalized;
-            other.gameObject.GetComponent<ShellImpact>()
-                .CalculateImpact(contactPoint - contactDirection, contactDirection, ShellPower);
-            Destroy(gameObject);
-        }
-    }
-
     private void OnTriggerEnter(Collider other) {
         if (((1 << other.gameObject.layer) & ShellImpact.ShellTargetableLayerMask) != 0 &&
             other.transform != shellOwner) {
-            Debug.Log("Hit another boat");
             var thisTransform = transform;
             var shellVelocity = ShellRigidBody.velocity;
             var traceStartPoint = thisTransform.position - shellVelocity * Time.deltaTime * 2;

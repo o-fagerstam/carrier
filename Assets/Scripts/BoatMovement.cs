@@ -26,7 +26,6 @@ public class BoatMovement : MonoBehaviour {
 
     private void FixedUpdate() {
         if (controller == Controller.Human) {
-            //HandleHumanMovement();
             Steer();
             ReduceHorizontalDrift();
             Accelerate();
