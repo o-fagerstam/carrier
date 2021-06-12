@@ -1,20 +1,20 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 public class ShellImpact : MonoBehaviour {
+    public const float ShellRayMaxDistance = 30f;
     public const int ShellTargetableLayerMask = 1 << 3;
     public float health = 3000f;
 
     public void CalculateImpact(Vector3 impactPosition, Vector3 directionVector, float shellPower) {
         var impactRay = new Ray(impactPosition, directionVector);
         var hits = new RaycastHit[20];
-        var numHits = Physics.RaycastNonAlloc(impactRay, hits, 100f, ShellTargetableLayerMask);
+        var numHits = Physics.RaycastNonAlloc(impactRay, hits, ShellRayMaxDistance, ShellTargetableLayerMask);
         if (numHits == 0) {
             return;
         }
-
-        Debug.DrawRay(impactPosition, directionVector * 100f, Color.red, 1f, false);
 
         var hitComponents = new List<BoatComponentDamage>();
         for (var i = 0; i < numHits; i++) {
@@ -32,6 +32,11 @@ public class ShellImpact : MonoBehaviour {
         }
 
         hitComponents = hitComponents.OrderBy(c => (c.transform.position - impactPosition).magnitude).ToList();
+        StringBuilder b = new StringBuilder();
+        foreach (var hit in hitComponents) {
+            b.Append(hit.name).Append(" ");
+        }
+        Debug.Log("Hit components: " + b );
 
         var currentShellPower = shellPower;
         foreach (var hitComponent in hitComponents) {
