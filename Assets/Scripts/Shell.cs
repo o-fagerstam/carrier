@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Shell : MonoBehaviour {
@@ -17,14 +18,24 @@ public class Shell : MonoBehaviour {
         }
     }
 
-    private void OnCollisionEnter(Collision other) {
-        Debug.Log(other.gameObject.name + " layer " + other.gameObject.layer);
+    private void OnTriggerEnter(Collider other) {
         if (((1 << other.gameObject.layer) & ShellImpact.ShellTargetableLayerMask) != 0 &&
             other.transform != shellOwner) {
-            Debug.Log("Hit another boat");
-            var forward = transform.forward;
-            other.gameObject.GetComponent<ShellImpact>()
-                .CalculateImpact(other.GetContact(0).point - forward, forward, ShellPower);
+            var thisTransform = transform;
+            var shellVelocity = ShellRigidBody.velocity;
+            var traceStartPoint = thisTransform.position - shellVelocity * Time.deltaTime * 2;
+
+            var targetTransform = other.transform;
+            var targetShellImpact = targetTransform.GetComponent<ShellImpact>();
+            while (targetShellImpact == null) {
+                targetTransform = targetTransform.parent;
+                targetShellImpact = targetTransform.GetComponent<ShellImpact>();
+            }
+            
+            Debug.DrawRay(traceStartPoint, shellVelocity.normalized * ShellImpact.ShellRayMaxDistance, Color.red, 1f, false);
+            Debug.Break();
+            
+            targetShellImpact.CalculateImpact(traceStartPoint, shellVelocity.normalized, ShellPower);
             Destroy(gameObject);
         }
     }

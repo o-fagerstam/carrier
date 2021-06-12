@@ -1,38 +1,45 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 public class ShellImpact : MonoBehaviour {
+    public const float ShellRayMaxDistance = 30f;
     public const int ShellTargetableLayerMask = 1 << 3;
     public float health = 3000f;
 
     public void CalculateImpact(Vector3 impactPosition, Vector3 directionVector, float shellPower) {
+        var hitComponents = GenerateHitComponentsList(impactPosition, directionVector);
+        CalculateDamage(hitComponents, shellPower);
+    }
+
+
+    private List<BoatComponentDamage> GenerateHitComponentsList(Vector3 impactPosition, Vector3 directionVector) {
         var impactRay = new Ray(impactPosition, directionVector);
         var hits = new RaycastHit[20];
-        var numHits = Physics.RaycastNonAlloc(impactRay, hits, 100f, ShellTargetableLayerMask);
-        if (numHits == 0) {
-            return;
-        }
+        var numHits = Physics.RaycastNonAlloc(impactRay, hits, ShellRayMaxDistance, ShellTargetableLayerMask);
 
-        Debug.DrawRay(impactPosition, directionVector * 100f, Color.red, 1f, false);
+        var hitsSortedByDistance = new RaycastHit[numHits];
+        Array.Copy(hits, hitsSortedByDistance, numHits);
+        hitsSortedByDistance = hitsSortedByDistance.OrderBy(h => (h.transform.position - impactPosition).magnitude)
+            .ToArray();
 
         var hitComponents = new List<BoatComponentDamage>();
-        for (var i = 0; i < numHits; i++) {
-            var hitTransform = hits[i].collider.transform;
+        for (int i = 0; i < numHits; i++) {
+            var hitTransform = hitsSortedByDistance[i].collider.transform;
             if (hitTransform == transform || hitTransform.parent != transform) {
                 continue;
             }
-
             var hitComponent = hitTransform.GetComponent<BoatComponentDamage>();
             if (hitComponent == null) {
                 throw new UnityException("Failed to find Damage Component. Forgot to set it in editor?");
             }
-
             hitComponents.Add(hitComponent);
         }
+        return hitComponents;
+    }
 
-        hitComponents = hitComponents.OrderBy(c => (c.transform.position - impactPosition).magnitude).ToList();
-
+    private void CalculateDamage(List<BoatComponentDamage> hitComponents, float shellPower) {
         var currentShellPower = shellPower;
         foreach (var hitComponent in hitComponents) {
             currentShellPower -= hitComponent.armor;
@@ -50,9 +57,5 @@ public class ShellImpact : MonoBehaviour {
         if (health <= 0f) {
             Destroy(gameObject);
         }
-    }
-
-    public void TakeDamage(float damage) {
-        health -= damage;
     }
 }

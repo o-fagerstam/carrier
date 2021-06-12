@@ -79,11 +79,4 @@ public class GameCamera : MonoBehaviour {
         
         swivel.position = objectToFollow.position;
     }
-
-    private void OnDrawGizmos() {
-        if (RayCastMadeWaterHit) {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawSphere(RayCastWaterHit.point, 1);
-        }
-    }
 }

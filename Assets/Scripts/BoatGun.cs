@@ -41,7 +41,7 @@ public class BoatGun : MonoBehaviour {
 
     private float RotateTurret(Vector3 deltaPosition) {
         var turretLookRotation = Quaternion.LookRotation(deltaPosition);
-        var turretRotation = Quaternion.Lerp(
+        var turretRotation = Quaternion.RotateTowards(
                 transform.rotation,
                 turretLookRotation,
                 Time.deltaTime * horizontalRotationSpeed
@@ -58,7 +58,7 @@ public class BoatGun : MonoBehaviour {
         }
 
         var targetGunElevation = Quaternion.Euler(angleOfLaunch, 0f, 0f);
-        var gunElevation = Quaternion.Lerp(
+        var gunElevation = Quaternion.RotateTowards(
             gunElevationTransform.localRotation,
             targetGunElevation,
             Time.deltaTime * verticalElevationSpeed
@@ -115,16 +115,6 @@ public class BoatGun : MonoBehaviour {
         return (twiceOfAngleMinusFaceAngle + faceAngle) / 2 - 90f;
     }
 
-    private float CalculateFiringDistance(float angle) {
-        // Assumes 0 height difference
-        var angleRadians = angle * Mathf.Deg2Rad;
-        var Vx = Mathf.Sin(angleRadians) * _gunPower;
-        var Vy = Mathf.Cos(angleRadians) * _gunPower;
-        var g = -Physics.gravity.y;
-        var h = 0;
-        return Vx / g * (Vy + Mathf.Sqrt(Vy * Vy + 2 * g * h));
-    }
-    
     private float CalculateFiringDistance(Vector3 directionOfFire, float heightDiff) {
         var directionOfGround = new Vector3(directionOfFire.x, 0f, directionOfFire.z).normalized;
         var angleRadians = Vector3.Angle(directionOfFire, directionOfGround) * Mathf.Deg2Rad;
@@ -133,12 +123,5 @@ public class BoatGun : MonoBehaviour {
         var g = -Physics.gravity.y;
         var h = heightDiff;
         return vx / g * (vy + Mathf.Sqrt(vy * vy + 2 * g * h));
-    }
-
-    private void OnDrawGizmos() {
-        if (GameCamera.RayCastMadeWaterHit) {
-            var hit = GameCamera.RayCastWaterHit;
-            Gizmos.DrawLine(gunElevationTransform.position, hit.point);
-        }
     }
 }
