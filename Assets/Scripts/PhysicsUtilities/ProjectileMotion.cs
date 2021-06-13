@@ -3,11 +3,16 @@ using UnityEngine;
 
 namespace PhysicsUtilities {
     public static class ProjectileMotion {
-        public static float G = Physics.gravity.y;
+        public static float G = -Physics.gravity.y;
     
         public static bool CalculateFiringAngle(Vector3 deltaPosition, float v0, out float angle, bool directFire = true) {
             var d = new Vector2(deltaPosition.x, deltaPosition.z).magnitude;
-            var h = -deltaPosition.y;
+            var h = deltaPosition.y;
+            
+            CalculateFiringAngle(d, h, v0, G, out angle, directFire);
+            CalculateFiringAngle(d, -h, v0, -G, out var reverseAngle, directFire);
+            Debug.Log($"Angle: {angle} Reverse: {reverseAngle}");
+
             return CalculateFiringAngle(d, h, v0, G, out angle, directFire);
         }
 
@@ -27,16 +32,16 @@ namespace PhysicsUtilities {
             return true;
         }
 
-        public static float CalculateFiringDistance(Vector3 directionOfFire, float heightDiff, float v0) {
+        public static float CalculateProjectileDistance(Vector3 directionOfFire, float heightDiff, float v0) {
             var directionOfGround = new Vector3(directionOfFire.x, 0f, directionOfFire.z).normalized;
-            var angleRadians = Vector3.Angle(directionOfFire, directionOfGround) * Mathf.Deg2Rad;
-            var vx = Mathf.Sin(angleRadians) * v0;
-            var vy = Mathf.Cos(angleRadians) * v0;
-            var g = -UnityEngine.Physics.gravity.y;
-            var h = heightDiff;
-            return vx / g * (vy + Mathf.Sqrt(vy * vy + 2 * g * h));
+            var angle = Vector3.Angle(directionOfFire, directionOfGround);
+            return CalculateProjectileDistance(angle, heightDiff, v0, G);
         }
 
-
+        private static float CalculateProjectileDistance(float angle, float h, float v0, float g) {
+            var a = angle * Mathf.Deg2Rad;
+            var sqrt = Mathf.Sqrt(v0 * v0 * Mathf.Sin(a) * Mathf.Sin(a) + 2 * -g * h);
+            return v0 * Mathf.Cos(a) * (v0 * Mathf.Sin(a) + sqrt) / -g;
+        }
     }
 }

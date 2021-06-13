@@ -60,7 +60,7 @@ public class BoatGun : MonoBehaviour {
     private float RotateGunElevation(Vector3 targetPoint) {
         var deltaPosition = targetPoint - MuzzlePosition;
         var validAngle = ProjectileMotion.CalculateFiringAngle(deltaPosition, _gunInitialVelocity, out var angle);
-
+        angle = -angle;
         if (!validAngle) {
             return -90;
         }
@@ -100,7 +100,7 @@ public class BoatGun : MonoBehaviour {
 
     private Vector3 GetCurrentAimPoint() {
         var forward = gunElevationTransform.forward;
-        var firingDistance = ProjectileMotion.CalculateFiringDistance(forward, MuzzlePosition.y, _gunInitialVelocity);
+        var firingDistance = ProjectileMotion.CalculateProjectileDistance(forward, MuzzlePosition.y, _gunInitialVelocity);
         var groundForward = new Vector3(forward.x, 0f, forward.z).normalized;
         return MuzzlePosition + groundForward * firingDistance;
     }
