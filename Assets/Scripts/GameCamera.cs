@@ -52,11 +52,11 @@ public class GameCamera : MonoBehaviour {
         
         var oldCameraPosition = cameraTransform.position;
         
-        var swivelXAngle = Mathf.Lerp(20f, 60f, _scrollLevel);
+        var swivelXAngle = Mathf.Lerp(15f, 30f, _scrollLevel);
         swivel.localRotation = Quaternion.Euler(swivelXAngle, _yRotation, 0f);
 
         if (mouseScrollWheel != 0f) {
-            var stickDistance = Mathf.Lerp(10f, 50f, _scrollLevel);
+            var stickDistance = Mathf.Lerp(20f, 120f, _scrollLevel);
             stick.localPosition = new Vector3(0f, 0f, -stickDistance);
 
             var newCameraPosition = cameraTransform.position;
