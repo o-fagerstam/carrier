@@ -24,8 +24,8 @@ public class BoatGun : MonoBehaviour {
     }
 
     private void HandlePlayerControl() {
-        if (GameCamera.RayCastMadeWaterHit) {
-            var targetPoint = GameCamera.RayCastWaterHit.point;
+        if (GameCamera.RayCastMadeGunTargetingHit) {
+            var targetPoint = GameCamera.RayCastGunTargetingHit.point;
             HandleAim(targetPoint, out var desiredFiringAngle);
             _hasAllowedFiringAngle = CheckAllowedFiringAngle(desiredFiringAngle);
         }
