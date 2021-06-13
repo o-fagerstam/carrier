@@ -3,10 +3,10 @@ using UnityEngine;
 
 public class GameCamera : MonoBehaviour {
     public static Ray MouseRay;
-    public static RaycastHit RayCastWaterHit;
-    public static bool RayCastMadeWaterHit;
+    public static RaycastHit RayCastGunTargetingHit;
+    public static bool RayCastMadeGunTargetingHit;
     private float _xRotation, _yRotation, _scrollLevel;
-    private LayerMask _waterLayerMask;
+    private LayerMask _gunTargetingMask;
     public float MouseSensitivity = 10f;
     private float _mouseScrollSensitivity = 100f;
 
@@ -29,13 +29,13 @@ public class GameCamera : MonoBehaviour {
     }
 
     private void Awake() {
-        _waterLayerMask = LayerMask.GetMask("Water");
+        _gunTargetingMask = LayerMask.GetMask("Water", "Targetable");
         CurrentCamera = Camera.main;
     }
 
     private void Update() {
         MouseRay = CurrentCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f));
-        RayCastMadeWaterHit = Physics.Raycast(MouseRay, out RayCastWaterHit, 10000f, _waterLayerMask);
+        RayCastMadeGunTargetingHit = Physics.Raycast(MouseRay, out RayCastGunTargetingHit, 10000f, _gunTargetingMask);
 
         var mouseX = Input.GetAxis("Mouse X") * MouseSensitivity * Time.deltaTime;
         var mouseY = Input.GetAxis("Mouse Y") * MouseSensitivity * Time.deltaTime;
@@ -61,8 +61,8 @@ public class GameCamera : MonoBehaviour {
 
             var newCameraPosition = cameraTransform.position;
             var angularChange = Vector3.Angle(
-                (newCameraPosition - RayCastWaterHit.point).normalized,
-                (oldCameraPosition - RayCastWaterHit.point).normalized
+                (newCameraPosition - RayCastGunTargetingHit.point).normalized,
+                (oldCameraPosition - RayCastGunTargetingHit.point).normalized
             );
             if (oldCameraPosition.y > newCameraPosition.y) {
                 angularChange = -angularChange;
@@ -82,6 +82,6 @@ public class GameCamera : MonoBehaviour {
 
     private void OnDrawGizmos() {
         Gizmos.color = Color.red;
-        Gizmos.DrawSphere(RayCastWaterHit.point, 1f);
+        Gizmos.DrawSphere(RayCastGunTargetingHit.point, 1f);
     }
 }
