@@ -4,12 +4,12 @@ using System.Linq;
 using UnityEngine;
 
 public class ShellImpact : MonoBehaviour {
-    public const float ShellRayMaxDistance = 30f;
+    public const float ShellRayMaxDistance = 70f;
     public const int ShellTargetableLayerMask = 1 << 3;
     public float health = 3000f;
 
     public void CalculateImpact(Vector3 impactPosition, Vector3 directionVector, float shellPower) {
-        var hitComponents = GenerateHitComponentsList(impactPosition, directionVector);
+        var hitComponents = GenerateHitComponentsList(impactPosition, directionVector); 
         CalculateDamage(hitComponents, shellPower);
     }
 
@@ -21,21 +21,29 @@ public class ShellImpact : MonoBehaviour {
 
         var hitsSortedByDistance = new RaycastHit[numHits];
         Array.Copy(hits, hitsSortedByDistance, numHits);
-        hitsSortedByDistance = hitsSortedByDistance.OrderBy(h => (h.transform.position - impactPosition).magnitude)
+        hitsSortedByDistance = hitsSortedByDistance
+            .OrderBy(h => (h.point - impactPosition).magnitude)
             .ToArray();
 
         var hitComponents = new List<BoatComponentDamage>();
-        for (int i = 0; i < numHits; i++) {
+        for (var i = 0; i < numHits; i++) {
             var hitTransform = hitsSortedByDistance[i].collider.transform;
             if (hitTransform == transform || hitTransform.parent != transform) {
                 continue;
             }
+
             var hitComponent = hitTransform.GetComponent<BoatComponentDamage>();
             if (hitComponent == null) {
                 throw new UnityException("Failed to find Damage Component. Forgot to set it in editor?");
             }
+
+            if (hitComponents.Contains(hitComponent)) {
+                continue;
+            }
+
             hitComponents.Add(hitComponent);
         }
+
         return hitComponents;
     }
 

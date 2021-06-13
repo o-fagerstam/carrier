@@ -23,7 +23,7 @@ public class Shell : MonoBehaviour {
             other.transform != shellOwner) {
             var thisTransform = transform;
             var shellVelocity = ShellRigidBody.velocity;
-            var traceStartPoint = thisTransform.position - shellVelocity * Time.deltaTime * 2;
+            var traceStartPoint = thisTransform.position - shellVelocity * Time.deltaTime * 3f;
 
             var targetTransform = other.transform;
             var targetShellImpact = targetTransform.GetComponent<ShellImpact>();
