@@ -3,7 +3,7 @@ using PhysicsUtilities;
 using UnityEngine;
 
 public class BoatGun : MonoBehaviour {
-    private readonly float _gunInitialVelocity = 50f;
+    
     private bool _hasAllowedFiringAngle;
     private float _timeSinceLastFired;
     [SerializeField] public Shell ammunitionPrefab;
@@ -12,7 +12,9 @@ public class BoatGun : MonoBehaviour {
     public BoatMovement parentBoat;
     [SerializeField] private float reloadTime = 3f;
     [SerializeField] private float verticalElevationSpeed = 1f;
-    private Vector3 MuzzlePosition => gunElevationTransform.position + gunElevationTransform.forward * 2;
+    [SerializeField] private ParticleSystem muzzleParticleSystemPrefab;
+    [SerializeField] private float muzzleVelocity = 100f;
+    private Vector3 MuzzlePosition => gunElevationTransform.position + gunElevationTransform.forward * 3;
     public Vector3 CurrentAimPoint => GetCurrentAimPoint();
 
     private void Update() {
@@ -59,7 +61,7 @@ public class BoatGun : MonoBehaviour {
 
     private float RotateGunElevation(Vector3 targetPoint) {
         var deltaPosition = targetPoint - MuzzlePosition;
-        var validAngle = ProjectileMotion.CalculateFiringAngle(deltaPosition, _gunInitialVelocity, out var angle);
+        var validAngle = ProjectileMotion.CalculateFiringAngle(deltaPosition, muzzleVelocity, out var angle);
         angle = -angle;
         if (!validAngle) {
             return -90;
@@ -91,23 +93,22 @@ public class BoatGun : MonoBehaviour {
             _timeSinceLastFired >= reloadTime
         ) {
             _timeSinceLastFired = 0f; // Should be made more accurate with a subtraction instead
-            var firedShell = Instantiate(ammunitionPrefab, MuzzlePosition, gunElevationTransform.rotation);
+            var muzzleRotation = gunElevationTransform.rotation;
+            var firedShell = Instantiate(ammunitionPrefab, MuzzlePosition, muzzleRotation);
             firedShell.shellOwner = transform.parent;
             var firedShellRigidBody = firedShell.GetComponent<Rigidbody>();
-            firedShellRigidBody.velocity = firedShell.transform.forward * _gunInitialVelocity;
+            firedShellRigidBody.velocity = firedShell.transform.forward * muzzleVelocity;
+
+            Instantiate(muzzleParticleSystemPrefab, MuzzlePosition, muzzleRotation);
         }
     }
 
     private Vector3 GetCurrentAimPoint() {
         var angle = -gunElevationTransform.localRotation.eulerAngles.x;
-        var firingDistance = ProjectileMotion.CalculateProjectileDistance(angle, MuzzlePosition.y, _gunInitialVelocity);
+        var firingDistance = ProjectileMotion.CalculateProjectileDistance(angle, MuzzlePosition.y, muzzleVelocity);
         var muzzleHorizontalPos = new Vector3(MuzzlePosition.x, 0f, MuzzlePosition.z);
         var muzzleForward = gunElevationTransform.forward;
         var muzzleGroundForward = new Vector3(muzzleForward.x, 0f, muzzleForward.z).normalized;
         return muzzleHorizontalPos + muzzleGroundForward * firingDistance;
-    }
-
-    private void OnDrawGizmos() {
-        Gizmos.DrawSphere(MuzzlePosition, 0.5f);
     }
 }
