@@ -99,10 +99,12 @@ public class BoatGun : MonoBehaviour {
     }
 
     private Vector3 GetCurrentAimPoint() {
-        var forward = gunElevationTransform.forward;
-        var firingDistance = ProjectileMotion.CalculateProjectileDistance(forward, MuzzlePosition.y, _gunInitialVelocity);
-        var groundForward = new Vector3(forward.x, 0f, forward.z).normalized;
-        return MuzzlePosition + groundForward * firingDistance;
+        var angle = -gunElevationTransform.localRotation.eulerAngles.x;
+        var firingDistance = ProjectileMotion.CalculateProjectileDistance(angle, MuzzlePosition.y, _gunInitialVelocity);
+        var muzzleHorizontalPos = new Vector3(MuzzlePosition.x, 0f, MuzzlePosition.z);
+        var muzzleForward = gunElevationTransform.forward;
+        var muzzleGroundForward = new Vector3(muzzleForward.x, 0f, muzzleForward.z).normalized;
+        return muzzleHorizontalPos + muzzleGroundForward * firingDistance;
     }
 
     private void OnDrawGizmos() {

@@ -413,7 +413,7 @@ PrefabInstance:
       objectReference: {fileID: 1218494959}
     - target: {fileID: 968008368032483591, guid: 69db026f80414724b82d8eb173e68034, type: 3}
       propertyPath: reloadTime
-      value: 0.1
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 968008368032483591, guid: 69db026f80414724b82d8eb173e68034, type: 3}
       propertyPath: horizontalRotationSpeed
@@ -425,7 +425,7 @@ PrefabInstance:
       objectReference: {fileID: 1218494959}
     - target: {fileID: 1856005730088193051, guid: 69db026f80414724b82d8eb173e68034, type: 3}
       propertyPath: reloadTime
-      value: 0.1
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1856005730088193051, guid: 69db026f80414724b82d8eb173e68034, type: 3}
       propertyPath: horizontalRotationSpeed
@@ -437,7 +437,7 @@ PrefabInstance:
       objectReference: {fileID: 1218494959}
     - target: {fileID: 3454185666080283898, guid: 69db026f80414724b82d8eb173e68034, type: 3}
       propertyPath: reloadTime
-      value: 0.1
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3454185666080283898, guid: 69db026f80414724b82d8eb173e68034, type: 3}
       propertyPath: horizontalRotationSpeed
@@ -445,7 +445,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5159511322626297906, guid: 69db026f80414724b82d8eb173e68034, type: 3}
       propertyPath: reloadTime
-      value: 0.1
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5159511322626297906, guid: 69db026f80414724b82d8eb173e68034, type: 3}
       propertyPath: horizontalRotationSpeed
