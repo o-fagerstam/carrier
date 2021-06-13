@@ -118,6 +118,7 @@ MonoBehaviour:
   reloadTime: 1
   verticalElevationSpeed: 5
   muzzleParticleSystemPrefab: {fileID: 3690183739500241068, guid: 8fc173f7354409c4db657b611f0dc2c0, type: 3}
+  muzzleVelocity: 150
 --- !u!114 &-9118092638187994733
 MonoBehaviour:
   m_ObjectHideFlags: 0
