@@ -4,7 +4,7 @@ using UnityEngine;
 public class BoatGun : MonoBehaviour {
 
     private bool _hasAllowedFiringAngle;
-    private float _timeSinceLastFired;
+    private float _lastFired;
     [SerializeField] public Shell ammunitionPrefab;
     [SerializeField] private Transform gunElevationTransform;
     [SerializeField] private float horizontalRotationSpeed = 2f;
@@ -16,8 +16,11 @@ public class BoatGun : MonoBehaviour {
     private Vector3 MuzzlePosition => gunElevationTransform.position + gunElevationTransform.forward * 3;
     public Vector3 CurrentImpactPoint => PredictGunImpact();
 
+    public GunState GunState => IsLoaded ? GunState.Ready : GunState.Loading;
+    private bool IsLoaded => _lastFired <= Time.time - reloadTime;
+
     private void Awake() {
-        _timeSinceLastFired = reloadTime;
+        _lastFired = -reloadTime;
     }
 
     private void Update() {
@@ -36,8 +39,6 @@ public class BoatGun : MonoBehaviour {
         if (Input.GetMouseButton(0)) {
             HandleGunFire(_hasAllowedFiringAngle);
         }
-
-        _timeSinceLastFired = Mathf.Min(_timeSinceLastFired, reloadTime);
     }
 
     private void HandleAim(Vector3 targetPoint, out Vector3 desiredFiringAngle) {
@@ -89,11 +90,10 @@ public class BoatGun : MonoBehaviour {
     }
 
     private void HandleGunFire(bool hasAllowedFiringAngle) {
-        _timeSinceLastFired += Time.deltaTime;
         if (hasAllowedFiringAngle &&
-            _timeSinceLastFired >= reloadTime
+            IsLoaded
         ) {
-            _timeSinceLastFired = 0f; // Should be made more accurate with a subtraction instead
+            _lastFired = Time.time;
             Quaternion muzzleRotation = gunElevationTransform.rotation;
             Shell firedShell = Instantiate(ammunitionPrefab, MuzzlePosition, muzzleRotation);
             firedShell.shellOwner = transform.parent;

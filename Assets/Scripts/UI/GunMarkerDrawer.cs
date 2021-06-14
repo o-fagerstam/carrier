@@ -9,7 +9,9 @@ public class GunMarkerDrawer : MonoBehaviour {
     [SerializeField] private GunMarker gunMarkerPrefab;
     [SerializeField] private List<BoatGun> startingGuns = new List<BoatGun>();
     private Vector2 uiOffset;
-
+    
+    private static readonly Color ReadyColor = new Color(25f/255f, 191f/255f, 70/255f);
+    private static readonly Color LoadingColor = new Color(219f/255f, 143f/255f, 29f/255f);
     private void Start() {
         _canvasRectTransform = GetComponent<RectTransform>();
         Vector2 sizeDelta = _canvasRectTransform.sizeDelta;
@@ -21,7 +23,9 @@ public class GunMarkerDrawer : MonoBehaviour {
 
     private void Update() {
         foreach (BoatGun gun in _gunIdToMarkerDict.Keys) {
-            MoveMarkerToWorldPoint(_gunIdToMarkerDict[gun], gun.CurrentImpactPoint);
+            GunMarker marker = _gunIdToMarkerDict[gun];
+            MoveMarkerToWorldPoint(marker, gun.CurrentImpactPoint);
+            SetMarkerColor(marker, gun.GunState);
         }
     }
 
@@ -41,9 +45,22 @@ public class GunMarkerDrawer : MonoBehaviour {
             viewPortPosition.y * canvasSizeDelta.y
         );
         var distanceToCamera = (worldPosition - GameCamera.CurrentCamera.transform.position).magnitude;
-        var markerScale = 1 / Mathf.Sqrt(distanceToCamera) * 100f;
+        var markerScale = 1 - Mathf.Sqrt(distanceToCamera / 5000) / 2;
         marker.SetScale(markerScale);
         marker.SetLocalPosition(proportionalPosition - uiOffset);
+    }
+
+    private static void SetMarkerColor(GunMarker marker, GunState state) {
+        switch (state) {
+            case GunState.Ready: {
+                marker.SetColor(ReadyColor);
+                break;
+            }
+            case GunState.Loading: {
+                marker.SetColor(LoadingColor);
+                break;
+            }
+        }
     }
 
     public void RemoveMarker(BoatGun gun) {

@@ -16,7 +16,7 @@ namespace UI {
         }
 
         public void SetScale(float scale) {
-            _rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, scale);
+            _rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, scale * 12f);
         }
 
         public void SetLocalPosition(Vector2 position) {
