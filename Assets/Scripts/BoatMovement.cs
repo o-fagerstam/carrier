@@ -2,17 +2,17 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class BoatMovement : MonoBehaviour {
-    [SerializeField] private Rigidbody hullRigidbody;
-    [SerializeField] private List<WheelCollider> engineWheels;
-    [SerializeField] private List<WheelCollider> rudderWheels;
-    [SerializeField] private float maxSpeed;
-    [SerializeField] private float enginePower;
-    public Controller controller = Controller.None;
-    private float _verticalInputAccumulator = 0f;
-    private float _horizontalInputAccumulator = 0f;
+    private float _horizontalInputAccumulator;
     private float _steeringAngle;
+    private float _verticalInputAccumulator;
+    public Controller controller = Controller.None;
+    [SerializeField] private float enginePower;
+    [SerializeField] private List<WheelCollider> engineWheels;
+    [SerializeField] private Rigidbody hullRigidbody;
+    [SerializeField] private float maxSpeed;
 
     public float maxSteerAngle;
+    [SerializeField] private List<WheelCollider> rudderWheels;
 
     private void Awake() {
         hullRigidbody.centerOfMass = Vector3.down * transform.localScale.y * 0.4f;
@@ -47,7 +47,7 @@ public class BoatMovement : MonoBehaviour {
 
     private void Accelerate() {
         var torquePerWheel = _verticalInputAccumulator * enginePower / engineWheels.Count;
-        var localVelocity = transform.InverseTransformDirection(hullRigidbody.velocity);
+        Vector3 localVelocity = transform.InverseTransformDirection(hullRigidbody.velocity);
         var speed = localVelocity.z;
         var speedTorqueModifier = Mathf.Lerp(0f, maxSpeed, Mathf.Abs(speed) / maxSpeed);
         torquePerWheel -= speedTorqueModifier * Mathf.Sign(speed);
@@ -61,13 +61,12 @@ public class BoatMovement : MonoBehaviour {
                 engineWheel.brakeTorque = 0f;
             }
         }
-
     }
 
     private void ReduceHorizontalDrift() {
         hullRigidbody.angularVelocity *= 1f;
     }
-    
+
 
     private void ResetInputAccumulators() {
         _verticalInputAccumulator = 0f;

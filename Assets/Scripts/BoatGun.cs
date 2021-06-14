@@ -2,7 +2,6 @@ using PhysicsUtilities;
 using UnityEngine;
 
 public class BoatGun : MonoBehaviour {
-
     private bool _hasAllowedFiringAngle;
     private float _lastFired;
     [SerializeField] public Shell ammunitionPrefab;
@@ -114,6 +113,7 @@ public class BoatGun : MonoBehaviour {
         if (!success) {
             throw new UnityException($"Failed to trace trajectory from gun {gameObject.GetInstanceID()}");
         }
+
         return hit.point;
     }
 }

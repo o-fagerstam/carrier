@@ -64,7 +64,7 @@ namespace PhysicsUtilities {
         }
 
         /// <summary>
-        /// The expected time a projectile will stay in the air, assuming flat ground.
+        ///     The expected time a projectile will stay in the air, assuming flat ground.
         /// </summary>
         public static float ExpectedTimeOfFlight(Vector3 launchVelocity) {
             return 2 * launchVelocity.y / G;

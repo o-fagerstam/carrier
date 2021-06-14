@@ -4,14 +4,14 @@ using UI;
 using UnityEngine;
 
 public class GunMarkerDrawer : MonoBehaviour {
+    private static readonly Color ReadyColor = new Color(25f / 255f, 191f / 255f, 70 / 255f);
+    private static readonly Color LoadingColor = new Color(219f / 255f, 143f / 255f, 29f / 255f);
     private readonly Dictionary<BoatGun, GunMarker> _gunIdToMarkerDict = new Dictionary<BoatGun, GunMarker>();
     private RectTransform _canvasRectTransform;
     [SerializeField] private GunMarker gunMarkerPrefab;
     [SerializeField] private List<BoatGun> startingGuns = new List<BoatGun>();
     private Vector2 uiOffset;
-    
-    private static readonly Color ReadyColor = new Color(25f/255f, 191f/255f, 70/255f);
-    private static readonly Color LoadingColor = new Color(219f/255f, 143f/255f, 29f/255f);
+
     private void Start() {
         _canvasRectTransform = GetComponent<RectTransform>();
         Vector2 sizeDelta = _canvasRectTransform.sizeDelta;
@@ -33,7 +33,6 @@ public class GunMarkerDrawer : MonoBehaviour {
     }
 
 
-
     private void UpdateMarker(GunMarker marker, BoatGun gun) {
         Vector3 gunImpactPoint = gun.CurrentImpactPoint;
         Camera currentCamera = GameCamera.CurrentCamera;
@@ -47,7 +46,7 @@ public class GunMarkerDrawer : MonoBehaviour {
             marker.IsHidden = true;
         }
     }
-    
+
     private static bool CheckValidAngle(Camera currentCamera, Vector3 gunImpactPoint) {
         Vector3 cameraPosition = currentCamera.WorldToViewportPoint(gunImpactPoint);
         return cameraPosition.x >= 0 && cameraPosition.x <= 1 &&

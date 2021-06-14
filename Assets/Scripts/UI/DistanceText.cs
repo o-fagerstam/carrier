@@ -10,7 +10,8 @@ public class DistanceText : MonoBehaviour {
 
     private void Update() {
         if (GameCamera.RayCastMadeGunTargetingHit) {
-            var distance = (GameCamera.RayCastGunTargetingHit.point - GameCamera.CurrentCamera.transform.position).magnitude;
+            var distance = (GameCamera.RayCastGunTargetingHit.point - GameCamera.CurrentCamera.transform.position)
+                .magnitude;
             _text.text = distance.ToString();
         }
         else {

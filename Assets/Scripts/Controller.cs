@@ -1,3 +1,5 @@
 ﻿public enum Controller {
-    Human, Ai, None        
+    Human,
+    Ai,
+    None
 }
