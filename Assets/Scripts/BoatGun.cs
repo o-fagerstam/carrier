@@ -2,8 +2,6 @@ using PhysicsUtilities;
 using UnityEngine;
 
 public class BoatGun : MonoBehaviour {
-    private static readonly float
-        traceFrameInterval = 30; // How many physics frames between each step for trajectory tracing
 
     private bool _hasAllowedFiringAngle;
     private float _timeSinceLastFired;
@@ -107,24 +105,16 @@ public class BoatGun : MonoBehaviour {
     }
 
     private Vector3 PredictGunImpact() {
-        var step = 1;
         Vector3 origin = MuzzlePosition;
-        Vector3 p0 = origin;
-        Vector3 velocity = gunElevationTransform.forward * muzzleVelocity;
-        Vector3 p1 = ProjectileMotion.PointAtTime(p0, velocity, traceFrameInterval * Time.fixedDeltaTime * step++);
-
-        var madeHit = Raycasting.ClosestRaycastHit(p0, p1, 10, GameCamera.GunTargetingMask, out RaycastHit hit);
-        while (!madeHit && p1.y > -100) {
-            p0 = p1;
-            p1 = ProjectileMotion.PointAtTime(origin, velocity, traceFrameInterval * Time.fixedDeltaTime * step++);
-            Debug.DrawLine(p0, p1);
-            madeHit = Raycasting.ClosestRaycastHit(p0, p1, 10, GameCamera.GunTargetingMask, out hit);
+        Vector3 v0 = gunElevationTransform.forward * muzzleVelocity;
+        var success = Raycasting.TraceTrajectoryUntilImpact(
+            origin,
+            v0,
+            out RaycastHit hit
+        );
+        if (!success) {
+            throw new UnityException($"Failed to trace trajectory from gun {gameObject.GetInstanceID()}");
         }
-
-        if (!madeHit) {
-            throw new UnityException("Gun impact trace failed to find anything, even sea level");
-        }
-
         return hit.point;
     }
 }

@@ -3,7 +3,10 @@ using System.Linq;
 using UnityEngine;
 
 namespace PhysicsUtilities {
+
     public static class Raycasting {
+        private const int TraceFrameInterval = 30; // How many physics frames between each step for trajectory tracing
+
         public static RaycastHit[] SortedRaycast(Vector3 origin, Vector3 direction, float distance, int maxHits,
             LayerMask mask) {
             var impactRay = new Ray(origin, direction);
@@ -52,6 +55,20 @@ namespace PhysicsUtilities {
 
             outHit = closestHit;
             return true;
+        }
+
+        public static bool TraceTrajectoryUntilImpact(Vector3 origin, Vector3 v0, out RaycastHit hit) {
+            var step = 1;
+            Vector3 p0 = origin;
+            Vector3 p1 = ProjectileMotion.PointAtTime(p0, v0, TraceFrameInterval * Time.fixedDeltaTime * step++);
+
+            var madeHit = ClosestRaycastHit(p0, p1, 10, GameCamera.GunTargetingMask, out hit);
+            while (!madeHit && p1.y > -100) {
+                p0 = p1;
+                p1 = ProjectileMotion.PointAtTime(origin, v0, TraceFrameInterval * Time.fixedDeltaTime * step++);
+                madeHit = ClosestRaycastHit(p0, p1, 10, GameCamera.GunTargetingMask, out hit);
+            }
+            return madeHit;
         }
     }
 }
