@@ -2,10 +2,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class BoatMovement : MonoBehaviour {
-    [SerializeField] private float enginePower = 10000f;
     [SerializeField] private Rigidbody hullRigidbody;
     [SerializeField] private List<WheelCollider> engineWheels;
     [SerializeField] private List<WheelCollider> rudderWheels;
+    [SerializeField] private float maxSpeed;
+    [SerializeField] private float enginePower;
     public Controller controller = Controller.None;
     private float _verticalInputAccumulator = 0f;
     private float _horizontalInputAccumulator = 0f;
@@ -46,9 +47,21 @@ public class BoatMovement : MonoBehaviour {
 
     private void Accelerate() {
         var torquePerWheel = _verticalInputAccumulator * enginePower / engineWheels.Count;
+        var localVelocity = transform.InverseTransformDirection(hullRigidbody.velocity);
+        var speed = localVelocity.z;
+        var speedTorqueModifier = Mathf.Lerp(0f, maxSpeed, Mathf.Abs(speed) / maxSpeed);
+        torquePerWheel -= speedTorqueModifier * Mathf.Sign(speed);
+
         foreach (WheelCollider engineWheel in engineWheels) {
             engineWheel.motorTorque = torquePerWheel;
+            if (speed > maxSpeed) {
+                engineWheel.brakeTorque = torquePerWheel;
+            }
+            else {
+                engineWheel.brakeTorque = 0f;
+            }
         }
+
     }
 
     private void ReduceHorizontalDrift() {
