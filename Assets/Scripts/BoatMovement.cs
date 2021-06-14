@@ -1,15 +1,15 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BoatMovement : MonoBehaviour {
-    [SerializeField] private float enginePower = 5000f;
+    [SerializeField] private float enginePower = 10000f;
     [SerializeField] private Rigidbody hullRigidbody;
-    [SerializeField] private float rudderPower = 10000f;
+    [SerializeField] private List<WheelCollider> engineWheels;
+    [SerializeField] private List<WheelCollider> rudderWheels;
     public Controller controller = Controller.None;
     private float _verticalInputAccumulator = 0f;
     private float _horizontalInputAccumulator = 0f;
     private float _steeringAngle;
-
-    [SerializeField] private WheelCollider frontLeftW, frontRightW, backLeftW, backRightW;
 
     public float maxSteerAngle;
 
@@ -39,20 +39,20 @@ public class BoatMovement : MonoBehaviour {
 
     private void Steer() {
         _steeringAngle = maxSteerAngle * _horizontalInputAccumulator;
-        frontLeftW.steerAngle = _steeringAngle;
-        frontRightW.steerAngle = _steeringAngle;
+        foreach (WheelCollider rudderWheel in rudderWheels) {
+            rudderWheel.steerAngle = -_steeringAngle;
+        }
     }
 
     private void Accelerate() {
-        var torque = _verticalInputAccumulator * enginePower;
-        frontLeftW.motorTorque = torque;
-        frontRightW.motorTorque = torque;
-        backLeftW.motorTorque = torque;
-        backRightW.motorTorque = torque;
+        var torquePerWheel = _verticalInputAccumulator * enginePower / engineWheels.Count;
+        foreach (WheelCollider engineWheel in engineWheels) {
+            engineWheel.motorTorque = torquePerWheel;
+        }
     }
 
     private void ReduceHorizontalDrift() {
-        hullRigidbody.angularVelocity *= 0.95f;
+        hullRigidbody.angularVelocity *= 1f;
     }
     
 
