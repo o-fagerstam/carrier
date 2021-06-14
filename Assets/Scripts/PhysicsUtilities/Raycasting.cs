@@ -3,9 +3,25 @@ using System.Linq;
 using UnityEngine;
 
 namespace PhysicsUtilities {
-
     public static class Raycasting {
-        private const int TraceFrameInterval = 30; // How many physics frames between each step for trajectory tracing
+        /// <summary>
+        /// Max number of subdivisions above y = 0 when tracing a trajectory
+        /// </summary>
+        private const int
+            TrajectoryTraceMaxAboveGroundSubdivisions =
+                20;
+
+        /// <summary>
+        /// Max number of subdivisions that are below y = 0 when tracing a trajectory
+        /// </summary>
+        private const int
+            TrajectoryTraceMaxBelowGroundSubdivisions = 5; // 
+
+        /// <summary>
+        /// Sets a minimum of expected air time for a projectile. Gives us a minimum Raycasting length.
+        /// </summary>
+        private const float
+            MinimumProjectileAirTime = 0.5f;
 
         public static RaycastHit[] SortedRaycast(Vector3 origin, Vector3 direction, float distance, int maxHits,
             LayerMask mask) {
@@ -57,16 +73,39 @@ namespace PhysicsUtilities {
             return true;
         }
 
-        public static bool TraceTrajectoryUntilImpact(Vector3 origin, Vector3 v0, out RaycastHit hit) {
+        /// <summary>
+        /// Traces a trajectory and returns the first (guaranteed first) hit.
+        /// </summary>
+        public static bool TraceTrajectoryUntilImpact(Vector3 origin, Vector3 v0, out RaycastHit hit, LayerMask mask) {
+            var expectedAirTime = ProjectileMotion.ExpectedTimeOfFlight(v0);
+            expectedAirTime = Math.Max(expectedAirTime, MinimumProjectileAirTime);
+            var numAboveGroundSubdivisions = 1 + Mathf.RoundToInt(expectedAirTime * 5);
+            numAboveGroundSubdivisions = Math.Min(
+                numAboveGroundSubdivisions,
+                TrajectoryTraceMaxAboveGroundSubdivisions
+            );
+            
+
             var step = 1;
             Vector3 p0 = origin;
-            Vector3 p1 = ProjectileMotion.PointAtTime(p0, v0, TraceFrameInterval * Time.fixedDeltaTime * step++);
-
-            var madeHit = ClosestRaycastHit(p0, p1, 10, GameCamera.GunTargetingMask, out hit);
-            while (!madeHit && p1.y > -100) {
+            Vector3 p1 = ProjectileMotion.PointAtTime(
+                p0,
+                v0,
+                (float) step++ / numAboveGroundSubdivisions * expectedAirTime
+            );
+            Debug.DrawLine(p0, p1, Color.red);
+            var madeHit = ClosestRaycastHit(p0, p1, 10, mask, out hit);
+            while (!madeHit &&
+                   step <= TrajectoryTraceMaxAboveGroundSubdivisions + TrajectoryTraceMaxBelowGroundSubdivisions
+            ) {
                 p0 = p1;
-                p1 = ProjectileMotion.PointAtTime(origin, v0, TraceFrameInterval * Time.fixedDeltaTime * step++);
-                madeHit = ClosestRaycastHit(p0, p1, 10, GameCamera.GunTargetingMask, out hit);
+                p1 = ProjectileMotion.PointAtTime(
+                    origin,
+                    v0,
+                    (float) step++ / numAboveGroundSubdivisions * expectedAirTime
+                );
+                Debug.DrawLine(p0, p1, Color.red);
+                madeHit = ClosestRaycastHit(p0, p1, 10, mask, out hit);
             }
             return madeHit;
         }

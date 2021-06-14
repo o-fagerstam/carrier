@@ -108,7 +108,8 @@ public class BoatGun : MonoBehaviour {
         var success = Raycasting.TraceTrajectoryUntilImpact(
             origin,
             v0,
-            out RaycastHit hit
+            out RaycastHit hit,
+            GameCamera.GunTargetingMask
         );
         if (!success) {
             throw new UnityException($"Failed to trace trajectory from gun {gameObject.GetInstanceID()}");

@@ -43,9 +43,9 @@ namespace PhysicsUtilities {
 
         public static Vector3 PointAtTime(Vector3 launchPos, Vector3 launchVelocity, float t) {
             var v0 = launchVelocity.magnitude;
-            Vector3 horizontalDirection = new Vector3(launchVelocity.x, 0f, launchVelocity.z).normalized;
-            Vector3 dotProduct = Vector3.Cross(launchVelocity, horizontalDirection).normalized;
-            var angle = Vector3.SignedAngle(launchVelocity.normalized, horizontalDirection, dotProduct);
+            Vector3 horizontalDirection = VectorTools.HorizontalComponent(launchVelocity).normalized;
+            Vector3 axis = Quaternion.AngleAxis(90, Vector3.up) * horizontalDirection;
+            var angle = Vector3.SignedAngle(launchVelocity.normalized, horizontalDirection, axis);
             Vector2 new2dLocation = PointAtTime(angle, v0, t, G);
             return new Vector3(
                 launchPos.x + horizontalDirection.x * new2dLocation.x,
@@ -61,6 +61,17 @@ namespace PhysicsUtilities {
             var x = v0x * t;
             var y = v0y * t - 0.5f * g * t * t;
             return new Vector2(x, y);
+        }
+
+        /// <summary>
+        /// The expected time a projectile will stay in the air, assuming flat ground.
+        /// </summary>
+        public static float ExpectedTimeOfFlight(Vector3 launchVelocity) {
+            return 2 * launchVelocity.y / G;
+        }
+
+        public static float ExpectedTimeOfFlight(float vy) {
+            return 2 * vy / G;
         }
     }
 }
