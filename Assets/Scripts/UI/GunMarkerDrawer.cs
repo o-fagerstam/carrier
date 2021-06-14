@@ -22,11 +22,37 @@ public class GunMarkerDrawer : MonoBehaviour {
     }
 
     private void Update() {
+        UpdateMarkers();
+    }
+
+    private void UpdateMarkers() {
         foreach (BoatGun gun in _gunIdToMarkerDict.Keys) {
             GunMarker marker = _gunIdToMarkerDict[gun];
-            MoveMarkerToWorldPoint(marker, gun.CurrentImpactPoint);
-            SetMarkerColor(marker, gun.GunState);
+            UpdateMarker(marker, gun);
         }
+    }
+
+
+
+    private void UpdateMarker(GunMarker marker, BoatGun gun) {
+        Vector3 gunImpactPoint = gun.CurrentImpactPoint;
+        Camera currentCamera = GameCamera.CurrentCamera;
+        var angleIsValid = CheckValidAngle(currentCamera, gunImpactPoint);
+        if (angleIsValid) {
+            marker.IsHidden = false;
+            MoveMarkerToWorldPoint(currentCamera, marker, gunImpactPoint);
+            SetMarkerColor(marker, gun.IsLoaded);
+        }
+        else {
+            marker.IsHidden = true;
+        }
+    }
+    
+    private static bool CheckValidAngle(Camera currentCamera, Vector3 gunImpactPoint) {
+        Vector3 cameraPosition = currentCamera.WorldToViewportPoint(gunImpactPoint);
+        return cameraPosition.x >= 0 && cameraPosition.x <= 1 &&
+               cameraPosition.y >= 0 && cameraPosition.y <= 1 &&
+               cameraPosition.z > 0;
     }
 
     public void AddMarker(BoatGun gun) {
@@ -37,29 +63,25 @@ public class GunMarkerDrawer : MonoBehaviour {
         _gunIdToMarkerDict[gun] = Instantiate(gunMarkerPrefab, Vector3.zero, Quaternion.identity, transform);
     }
 
-    private void MoveMarkerToWorldPoint(GunMarker marker, Vector3 worldPosition) {
-        Vector2 viewPortPosition = GameCamera.CurrentCamera.WorldToViewportPoint(worldPosition);
+    private void MoveMarkerToWorldPoint(Camera currentCamera, GunMarker marker, Vector3 worldPosition) {
+        Vector2 viewPortPosition = currentCamera.WorldToViewportPoint(worldPosition);
         Vector2 canvasSizeDelta = _canvasRectTransform.sizeDelta;
         var proportionalPosition = new Vector2(
             viewPortPosition.x * canvasSizeDelta.x,
             viewPortPosition.y * canvasSizeDelta.y
         );
-        var distanceToCamera = (worldPosition - GameCamera.CurrentCamera.transform.position).magnitude;
+        var distanceToCamera = (worldPosition - currentCamera.transform.position).magnitude;
         var markerScale = 1 - Mathf.Sqrt(distanceToCamera / 5000) / 2;
         marker.SetScale(markerScale);
         marker.SetLocalPosition(proportionalPosition - uiOffset);
     }
 
-    private static void SetMarkerColor(GunMarker marker, GunState state) {
-        switch (state) {
-            case GunState.Ready: {
-                marker.SetColor(ReadyColor);
-                break;
-            }
-            case GunState.Loading: {
-                marker.SetColor(LoadingColor);
-                break;
-            }
+    private static void SetMarkerColor(GunMarker marker, bool isLoaded) {
+        if (isLoaded) {
+            marker.SetColor(ReadyColor);
+        }
+        else {
+            marker.SetColor(LoadingColor);
         }
     }
 

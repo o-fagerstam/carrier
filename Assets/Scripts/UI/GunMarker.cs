@@ -6,9 +6,15 @@ namespace UI {
         private Image _image;
         private RectTransform _rectTransform;
 
+        public bool IsHidden {
+            get => _image.enabled;
+            set => _image.enabled = !value;
+        }
+
         private void Awake() {
             _rectTransform = GetComponent<RectTransform>();
             _image = GetComponent<Image>();
+            IsHidden = false;
         }
 
         public void SetColor(Color color) {

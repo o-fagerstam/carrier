@@ -15,9 +15,7 @@ public class BoatGun : MonoBehaviour {
     [SerializeField] private float verticalElevationSpeed = 1f;
     private Vector3 MuzzlePosition => gunElevationTransform.position + gunElevationTransform.forward * 3;
     public Vector3 CurrentImpactPoint => PredictGunImpact();
-
-    public GunState GunState => IsLoaded ? GunState.Ready : GunState.Loading;
-    private bool IsLoaded => _lastFired <= Time.time - reloadTime;
+    public bool IsLoaded => _lastFired <= Time.time - reloadTime;
 
     private void Awake() {
         _lastFired = -reloadTime;
