@@ -3,7 +3,6 @@ using PhysicsUtilities;
 using UnityEngine;
 
 public class BoatGun : MonoBehaviour {
-    
     private bool _hasAllowedFiringAngle;
     private float _timeSinceLastFired;
     [SerializeField] public Shell ammunitionPrefab;
@@ -16,6 +15,10 @@ public class BoatGun : MonoBehaviour {
     [SerializeField] private float muzzleVelocity = 100f;
     private Vector3 MuzzlePosition => gunElevationTransform.position + gunElevationTransform.forward * 3;
     public Vector3 CurrentAimPoint => GetCurrentAimPoint();
+
+    private void Awake() {
+        _timeSinceLastFired = reloadTime;
+    }
 
     private void Update() {
         if (parentBoat.controller == Controller.Human) {
@@ -31,8 +34,10 @@ public class BoatGun : MonoBehaviour {
         }
 
         if (Input.GetMouseButton(0)) {
-            HandleGunFire();
+            HandleGunFire(_hasAllowedFiringAngle);
         }
+
+        _timeSinceLastFired = Mathf.Min(_timeSinceLastFired, reloadTime);
     }
 
     private void HandleAim(Vector3 targetPoint, out Vector3 desiredFiringAngle) {
@@ -80,16 +85,12 @@ public class BoatGun : MonoBehaviour {
     private bool CheckAllowedFiringAngle(Vector3 desiredFiringVector) {
         var e = Quaternion.Euler(desiredFiringVector);
         var angleToTarget = Quaternion.Angle(e, gunElevationTransform.rotation);
-        if (_hasAllowedFiringAngle) {
-            return angleToTarget < 3f;
-        }
-
-        return angleToTarget < 2f;
+        return angleToTarget < 0.02f;
     }
 
-    private void HandleGunFire() {
+    private void HandleGunFire(bool hasAllowedFiringAngle) {
         _timeSinceLastFired += Time.deltaTime;
-        if (_hasAllowedFiringAngle &&
+        if (hasAllowedFiringAngle &&
             _timeSinceLastFired >= reloadTime
         ) {
             _timeSinceLastFired = 0f; // Should be made more accurate with a subtraction instead
