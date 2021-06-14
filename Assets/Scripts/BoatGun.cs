@@ -1,20 +1,22 @@
-using System;
 using PhysicsUtilities;
 using UnityEngine;
 
 public class BoatGun : MonoBehaviour {
+    private static readonly float
+        traceFrameInterval = 30; // How many physics frames between each step for trajectory tracing
+
     private bool _hasAllowedFiringAngle;
     private float _timeSinceLastFired;
     [SerializeField] public Shell ammunitionPrefab;
     [SerializeField] private Transform gunElevationTransform;
     [SerializeField] private float horizontalRotationSpeed = 2f;
+    [SerializeField] private ParticleSystem muzzleParticleSystemPrefab;
+    [SerializeField] private float muzzleVelocity = 100f;
     public BoatMovement parentBoat;
     [SerializeField] private float reloadTime = 3f;
     [SerializeField] private float verticalElevationSpeed = 1f;
-    [SerializeField] private ParticleSystem muzzleParticleSystemPrefab;
-    [SerializeField] private float muzzleVelocity = 100f;
     private Vector3 MuzzlePosition => gunElevationTransform.position + gunElevationTransform.forward * 3;
-    public Vector3 CurrentAimPoint => GetCurrentAimPoint();
+    public Vector3 CurrentImpactPoint => PredictGunImpact();
 
     private void Awake() {
         _timeSinceLastFired = reloadTime;
@@ -28,8 +30,8 @@ public class BoatGun : MonoBehaviour {
 
     private void HandlePlayerControl() {
         if (GameCamera.RayCastMadeGunTargetingHit) {
-            var targetPoint = GameCamera.RayCastGunTargetingHit.point;
-            HandleAim(targetPoint, out var desiredFiringAngle);
+            Vector3 targetPoint = GameCamera.RayCastGunTargetingHit.point;
+            HandleAim(targetPoint, out Vector3 desiredFiringAngle);
             _hasAllowedFiringAngle = CheckAllowedFiringAngle(desiredFiringAngle);
         }
 
@@ -47,13 +49,13 @@ public class BoatGun : MonoBehaviour {
     }
 
     private float RotateTurret(Vector3 targetPoint) {
-        var thisTransform = transform;
-        var position = thisTransform.position;
-        var dir = targetPoint - position;
+        Transform thisTransform = transform;
+        Vector3 position = thisTransform.position;
+        Vector3 dir = targetPoint - position;
         dir.y = 0f;
         dir = dir.normalized;
-        var lookRotation = Quaternion.LookRotation(dir);
-        var nextRotation = Quaternion.RotateTowards(
+        Quaternion lookRotation = Quaternion.LookRotation(dir);
+        Vector3 nextRotation = Quaternion.RotateTowards(
                 transform.rotation,
                 lookRotation,
                 Time.deltaTime * horizontalRotationSpeed
@@ -65,15 +67,15 @@ public class BoatGun : MonoBehaviour {
     }
 
     private float RotateGunElevation(Vector3 targetPoint) {
-        var deltaPosition = targetPoint - MuzzlePosition;
-        var validAngle = ProjectileMotion.CalculateFiringAngle(deltaPosition, muzzleVelocity, out var angle);
+        Vector3 deltaPosition = targetPoint - MuzzlePosition;
+        var validAngle = ProjectileMotion.FiringAngle(deltaPosition, muzzleVelocity, out var angle);
         angle = -angle;
         if (!validAngle) {
             return -90;
         }
 
-        var targetGunElevation = Quaternion.Euler(angle, 0f, 0f);
-        var nextGunElevation = Quaternion.RotateTowards(
+        Quaternion targetGunElevation = Quaternion.Euler(angle, 0f, 0f);
+        Quaternion nextGunElevation = Quaternion.RotateTowards(
             gunElevationTransform.localRotation,
             targetGunElevation,
             Time.deltaTime * verticalElevationSpeed
@@ -83,7 +85,7 @@ public class BoatGun : MonoBehaviour {
     }
 
     private bool CheckAllowedFiringAngle(Vector3 desiredFiringVector) {
-        var e = Quaternion.Euler(desiredFiringVector);
+        Quaternion e = Quaternion.Euler(desiredFiringVector);
         var angleToTarget = Quaternion.Angle(e, gunElevationTransform.rotation);
         return angleToTarget < 0.02f;
     }
@@ -94,8 +96,8 @@ public class BoatGun : MonoBehaviour {
             _timeSinceLastFired >= reloadTime
         ) {
             _timeSinceLastFired = 0f; // Should be made more accurate with a subtraction instead
-            var muzzleRotation = gunElevationTransform.rotation;
-            var firedShell = Instantiate(ammunitionPrefab, MuzzlePosition, muzzleRotation);
+            Quaternion muzzleRotation = gunElevationTransform.rotation;
+            Shell firedShell = Instantiate(ammunitionPrefab, MuzzlePosition, muzzleRotation);
             firedShell.shellOwner = transform.parent;
             var firedShellRigidBody = firedShell.GetComponent<Rigidbody>();
             firedShellRigidBody.velocity = firedShell.transform.forward * muzzleVelocity;
@@ -104,12 +106,25 @@ public class BoatGun : MonoBehaviour {
         }
     }
 
-    private Vector3 GetCurrentAimPoint() {
-        var angle = -gunElevationTransform.localRotation.eulerAngles.x;
-        var firingDistance = ProjectileMotion.CalculateProjectileDistance(angle, MuzzlePosition.y, muzzleVelocity);
-        var muzzleHorizontalPos = new Vector3(MuzzlePosition.x, 0f, MuzzlePosition.z);
-        var muzzleForward = gunElevationTransform.forward;
-        var muzzleGroundForward = new Vector3(muzzleForward.x, 0f, muzzleForward.z).normalized;
-        return muzzleHorizontalPos + muzzleGroundForward * firingDistance;
+    private Vector3 PredictGunImpact() {
+        var step = 1;
+        Vector3 origin = MuzzlePosition;
+        Vector3 p0 = origin;
+        Vector3 velocity = gunElevationTransform.forward * muzzleVelocity;
+        Vector3 p1 = ProjectileMotion.PointAtTime(p0, velocity, traceFrameInterval * Time.fixedDeltaTime * step++);
+
+        var madeHit = Raycasting.ClosestRaycastHit(p0, p1, 10, GameCamera.GunTargetingMask, out RaycastHit hit);
+        while (!madeHit && p1.y > -100) {
+            p0 = p1;
+            p1 = ProjectileMotion.PointAtTime(origin, velocity, traceFrameInterval * Time.fixedDeltaTime * step++);
+            Debug.DrawLine(p0, p1);
+            madeHit = Raycasting.ClosestRaycastHit(p0, p1, 10, GameCamera.GunTargetingMask, out hit);
+        }
+
+        if (!madeHit) {
+            throw new UnityException("Gun impact trace failed to find anything, even sea level");
+        }
+
+        return hit.point;
     }
 }

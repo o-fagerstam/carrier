@@ -12,16 +12,16 @@ public class GunMarkerDrawer : MonoBehaviour {
 
     private void Start() {
         _canvasRectTransform = GetComponent<RectTransform>();
-        var sizeDelta = _canvasRectTransform.sizeDelta;
+        Vector2 sizeDelta = _canvasRectTransform.sizeDelta;
         uiOffset = new Vector2(sizeDelta.x * 0.5f, sizeDelta.y * 0.5f);
-        foreach (var gun in startingGuns) {
+        foreach (BoatGun gun in startingGuns) {
             AddMarker(gun);
         }
     }
 
     private void Update() {
-        foreach (var gun in _gunIdToMarkerDict.Keys) {
-            MoveMarkerToWorldPoint(_gunIdToMarkerDict[gun], gun.CurrentAimPoint);
+        foreach (BoatGun gun in _gunIdToMarkerDict.Keys) {
+            MoveMarkerToWorldPoint(_gunIdToMarkerDict[gun], gun.CurrentImpactPoint);
         }
     }
 
@@ -35,7 +35,7 @@ public class GunMarkerDrawer : MonoBehaviour {
 
     private void MoveMarkerToWorldPoint(GunMarker marker, Vector3 worldPosition) {
         Vector2 viewPortPosition = GameCamera.CurrentCamera.WorldToViewportPoint(worldPosition);
-        var canvasSizeDelta = _canvasRectTransform.sizeDelta;
+        Vector2 canvasSizeDelta = _canvasRectTransform.sizeDelta;
         var proportionalPosition = new Vector2(
             viewPortPosition.x * canvasSizeDelta.x,
             viewPortPosition.y * canvasSizeDelta.y
