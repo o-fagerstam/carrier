@@ -32,8 +32,8 @@ public class Shell : MonoBehaviour {
                 targetShellImpact = targetTransform.GetComponent<ShellImpact>();
             }
             
-            Debug.DrawRay(traceStartPoint, shellVelocity.normalized * ShellImpact.ShellRayMaxDistance, Color.red, 1f, false);
-            Debug.Break();
+            //Debug.DrawRay(traceStartPoint, shellVelocity.normalized * ShellImpact.ShellRayMaxDistance, Color.red, 0.2f, false);
+            //Debug.Break();
             
             targetShellImpact.CalculateImpact(traceStartPoint, shellVelocity.normalized, ShellPower);
             Destroy(gameObject);

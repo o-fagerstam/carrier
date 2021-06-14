@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 
 public class GameCamera : MonoBehaviour {
@@ -7,7 +8,7 @@ public class GameCamera : MonoBehaviour {
     public static bool RayCastMadeGunTargetingHit;
     private float _xRotation, _yRotation, _scrollLevel;
     private LayerMask _gunTargetingMask;
-    public float MouseSensitivity = 10f;
+    public float mouseSensitivity = 100f;
     private float _mouseScrollSensitivity = 100f;
 
     public Transform objectToFollow;
@@ -34,11 +35,10 @@ public class GameCamera : MonoBehaviour {
     }
 
     private void Update() {
-        MouseRay = CurrentCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f));
-        RayCastMadeGunTargetingHit = Physics.Raycast(MouseRay, out RayCastGunTargetingHit, 10000f, _gunTargetingMask);
+        UpdateMouseTarget();
 
-        var mouseX = Input.GetAxis("Mouse X") * MouseSensitivity * Time.deltaTime;
-        var mouseY = Input.GetAxis("Mouse Y") * MouseSensitivity * Time.deltaTime;
+        var mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        var mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
         var mouseScrollWheel = Input.GetAxis("Mouse ScrollWheel") * _mouseScrollSensitivity * Time.deltaTime;
 
 
@@ -78,6 +78,50 @@ public class GameCamera : MonoBehaviour {
         cameraTransform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
         
         swivel.position = objectToFollow.position;
+    }
+
+    private void UpdateMouseTarget() {
+        MouseRay = CurrentCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f));
+        var hits = new RaycastHit[10];
+        int numHits = Physics.RaycastNonAlloc(MouseRay, hits, CurrentCamera.farClipPlane, _gunTargetingMask);
+
+
+        if (numHits == 0) {
+            RayCastMadeGunTargetingHit = false;
+            return;
+        }
+        
+        var cameraPos = CurrentCamera.transform.position;
+        Array.Resize(ref hits, numHits);
+        hits = hits.OrderBy(h => (h.point - cameraPos).magnitude).ToArray();
+
+        foreach (var hit in hits) {
+            var t = hit.transform;
+            if (t == objectToFollow) {
+                continue;
+            }
+
+            var isValid = true;
+            while (t.parent != null) {
+                t = t.parent;
+                if (t != objectToFollow) {
+                    continue;
+                }
+
+                isValid = false;
+                break;
+            }
+
+            if (isValid) {
+                RayCastMadeGunTargetingHit = true;
+                RayCastGunTargetingHit = hit;
+                return;
+            }
+
+            RayCastMadeGunTargetingHit = false;
+            return;
+        }
+
     }
 
     private void OnDrawGizmos() {
