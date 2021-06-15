@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BoatComponentDamage : MonoBehaviour {
-    [SerializeField] private ShellImpact parent;
+    public float armor;
     public float damagePointValue;
+    [SerializeField] private ShellImpact parent;
     public float shellPowerReduction;
-    public float armor = 0f;
 }

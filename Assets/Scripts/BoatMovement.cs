@@ -1,30 +1,31 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BoatMovement : MonoBehaviour {
-    [SerializeField] private float enginePower = 5000f;
-    [SerializeField] private Rigidbody hullRigidbody;
-    [SerializeField] private float rudderPower = 10000f;
-    public Controller controller = Controller.None;
-    private float _verticalInputAccumulator = 0f;
-    private float _horizontalInputAccumulator = 0f;
+    private float _horizontalInputAccumulator;
     private float _steeringAngle;
-
-    [SerializeField] private WheelCollider frontLeftW, frontRightW, backLeftW, backRightW;
+    private float _verticalInputAccumulator;
+    public VehicleUserType vehicleUserType = VehicleUserType.None;
+    [SerializeField] private float enginePower;
+    [SerializeField] private List<WheelCollider> engineWheels;
+    [SerializeField] private Rigidbody hullRigidbody;
+    [SerializeField] private float maxSpeed;
 
     public float maxSteerAngle;
+    [SerializeField] private List<WheelCollider> rudderWheels;
 
     private void Awake() {
         hullRigidbody.centerOfMass = Vector3.down * transform.localScale.y * 0.4f;
     }
 
     private void Update() {
-        if (controller == Controller.Human) {
+        if (vehicleUserType == VehicleUserType.Human) {
             GetInput();
         }
     }
 
     private void FixedUpdate() {
-        if (controller == Controller.Human) {
+        if (vehicleUserType == VehicleUserType.Human) {
             Steer();
             ReduceHorizontalDrift();
             Accelerate();
@@ -39,22 +40,33 @@ public class BoatMovement : MonoBehaviour {
 
     private void Steer() {
         _steeringAngle = maxSteerAngle * _horizontalInputAccumulator;
-        frontLeftW.steerAngle = _steeringAngle;
-        frontRightW.steerAngle = _steeringAngle;
+        foreach (WheelCollider rudderWheel in rudderWheels) {
+            rudderWheel.steerAngle = -_steeringAngle;
+        }
     }
 
     private void Accelerate() {
-        var torque = _verticalInputAccumulator * enginePower;
-        frontLeftW.motorTorque = torque;
-        frontRightW.motorTorque = torque;
-        backLeftW.motorTorque = torque;
-        backRightW.motorTorque = torque;
+        var torquePerWheel = _verticalInputAccumulator * enginePower / engineWheels.Count;
+        Vector3 localVelocity = transform.InverseTransformDirection(hullRigidbody.velocity);
+        var speed = localVelocity.z;
+        var speedTorqueModifier = Mathf.Lerp(0f, maxSpeed, Mathf.Abs(speed) / maxSpeed);
+        torquePerWheel -= speedTorqueModifier * Mathf.Sign(speed);
+
+        foreach (WheelCollider engineWheel in engineWheels) {
+            engineWheel.motorTorque = torquePerWheel;
+            if (speed > maxSpeed) {
+                engineWheel.brakeTorque = torquePerWheel;
+            }
+            else {
+                engineWheel.brakeTorque = 0f;
+            }
+        }
     }
 
     private void ReduceHorizontalDrift() {
-        hullRigidbody.angularVelocity *= 0.95f;
+        hullRigidbody.angularVelocity *= 1f;
     }
-    
+
 
     private void ResetInputAccumulators() {
         _verticalInputAccumulator = 0f;

@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using PhysicsUtilities;
 using UnityEngine;
 
 public class ShellImpact : MonoBehaviour {
@@ -9,25 +8,23 @@ public class ShellImpact : MonoBehaviour {
     public float health = 3000f;
 
     public void CalculateImpact(Vector3 impactPosition, Vector3 directionVector, float shellPower) {
-        var hitComponents = GenerateHitComponentsList(impactPosition, directionVector); 
+        var hitComponents = GenerateHitComponentsList(impactPosition, directionVector);
         CalculateDamage(hitComponents, shellPower);
     }
 
 
     private List<BoatComponentDamage> GenerateHitComponentsList(Vector3 impactPosition, Vector3 directionVector) {
-        var impactRay = new Ray(impactPosition, directionVector);
-        var hits = new RaycastHit[20];
-        var numHits = Physics.RaycastNonAlloc(impactRay, hits, ShellRayMaxDistance, ShellTargetableLayerMask);
-
-        var hitsSortedByDistance = new RaycastHit[numHits];
-        Array.Copy(hits, hitsSortedByDistance, numHits);
-        hitsSortedByDistance = hitsSortedByDistance
-            .OrderBy(h => (h.point - impactPosition).magnitude)
-            .ToArray();
+        var sortedHits = Raycasting.SortedRaycast(
+            impactPosition,
+            directionVector,
+            ShellRayMaxDistance,
+            20,
+            ShellTargetableLayerMask
+        );
 
         var hitComponents = new List<BoatComponentDamage>();
-        for (var i = 0; i < numHits; i++) {
-            var hitTransform = hitsSortedByDistance[i].collider.transform;
+        for (var i = 0; i < sortedHits.Length; i++) {
+            Transform hitTransform = sortedHits[i].collider.transform;
             if (hitTransform == transform || hitTransform.parent != transform) {
                 continue;
             }
@@ -49,7 +46,7 @@ public class ShellImpact : MonoBehaviour {
 
     private void CalculateDamage(List<BoatComponentDamage> hitComponents, float shellPower) {
         var currentShellPower = shellPower;
-        foreach (var hitComponent in hitComponents) {
+        foreach (BoatComponentDamage hitComponent in hitComponents) {
             currentShellPower -= hitComponent.armor;
             if (currentShellPower <= 0f) {
                 break;
