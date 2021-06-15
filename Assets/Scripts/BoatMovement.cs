@@ -5,7 +5,7 @@ public class BoatMovement : MonoBehaviour {
     private float _horizontalInputAccumulator;
     private float _steeringAngle;
     private float _verticalInputAccumulator;
-    public Controller controller = Controller.None;
+    public VehicleUserType vehicleUserType = VehicleUserType.None;
     [SerializeField] private float enginePower;
     [SerializeField] private List<WheelCollider> engineWheels;
     [SerializeField] private Rigidbody hullRigidbody;
@@ -19,13 +19,13 @@ public class BoatMovement : MonoBehaviour {
     }
 
     private void Update() {
-        if (controller == Controller.Human) {
+        if (vehicleUserType == VehicleUserType.Human) {
             GetInput();
         }
     }
 
     private void FixedUpdate() {
-        if (controller == Controller.Human) {
+        if (vehicleUserType == VehicleUserType.Human) {
             Steer();
             ReduceHorizontalDrift();
             Accelerate();

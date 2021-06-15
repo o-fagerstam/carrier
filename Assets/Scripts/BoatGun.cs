@@ -21,7 +21,7 @@ public class BoatGun : MonoBehaviour {
     }
 
     private void Update() {
-        if (parentBoat.controller == Controller.Human) {
+        if (parentBoat.vehicleUserType == VehicleUserType.Human) {
             HandlePlayerControl();
         }
     }

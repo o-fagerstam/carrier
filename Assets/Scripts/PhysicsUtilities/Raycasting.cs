@@ -74,7 +74,7 @@ namespace PhysicsUtilities {
         }
 
         /// <summary>
-        ///     Traces a trajectory and returns the first (guaranteed first) hit.
+        ///     Traces a trajectory and returns the first (by distance) hit.
         /// </summary>
         public static bool TraceTrajectoryUntilImpact(Vector3 origin, Vector3 v0, out RaycastHit hit, LayerMask mask) {
             var expectedAirTime = ProjectileMotion.ExpectedTimeOfFlight(v0);
@@ -93,7 +93,7 @@ namespace PhysicsUtilities {
                 v0,
                 (float) step++ / numAboveGroundSubdivisions * expectedAirTime
             );
-            Debug.DrawLine(p0, p1, Color.red);
+            
             var madeHit = ClosestRaycastHit(p0, p1, 10, mask, out hit);
             while (!madeHit &&
                    step <= TrajectoryTraceMaxAboveGroundSubdivisions + TrajectoryTraceMaxBelowGroundSubdivisions
@@ -104,7 +104,6 @@ namespace PhysicsUtilities {
                     v0,
                     (float) step++ / numAboveGroundSubdivisions * expectedAirTime
                 );
-                Debug.DrawLine(p0, p1, Color.red);
                 madeHit = ClosestRaycastHit(p0, p1, 10, mask, out hit);
             }
 
