@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 959085703475726498}
   m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.08, y: 0.2, z: 0.08}
+  m_LocalScale: {x: 0.02, y: 0.05, z: 0.02}
   m_Children: []
   m_Father: {fileID: 7871178811168923883}
   m_RootOrder: 0
@@ -106,10 +106,10 @@ GameObject:
   m_Component:
   - component: {fileID: 7871178811168923883}
   - component: {fileID: 6769962326619836744}
-  - component: {fileID: 4096043700518103695}
   - component: {fileID: -3929713924382397910}
+  - component: {fileID: -559559837266049238}
   m_Layer: 0
-  m_Name: Shell
+  m_Name: AutoCannonShell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -146,20 +146,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 1
---- !u!114 &4096043700518103695
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 967554145729119165}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8946e1318937cc445b246784b5056a9b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShellPower: 1000
-  shellOwner: {fileID: 0}
 --- !u!96 &-3929713924382397910
 TrailRenderer:
   serializedVersion: 2
@@ -204,13 +190,13 @@ TrailRenderer:
   m_Time: 0.4
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 1
+    widthMultiplier: 0.2
     widthCurve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.31843567
+        value: 1
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -267,3 +253,19 @@ TrailRenderer:
   m_MinVertexDistance: 10
   m_Autodestruct: 0
   m_Emitting: 1
+--- !u!114 &-559559837266049238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 967554145729119165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21877d75feac4f4284f55515b411093a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shellOwner: {fileID: 0}
+  ShellPower: 20
+  maxDistance: 0
+  distanceTravelled: 0

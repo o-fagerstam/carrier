@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Ship;
 using UI;
 using UnityEngine;
 
@@ -34,17 +35,20 @@ public class GunMarkerDrawer : MonoBehaviour {
 
 
     private void UpdateMarker(GunMarker marker, ShipGun gun) {
-        Vector3 gunImpactPoint = gun.CurrentImpactPoint;
-        Camera currentCamera = GameCamera.CurrentCamera;
-        var angleIsValid = CheckValidAngle(currentCamera, gunImpactPoint);
-        if (angleIsValid) {
-            marker.IsHidden = false;
-            MoveMarkerToWorldPoint(currentCamera, marker, gunImpactPoint);
-            SetMarkerColor(marker, gun.IsLoaded);
-        }
-        else {
+        GunImpactPrediction prediction = gun.GunImpactPrediction;
+        if (!prediction.willImpact) {
             marker.IsHidden = true;
+            return;
         }
+        Camera currentCamera = GameCamera.CurrentCamera;
+        var angleIsValid = CheckValidAngle(currentCamera, prediction.impactPosition);
+        if (!angleIsValid) {
+            marker.IsHidden = true;
+            return;
+        }
+        marker.IsHidden = false;
+        MoveMarkerToWorldPoint(currentCamera, marker, prediction.impactPosition);
+        SetMarkerColor(marker, gun.IsLoaded);
     }
 
     private static bool CheckValidAngle(Camera currentCamera, Vector3 gunImpactPoint) {

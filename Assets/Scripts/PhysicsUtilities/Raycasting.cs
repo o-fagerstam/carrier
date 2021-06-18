@@ -21,7 +21,7 @@ namespace PhysicsUtilities {
         ///     Sets a minimum of expected air time for a projectile. Gives us a minimum Raycasting length.
         /// </summary>
         private const float
-            MinimumProjectileAirTime = 0.5f;
+            MinimumProjectileAirTime = 0.2f;
 
         public static RaycastHit[] SortedRaycast(Vector3 origin, Vector3 direction, float distance, int maxHits,
             LayerMask mask) {
@@ -106,6 +106,39 @@ namespace PhysicsUtilities {
                 );
                 madeHit = ClosestRaycastHit(p0, p1, 10, mask, out hit);
             }
+
+            return madeHit;
+        }
+        
+        public static bool TraceTrajectoryUntilImpact(Vector3 origin, Vector3 v0, out RaycastHit hit, LayerMask mask, float maxDistance) {
+            var expectedAirTime = maxDistance / v0.magnitude;
+            expectedAirTime = Math.Max(expectedAirTime, MinimumProjectileAirTime);
+            var numBeforeDespawnSubdivisions = Mathf.RoundToInt(Mathf.Clamp(expectedAirTime * 5, 1f, TrajectoryTraceMaxAboveGroundSubdivisions));
+            
+            var step = 1;
+            Vector3 p0 = origin;
+            Vector3 p1 = ProjectileMotion.PointAtTime(
+                p0,
+                v0,
+                (float) step++ / numBeforeDespawnSubdivisions * expectedAirTime
+            );
+            Debug.DrawLine(p0, p1);
+
+            var madeHit = ClosestRaycastHit(p0, p1, 10, mask, out hit);
+            
+            while (!madeHit &&
+                   step <= numBeforeDespawnSubdivisions
+            ) {
+                p0 = p1;
+                p1 = ProjectileMotion.PointAtTime(
+                    origin,
+                    v0,
+                    (float) step++ / numBeforeDespawnSubdivisions * expectedAirTime
+                );
+                Debug.DrawLine(p0, p1);
+                madeHit = ClosestRaycastHit(p0, p1, 10, mask, out hit);
+            }
+            Debug.DrawLine(p1, p1 + Vector3.up);
 
             return madeHit;
         }
