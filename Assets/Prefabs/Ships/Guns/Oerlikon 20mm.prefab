@@ -98,10 +98,10 @@ MonoBehaviour:
   ammunitionPrefab: {fileID: 4096043700518103695, guid: be1869c6dd7eb8f46b44c3713784d324, type: 3}
   gunElevationTransform: {fileID: 3115952027817662529}
   horizontalRotationSpeed: 30
-  muzzleParticleSystemPrefab: {fileID: 0}
+  muzzleParticleSystemPrefab: {fileID: 3690183739500241068, guid: a3b6d63125822524fa81ec4dd751342f, type: 3}
   muzzleVelocity: 50
   parentBoat: {fileID: 0}
-  reloadTime: 3
+  reloadTime: 0.12
   verticalElevationSpeed: 30
 --- !u!1001 &3221389442132983722
 PrefabInstance:
