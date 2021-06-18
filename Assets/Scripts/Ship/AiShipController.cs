@@ -62,10 +62,8 @@ namespace Ship {
 
         private GunImpactPrediction PredictPosition(Ship target) {
             ShipGun tracingGun = _controlledShip.MainGuns[0];
-            // Get time to impact
-            // Get distance to target
             Vector3 deltaPosition = target.transform.position - _controlledShip.transform.position;
-            // Get firing angle
+            
             bool hasValidAngle = ProjectileMotion.FiringAngle(
                 deltaPosition,
                 tracingGun.muzzleVelocity,
@@ -74,13 +72,10 @@ namespace Ship {
             if (!hasValidAngle) {
                 return new GunImpactPrediction(false, new Vector3());
             }
-
-            // Get impact time from angle
+            
             float timeOfFlight = ProjectileMotion.ExpectedTimeOfFlight(angle, tracingGun.muzzleVelocity);
-            Debug.Log($"Angle: {angle} Time of flight: {timeOfFlight}");
-            // Time * targetVelocity = offset
             Vector3 positionOffset = target.Rigidbody.velocity * timeOfFlight;
-            // Return position + offset
+            
             return new GunImpactPrediction(true, target.transform.position + positionOffset);
         }
     }

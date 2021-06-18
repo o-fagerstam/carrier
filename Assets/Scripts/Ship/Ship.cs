@@ -100,9 +100,5 @@ namespace Ship {
             _verticalInputAccumulator = 0f;
             _horizontalInputAccumulator = 0f;
         }
-
-        private void OnDrawGizmos() {
-            Gizmos.DrawWireSphere(shipController.GetAimPoint(), 2f);
-        }
     }
 }

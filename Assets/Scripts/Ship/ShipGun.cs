@@ -3,22 +3,26 @@ using UnityEngine;
 
 namespace Ship {
     public abstract class ShipGun : MonoBehaviour {
+        [SerializeField] public Shell ammunitionPrefab;
+        [SerializeField] protected ParticleSystem muzzleParticleSystemPrefab;
+
+        public Ship parentBoat;
+        [SerializeField] protected Transform horizontalRotationPart;
+        public Transform verticalRotationPart;
+        
+        [SerializeField] protected float horizontalRotationSpeed = 2f;
+        [SerializeField] protected float verticalElevationSpeed = 1f;
+        public float muzzleVelocity = 100f;
+        [SerializeField] protected float reloadTime = 3f;
+        public float spreadAngle;
+
+        public bool IsLoaded => _lastFired <= Time.time - reloadTime;
+        protected Vector3 MuzzlePosition => verticalRotationPart.position + verticalRotationPart.forward * 3;
+
         protected bool _hasAllowedFiringAngle;
         private bool _hasPredictedImpactThisTick;
         protected float _lastFired;
         private GunImpactPrediction _lastImpactPrediction;
-        [SerializeField] public Shell ammunitionPrefab;
-        [SerializeField] protected Transform horizontalRotationPart;
-        [SerializeField] protected float horizontalRotationSpeed = 2f;
-        [SerializeField] protected ParticleSystem muzzleParticleSystemPrefab;
-        public float muzzleVelocity = 100f;
-        public Ship parentBoat;
-        [SerializeField] protected float reloadTime = 3f;
-        public float spreadAngle;
-        [SerializeField] protected float verticalElevationSpeed = 1f;
-        public Transform verticalRotationPart;
-        protected Vector3 MuzzlePosition => verticalRotationPart.position + verticalRotationPart.forward * 3;
-        public bool IsLoaded => _lastFired <= Time.time - reloadTime;
 
         public GunImpactPrediction GunImpactPrediction {
             get {
