@@ -47,7 +47,7 @@ namespace Ship {
             Ship closestShip = null;
             float closestShipDistance = float.MaxValue;
             foreach (Ship ship in allShips) {
-                if (ship == _controlledShip) {
+                if (ship.team == _controlledShip.team) {
                     continue;
                 }
                 var distance = (ship.transform.position - _controlledShip.transform.position).magnitude;
