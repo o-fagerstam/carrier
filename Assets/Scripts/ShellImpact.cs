@@ -13,7 +13,7 @@ public class ShellImpact : MonoBehaviour {
     }
 
 
-    private List<BoatComponentDamage> GenerateHitComponentsList(Vector3 impactPosition, Vector3 directionVector) {
+    private List<ShipDamageableComponent> GenerateHitComponentsList(Vector3 impactPosition, Vector3 directionVector) {
         var sortedHits = Raycasting.SortedRaycast(
             impactPosition,
             directionVector,
@@ -22,14 +22,14 @@ public class ShellImpact : MonoBehaviour {
             ShellTargetableLayerMask
         );
 
-        var hitComponents = new List<BoatComponentDamage>();
+        var hitComponents = new List<ShipDamageableComponent>();
         for (var i = 0; i < sortedHits.Length; i++) {
             Transform hitTransform = sortedHits[i].collider.transform;
             if (hitTransform == transform || hitTransform.parent != transform) {
                 continue;
             }
 
-            var hitComponent = hitTransform.GetComponent<BoatComponentDamage>();
+            var hitComponent = hitTransform.GetComponent<ShipDamageableComponent>();
             if (hitComponent == null) {
                 throw new UnityException("Failed to find Damage Component. Forgot to set it in editor?");
             }
@@ -44,9 +44,9 @@ public class ShellImpact : MonoBehaviour {
         return hitComponents;
     }
 
-    private void CalculateDamage(List<BoatComponentDamage> hitComponents, float shellPower) {
+    private void CalculateDamage(List<ShipDamageableComponent> hitComponents, float shellPower) {
         var currentShellPower = shellPower;
-        foreach (BoatComponentDamage hitComponent in hitComponents) {
+        foreach (ShipDamageableComponent hitComponent in hitComponents) {
             currentShellPower -= hitComponent.armor;
             if (currentShellPower <= 0f) {
                 break;

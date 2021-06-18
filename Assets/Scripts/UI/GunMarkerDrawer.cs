@@ -6,17 +6,17 @@ using UnityEngine;
 public class GunMarkerDrawer : MonoBehaviour {
     private static readonly Color ReadyColor = new Color(25f / 255f, 191f / 255f, 70 / 255f);
     private static readonly Color LoadingColor = new Color(219f / 255f, 143f / 255f, 29f / 255f);
-    private readonly Dictionary<BoatGun, GunMarker> _gunIdToMarkerDict = new Dictionary<BoatGun, GunMarker>();
+    private readonly Dictionary<ShipGun, GunMarker> _gunIdToMarkerDict = new Dictionary<ShipGun, GunMarker>();
     private RectTransform _canvasRectTransform;
     [SerializeField] private GunMarker gunMarkerPrefab;
-    [SerializeField] private List<BoatGun> startingGuns = new List<BoatGun>();
+    [SerializeField] private List<ShipGun> startingGuns = new List<ShipGun>();
     private Vector2 uiOffset;
 
     private void Start() {
         _canvasRectTransform = GetComponent<RectTransform>();
         Vector2 sizeDelta = _canvasRectTransform.sizeDelta;
         uiOffset = new Vector2(sizeDelta.x * 0.5f, sizeDelta.y * 0.5f);
-        foreach (BoatGun gun in startingGuns) {
+        foreach (ShipGun gun in startingGuns) {
             AddMarker(gun);
         }
     }
@@ -26,14 +26,14 @@ public class GunMarkerDrawer : MonoBehaviour {
     }
 
     private void UpdateMarkers() {
-        foreach (BoatGun gun in _gunIdToMarkerDict.Keys) {
+        foreach (ShipGun gun in _gunIdToMarkerDict.Keys) {
             GunMarker marker = _gunIdToMarkerDict[gun];
             UpdateMarker(marker, gun);
         }
     }
 
 
-    private void UpdateMarker(GunMarker marker, BoatGun gun) {
+    private void UpdateMarker(GunMarker marker, ShipGun gun) {
         Vector3 gunImpactPoint = gun.CurrentImpactPoint;
         Camera currentCamera = GameCamera.CurrentCamera;
         var angleIsValid = CheckValidAngle(currentCamera, gunImpactPoint);
@@ -54,7 +54,7 @@ public class GunMarkerDrawer : MonoBehaviour {
                cameraPosition.z > 0;
     }
 
-    public void AddMarker(BoatGun gun) {
+    public void AddMarker(ShipGun gun) {
         if (_gunIdToMarkerDict.ContainsKey(gun)) {
             throw new ArgumentException($"Gun with id {gun.GetInstanceID()} already has marker", nameof(gun));
         }
@@ -84,7 +84,7 @@ public class GunMarkerDrawer : MonoBehaviour {
         }
     }
 
-    public void RemoveMarker(BoatGun gun) {
+    public void RemoveMarker(ShipGun gun) {
         Destroy(_gunIdToMarkerDict[gun].gameObject);
         _gunIdToMarkerDict.Remove(gun);
     }

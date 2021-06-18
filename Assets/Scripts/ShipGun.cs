@@ -1,7 +1,8 @@
+using System;
 using PhysicsUtilities;
 using UnityEngine;
 
-public class BoatGun : MonoBehaviour {
+public class ShipGun : MonoBehaviour {
     private bool _hasAllowedFiringAngle;
     private float _lastFired;
     [SerializeField] public Shell ammunitionPrefab;
@@ -9,7 +10,7 @@ public class BoatGun : MonoBehaviour {
     [SerializeField] private float horizontalRotationSpeed = 2f;
     [SerializeField] private ParticleSystem muzzleParticleSystemPrefab;
     [SerializeField] private float muzzleVelocity = 100f;
-    public BoatMovement parentBoat;
+    public ShipMain parentBoat;
     [SerializeField] private float reloadTime = 3f;
     [SerializeField] private float verticalElevationSpeed = 1f;
     private Vector3 MuzzlePosition => gunElevationTransform.position + gunElevationTransform.forward * 3;
@@ -21,19 +22,17 @@ public class BoatGun : MonoBehaviour {
     }
 
     private void Update() {
-        if (parentBoat.vehicleUserType == VehicleUserType.Human) {
-            HandlePlayerControl();
+        if (parentBoat.isActive) {
+            HandleGunControl();
         }
     }
 
-    private void HandlePlayerControl() {
-        if (GameCamera.RayCastMadeGunTargetingHit) {
-            Vector3 targetPoint = GameCamera.RayCastGunTargetingHit.point;
-            HandleAim(targetPoint, out Vector3 desiredFiringAngle);
-            _hasAllowedFiringAngle = CheckAllowedFiringAngle(desiredFiringAngle);
-        }
+    private void HandleGunControl() {
+        Vector3 targetPoint = parentBoat.shipController.GetAimPoint();
+        HandleAim(targetPoint, out Vector3 desiredFiringAngle);
+        _hasAllowedFiringAngle = CheckAllowedFiringAngle(desiredFiringAngle);
 
-        if (Input.GetMouseButton(0)) {
+        if (parentBoat.shipController.GetFireInput()) {
             HandleGunFire(_hasAllowedFiringAngle);
         }
     }

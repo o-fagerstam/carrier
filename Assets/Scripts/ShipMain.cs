@@ -1,7 +1,8 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BoatMovement : MonoBehaviour {
+public class ShipMain : MonoBehaviour {
     private float _horizontalInputAccumulator;
     private float _steeringAngle;
     private float _verticalInputAccumulator;
@@ -13,29 +14,46 @@ public class BoatMovement : MonoBehaviour {
 
     public float maxSteerAngle;
     [SerializeField] private List<WheelCollider> rudderWheels;
+    public ShipController shipController;
+    public bool isActive;
 
     private void Awake() {
         hullRigidbody.centerOfMass = Vector3.down * transform.localScale.y * 0.4f;
+        UpdateControllerType();
+    }
+    
+    private void UpdateControllerType() {
+        switch (vehicleUserType) {
+            case VehicleUserType.Human:
+                shipController = new HumanShipController();
+                isActive = true;
+                break;
+            case VehicleUserType.Ai:
+                throw new NotImplementedException("Ship gun AI not implemented");
+            case VehicleUserType.None:
+                isActive = false;
+                break;
+        }
     }
 
     private void Update() {
-        if (vehicleUserType == VehicleUserType.Human) {
+        if (isActive) {
             GetInput();
         }
     }
 
     private void FixedUpdate() {
-        if (vehicleUserType == VehicleUserType.Human) {
+        if (isActive) {
             Steer();
-            ReduceHorizontalDrift();
             Accelerate();
             ResetInputAccumulators();
         }
+        ReduceHorizontalDrift();
     }
 
     private void GetInput() {
-        _verticalInputAccumulator = Input.GetAxis("Vertical");
-        _horizontalInputAccumulator = Input.GetAxis("Horizontal");
+        _verticalInputAccumulator = shipController.GetVerticalInput();
+        _horizontalInputAccumulator = shipController.GetHorizontalInput();
     }
 
     private void Steer() {
