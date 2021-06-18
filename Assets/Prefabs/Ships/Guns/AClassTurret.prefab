@@ -112,14 +112,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ammunitionPrefab: {fileID: 4096043700518103695, guid: be1869c6dd7eb8f46b44c3713784d324, type: 3}
-  verticalRotationPart: {fileID: 7904157233244811384}
-  horizontalRotationPart: {fileID: 1362752331976985343}
-  horizontalRotationSpeed: 4
+  horizontalRotationPart: {fileID: 7904157233244811384}
+  horizontalRotationSpeed: 5
   muzzleParticleSystemPrefab: {fileID: 3690183739500241068, guid: 8fc173f7354409c4db657b611f0dc2c0, type: 3}
-  muzzleVelocity: 100
+  muzzleVelocity: 300
   parentBoat: {fileID: 0}
   reloadTime: 4
-  verticalElevationSpeed: 4
+  spreadAngle: 0.15
+  verticalElevationSpeed: 6
+  verticalRotationPart: {fileID: 1362752331976985343}
 --- !u!114 &-9118092638187994733
 MonoBehaviour:
   m_ObjectHideFlags: 0

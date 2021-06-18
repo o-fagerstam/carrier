@@ -102,6 +102,7 @@ MonoBehaviour:
   muzzleVelocity: 820
   parentBoat: {fileID: 0}
   reloadTime: 0.12
+  spreadAngle: 0.2
   verticalElevationSpeed: 20
   verticalRotationPart: {fileID: 3115952027817662529}
   maxEffectiveRange: 3000

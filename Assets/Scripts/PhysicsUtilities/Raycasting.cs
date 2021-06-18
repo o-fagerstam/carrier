@@ -122,7 +122,6 @@ namespace PhysicsUtilities {
                 v0,
                 (float) step++ / numBeforeDespawnSubdivisions * expectedAirTime
             );
-            Debug.DrawLine(p0, p1);
 
             var madeHit = ClosestRaycastHit(p0, p1, 10, mask, out hit);
             
@@ -135,10 +134,8 @@ namespace PhysicsUtilities {
                     v0,
                     (float) step++ / numBeforeDespawnSubdivisions * expectedAirTime
                 );
-                Debug.DrawLine(p0, p1);
                 madeHit = ClosestRaycastHit(p0, p1, 10, mask, out hit);
             }
-            Debug.DrawLine(p1, p1 + Vector3.up);
 
             return madeHit;
         }

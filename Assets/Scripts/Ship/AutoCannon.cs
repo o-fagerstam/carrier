@@ -7,7 +7,13 @@ namespace Ship {
 
         protected override void Fire() {
             _lastFired = Time.time;
-            Quaternion muzzleRotation = verticalRotationPart.rotation;
+            Quaternion spread = Quaternion.Euler(
+                Random.Range(-spreadAngle, spreadAngle),
+                Random.Range(-spreadAngle, spreadAngle),
+                Random.Range(0f, 360f)
+            );
+            
+            Quaternion muzzleRotation = verticalRotationPart.rotation * spread;
             DistanceLimitedShell firedShell = (DistanceLimitedShell) Instantiate(ammunitionPrefab, MuzzlePosition, muzzleRotation);
             firedShell.shellOwner = transform.parent;
             firedShell.maxDistance = maxEffectiveRange;

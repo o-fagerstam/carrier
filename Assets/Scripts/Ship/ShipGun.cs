@@ -14,6 +14,7 @@ namespace Ship {
         [SerializeField] protected float muzzleVelocity = 100f;
         public ShipMain parentBoat;
         [SerializeField] protected float reloadTime = 3f;
+        public float spreadAngle;
         [SerializeField] protected float verticalElevationSpeed = 1f;
         [SerializeField] protected Transform verticalRotationPart;
         protected Vector3 MuzzlePosition => verticalRotationPart.position + verticalRotationPart.forward * 3;
@@ -110,7 +111,14 @@ namespace Ship {
 
         protected virtual void Fire() {
             _lastFired = Time.time;
-            Quaternion muzzleRotation = verticalRotationPart.rotation;
+            Quaternion spread = Quaternion.Euler(
+                Random.Range(-spreadAngle, spreadAngle),
+                Random.Range(-spreadAngle, spreadAngle),
+                Random.Range(-spreadAngle, spreadAngle)
+            );
+            
+            Quaternion muzzleRotation = verticalRotationPart.rotation * spread;
+
             Shell firedShell = Instantiate(ammunitionPrefab, MuzzlePosition, muzzleRotation);
             firedShell.shellOwner = transform.parent;
             firedShell.Rigidbody.velocity = firedShell.transform.forward * muzzleVelocity;
