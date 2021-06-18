@@ -11,12 +11,12 @@ namespace Ship {
         [SerializeField] protected Transform horizontalRotationPart;
         [SerializeField] protected float horizontalRotationSpeed = 2f;
         [SerializeField] protected ParticleSystem muzzleParticleSystemPrefab;
-        [SerializeField] protected float muzzleVelocity = 100f;
-        public ShipMain parentBoat;
+        public float muzzleVelocity = 100f;
+        public Ship parentBoat;
         [SerializeField] protected float reloadTime = 3f;
         public float spreadAngle;
         [SerializeField] protected float verticalElevationSpeed = 1f;
-        [SerializeField] protected Transform verticalRotationPart;
+        public Transform verticalRotationPart;
         protected Vector3 MuzzlePosition => verticalRotationPart.position + verticalRotationPart.forward * 3;
         public bool IsLoaded => _lastFired <= Time.time - reloadTime;
 

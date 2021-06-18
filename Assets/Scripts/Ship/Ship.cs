@@ -3,26 +3,32 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Ship {
-    public class ShipMain : MonoBehaviour {
+    public class Ship : MonoBehaviour {
         private float _horizontalInputAccumulator;
-        private float _steeringAngle;
         private float _verticalInputAccumulator;
+        private float _steeringAngle;
+        public float maxSteerAngle;
+
+        public ShipController shipController;
         public VehicleUserType vehicleUserType = VehicleUserType.None;
+        public bool isActive;
+        public int team;
+        
+        [SerializeField] private float maxSpeed;
         [SerializeField] private float enginePower;
         [SerializeField] private List<WheelCollider> engineWheels;
-        [SerializeField] private Rigidbody hullRigidbody;
-        [SerializeField] private float maxSpeed;
-
-        public float maxSteerAngle;
         [SerializeField] private List<WheelCollider> rudderWheels;
-        public ShipController shipController;
-        public bool isActive;
+        
+        public Rigidbody Rigidbody { get; private set; }
+        public ShipGun[] MainGuns { get; private set; }
 
         private void Awake() {
-            hullRigidbody.centerOfMass = Vector3.down * transform.localScale.y * 0.4f;
+            MainGuns = GetComponentsInChildren<ShipGun>();
+            Rigidbody = GetComponent<Rigidbody>();
+            Rigidbody.centerOfMass = Vector3.down * transform.localScale.y * 0.4f;
             UpdateControllerType();
         }
-    
+
         private void UpdateControllerType() {
             switch (vehicleUserType) {
                 case VehicleUserType.Human:
@@ -30,7 +36,9 @@ namespace Ship {
                     isActive = true;
                     break;
                 case VehicleUserType.Ai:
-                    throw new NotImplementedException("Ship gun AI not implemented");
+                    shipController = new AiShipController(this);
+                    isActive = true;
+                    break;
                 case VehicleUserType.None:
                     isActive = false;
                     break;
@@ -49,6 +57,7 @@ namespace Ship {
                 Accelerate();
                 ResetInputAccumulators();
             }
+
             ReduceHorizontalDrift();
         }
 
@@ -65,10 +74,10 @@ namespace Ship {
         }
 
         private void Accelerate() {
-            var torquePerWheel = _verticalInputAccumulator * enginePower / engineWheels.Count;
-            Vector3 localVelocity = transform.InverseTransformDirection(hullRigidbody.velocity);
-            var speed = localVelocity.z;
-            var speedTorqueModifier = Mathf.Lerp(0f, maxSpeed, Mathf.Abs(speed) / maxSpeed);
+            float torquePerWheel = _verticalInputAccumulator * enginePower / engineWheels.Count;
+            Vector3 localVelocity = transform.InverseTransformDirection(Rigidbody.velocity);
+            float speed = localVelocity.z;
+            float speedTorqueModifier = Mathf.Lerp(0f, maxSpeed, Mathf.Abs(speed) / maxSpeed);
             torquePerWheel -= speedTorqueModifier * Mathf.Sign(speed);
 
             foreach (WheelCollider engineWheel in engineWheels) {
@@ -83,13 +92,17 @@ namespace Ship {
         }
 
         private void ReduceHorizontalDrift() {
-            hullRigidbody.angularVelocity *= 1f;
+            Rigidbody.angularVelocity *= 0.98f;
         }
 
 
         private void ResetInputAccumulators() {
             _verticalInputAccumulator = 0f;
             _horizontalInputAccumulator = 0f;
+        }
+
+        private void OnDrawGizmos() {
+            Gizmos.DrawWireSphere(shipController.GetAimPoint(), 2f);
         }
     }
 }
