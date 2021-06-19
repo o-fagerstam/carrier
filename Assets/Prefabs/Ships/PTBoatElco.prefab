@@ -1,5 +1,21 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &3041488194947792669
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 814125790260872462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3de93e9ff532b3b44926a80d16962776, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  armor: 0
+  damagePointValue: 0
+  parent: {fileID: -6423035460826202761}
+  shellPowerReduction: 0
 --- !u!1 &2481470765485526034
 GameObject:
   m_ObjectHideFlags: 0
@@ -357,6 +373,7 @@ MonoBehaviour:
   rudderWheels:
   - {fileID: 8671072124950911145}
   - {fileID: 632424888841693882}
+  isActive: 0
 --- !u!114 &-6423035460826202761
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -431,6 +448,22 @@ WheelCollider:
     m_AsymptoteValue: 1
     m_Stiffness: 5
   m_Enabled: 1
+--- !u!114 &8087039075900312274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7152048819252004542}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3de93e9ff532b3b44926a80d16962776, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  armor: 0
+  damagePointValue: 0
+  parent: {fileID: -6423035460826202761}
+  shellPowerReduction: 0
 --- !u!1 &8063416718632336314
 GameObject:
   m_ObjectHideFlags: 0
@@ -632,6 +665,14 @@ PrefabInstance:
       propertyPath: parentBoat
       value: 
       objectReference: {fileID: 5643515800464806579}
+    - target: {fileID: 4120863068565446555, guid: 3be36533905db614ca0030a5da2a1049, type: 3}
+      propertyPath: parentBoat
+      value: 
+      objectReference: {fileID: 5643515800464806579}
+    - target: {fileID: 4120863068565446555, guid: 3be36533905db614ca0030a5da2a1049, type: 3}
+      propertyPath: muzzleVelocity
+      value: 200
+      objectReference: {fileID: 0}
     - target: {fileID: 8165251244753733770, guid: 3be36533905db614ca0030a5da2a1049, type: 3}
       propertyPath: m_RootOrder
       value: 3
@@ -682,6 +723,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3be36533905db614ca0030a5da2a1049, type: 3}
+--- !u!1 &7152048819252004542 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8798657162578268720, guid: 3be36533905db614ca0030a5da2a1049, type: 3}
+  m_PrefabInstance: {fileID: 1826828194857620622}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7497084005875244036 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8165251244753733770, guid: 3be36533905db614ca0030a5da2a1049, type: 3}
@@ -698,6 +744,14 @@ PrefabInstance:
       propertyPath: parentBoat
       value: 
       objectReference: {fileID: 5643515800464806579}
+    - target: {fileID: 4120863068565446555, guid: 3be36533905db614ca0030a5da2a1049, type: 3}
+      propertyPath: parentBoat
+      value: 
+      objectReference: {fileID: 5643515800464806579}
+    - target: {fileID: 4120863068565446555, guid: 3be36533905db614ca0030a5da2a1049, type: 3}
+      propertyPath: muzzleVelocity
+      value: 200
+      objectReference: {fileID: 0}
     - target: {fileID: 8165251244753733770, guid: 3be36533905db614ca0030a5da2a1049, type: 3}
       propertyPath: m_RootOrder
       value: 4
@@ -751,6 +805,11 @@ PrefabInstance:
 --- !u!4 &2123961593470900 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8165251244753733770, guid: 3be36533905db614ca0030a5da2a1049, type: 3}
+  m_PrefabInstance: {fileID: 8167074539031189310}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &814125790260872462 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8798657162578268720, guid: 3be36533905db614ca0030a5da2a1049, type: 3}
   m_PrefabInstance: {fileID: 8167074539031189310}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8225637590298467172

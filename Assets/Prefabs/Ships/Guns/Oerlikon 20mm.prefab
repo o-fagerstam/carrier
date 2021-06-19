@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8165251244753733770}
   - component: {fileID: 5115833178108708655}
   - component: {fileID: 6997433158723646437}
-  - component: {fileID: -6718873321342910797}
+  - component: {fileID: 4120863068565446555}
   m_Layer: 0
   m_Name: Oerlikon 20mm
   m_TagString: Untagged
@@ -83,7 +83,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &-6718873321342910797
+--- !u!114 &4120863068565446555
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -92,17 +92,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 8798657162578268720}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b28d1257e2d6949409af01f7853e98b4, type: 3}
+  m_Script: {fileID: 11500000, guid: 480c3d184db14f4cb1dd9d57d6398161, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ammunitionPrefab: {fileID: 4096043700518103695, guid: be1869c6dd7eb8f46b44c3713784d324, type: 3}
-  gunElevationTransform: {fileID: 3115952027817662529}
-  horizontalRotationSpeed: 30
-  muzzleParticleSystemPrefab: {fileID: 0}
-  muzzleVelocity: 50
+  ammunitionPrefab: {fileID: -559559837266049238, guid: 073ef962aa79b1f40a30e9f2cb1a17ad, type: 3}
+  horizontalRotationPart: {fileID: 5448100667119692742}
+  horizontalRotationSpeed: 20
+  muzzleParticleSystemPrefab: {fileID: 3690183739500241068, guid: a3b6d63125822524fa81ec4dd751342f, type: 3}
+  muzzleVelocity: 820
   parentBoat: {fileID: 0}
-  reloadTime: 3
-  verticalElevationSpeed: 30
+  reloadTime: 0.12
+  spreadAngle: 0.2
+  verticalElevationSpeed: 20
+  verticalRotationPart: {fileID: 3115952027817662529}
+  maxEffectiveRange: 3000
 --- !u!1001 &3221389442132983722
 PrefabInstance:
   m_ObjectHideFlags: 0

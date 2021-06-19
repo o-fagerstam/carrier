@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3690183739500241068}
   - component: {fileID: 1035675324319687555}
   m_Layer: 0
-  m_Name: GunMuzzleFlash
+  m_Name: ShipMediumGunMuzzleSmoke
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

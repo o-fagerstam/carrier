@@ -70,8 +70,8 @@ namespace PhysicsUtilities {
             return 2 * launchVelocity.y / G;
         }
 
-        public static float ExpectedTimeOfFlight(float vy) {
-            return 2 * vy / G;
+        public static float ExpectedTimeOfFlight(float angle, float muzzleVelocity) {
+            return 2 * Mathf.Sin(angle * Mathf.Deg2Rad) * muzzleVelocity / G;
         }
     }
 }
