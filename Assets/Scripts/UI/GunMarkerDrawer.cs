@@ -47,7 +47,7 @@ public class GunMarkerDrawer : MonoBehaviour {
             marker.IsHidden = true;
             return;
         }
-        Camera currentCamera = GameCamera.CurrentCamera;
+        Camera currentCamera = ShipCamera.CurrentCamera;
         var angleIsValid = CheckValidAngle(currentCamera, prediction.impactPosition);
         if (!angleIsValid) {
             marker.IsHidden = true;

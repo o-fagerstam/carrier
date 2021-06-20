@@ -32,7 +32,7 @@ namespace Ship {
         private void UpdateControllerType() {
             switch (vehicleUserType) {
                 case VehicleUserType.Human:
-                    shipController = new HumanShipController();
+                    shipController = new HumanShipController(this);
                     isActive = true;
                     break;
                 case VehicleUserType.Ai:
@@ -48,6 +48,10 @@ namespace Ship {
         private void Update() {
             if (isActive) {
                 GetInput();
+
+                if (vehicleUserType == VehicleUserType.Human) {
+                    ((HumanShipController) shipController).CheckSwitchCameraEvent();
+                }
             }
         }
 
