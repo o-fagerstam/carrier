@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using PhysicsUtilities;
 using UnityEngine;
 
@@ -39,7 +40,7 @@ namespace Ship {
         }
 
         public bool GetFireInput() {
-            return true;
+            return _currentGunTarget != null;
         }
 
         private Ship SeekTarget() {
@@ -56,6 +57,8 @@ namespace Ship {
                     closestShipDistance = distance;
                 }
             }
+
+            _nextSeekTime = Time.time + Random.Range(2.5f, 3.5f);
 
             return closestShip;
         }
