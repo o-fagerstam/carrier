@@ -29,7 +29,7 @@ namespace Ship {
                 origin,
                 v0,
                 out RaycastHit hit,
-                ShipCamera.GunTargetingMask,
+                GameCamera.GunTargetingMask,
                 maxEffectiveRange
             );
             if (success) {

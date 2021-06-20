@@ -201,7 +201,7 @@ namespace Ship {
                 origin,
                 v0,
                 out RaycastHit hit,
-                ShipCamera.GunTargetingMask
+                GameCamera.GunTargetingMask
             );
             if (success) {
                 return new GunImpactPrediction(true, hit.point);

@@ -4,23 +4,26 @@ using UnityEngine;
 
 namespace Ship {
     public class AiShipController : ShipController {
-
+        private readonly Ship _controlledShip;
+        
         private Ship _currentGunTarget;
         private Vector3 currentAimPoint;
         
         private float _nextSeekTime = float.MinValue;
 
-        public AiShipController(Ship controlledShip) : base(controlledShip) { }
+        public AiShipController(Ship controlledShip) {
+            _controlledShip = controlledShip;
+        }
 
-        public override float GetVerticalInput() {
+        public float GetVerticalInput() {
             return 0f; // Not yet implemented
         }
 
-        public override float GetHorizontalInput() {
+        public float GetHorizontalInput() {
             return 0f; // Not yet implemented
         }
 
-        public override Vector3 GetAimPoint() {
+        public Vector3 GetAimPoint() {
             if (Time.time >= _nextSeekTime) {
                 _currentGunTarget = SeekTarget();
             }
@@ -35,7 +38,7 @@ namespace Ship {
             return currentAimPoint;
         }
 
-        public override bool GetFireInput() {
+        public bool GetFireInput() {
             return true;
         }
 
