@@ -13,6 +13,18 @@ public class GunMarkerDrawer : MonoBehaviour {
     [SerializeField] private List<ShipGun> startingGuns = new List<ShipGun>();
     private Vector2 uiOffset;
 
+    private static GunMarkerDrawer _instance;
+    public static GunMarkerDrawer Instance => _instance;
+
+    private void Awake() {
+        if (_instance != null && _instance != this) {
+            Destroy(gameObject);
+        }
+        else {
+            _instance = this;
+        }
+    }
+
     private void Start() {
         _canvasRectTransform = GetComponent<RectTransform>();
         Vector2 sizeDelta = _canvasRectTransform.sizeDelta;
@@ -21,20 +33,15 @@ public class GunMarkerDrawer : MonoBehaviour {
             AddMarker(gun);
         }
     }
-
-    private void Update() {
-        UpdateMarkers();
-    }
-
-    private void UpdateMarkers() {
+    public void RefreshMarkers() {
         foreach (ShipGun gun in _gunIdToMarkerDict.Keys) {
             GunMarker marker = _gunIdToMarkerDict[gun];
-            UpdateMarker(marker, gun);
+            RefreshMarker(marker, gun);
         }
     }
 
 
-    private void UpdateMarker(GunMarker marker, ShipGun gun) {
+    private void RefreshMarker(GunMarker marker, ShipGun gun) {
         GunImpactPrediction prediction = gun.GunImpactPrediction;
         if (!prediction.willImpact) {
             marker.IsHidden = true;

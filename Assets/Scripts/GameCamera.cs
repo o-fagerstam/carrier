@@ -34,7 +34,7 @@ public class GameCamera : MonoBehaviour {
         CurrentCamera = Camera.main;
     }
 
-    private void Update() {
+    private void LateUpdate() {
         UpdateMouseTarget();
 
         var mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
@@ -76,6 +76,8 @@ public class GameCamera : MonoBehaviour {
         cameraTransform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
 
         swivel.position = objectToFollow.position;
+        
+        GunMarkerDrawer.Instance.RefreshMarkers();
     }
 
     private void UpdateMouseTarget() {
@@ -115,10 +117,9 @@ public class GameCamera : MonoBehaviour {
                 RayCastGunTargetingHit = hit;
                 return;
             }
-
-            RayCastMadeGunTargetingHit = false;
-            return;
         }
+            
+        RayCastMadeGunTargetingHit = false;
     }
 
     private void OnDrawGizmos() {
