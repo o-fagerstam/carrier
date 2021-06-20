@@ -3,7 +3,12 @@ guid: 4d33a52fa03025546a2f435f257290d8
 ModelImporter:
   serializedVersion: 20200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: a_class_destroyer_hull_material
+    second: {fileID: 2100000, guid: 3bc6b0fbccb56e241ada0bd6b4b60593, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

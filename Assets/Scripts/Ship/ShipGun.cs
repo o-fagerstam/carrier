@@ -1,5 +1,7 @@
+using System;
 using PhysicsUtilities;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Ship {
     public abstract class ShipGun : MonoBehaviour {
@@ -9,9 +11,12 @@ namespace Ship {
         public Ship parentBoat;
         [SerializeField] protected Transform horizontalRotationPart;
         public Transform verticalRotationPart;
-        
+
         [SerializeField] protected float horizontalRotationSpeed = 2f;
+        [SerializeField] protected float maxHorizontalRotation = 181f; // Put it above 180 for 180 degree rotation
         [SerializeField] protected float verticalElevationSpeed = 1f;
+        [SerializeField] protected float maxElevation;
+        [SerializeField] protected float minElevation;
         public float muzzleVelocity = 100f;
         [SerializeField] protected float reloadTime = 3f;
         public float spreadAngle;
@@ -58,25 +63,74 @@ namespace Ship {
 
         protected void HandleAim(Vector3 targetPoint, out Vector3 desiredFiringAngle) {
             desiredFiringAngle.z = 0f;
-            desiredFiringAngle.y = RotateTurret(targetPoint);
+            if (maxHorizontalRotation >= 180f) {
+                desiredFiringAngle.y = RotateTurret(targetPoint);
+            }
+            else {
+                desiredFiringAngle.y = RotateTurretClamped(targetPoint);
+            }
+
             desiredFiringAngle.x = RotateGunElevation(targetPoint);
         }
 
         protected float RotateTurret(Vector3 targetPoint) {
             Vector3 position = horizontalRotationPart.position;
-            Vector3 dir = targetPoint - position;
-            dir.y = 0f;
-            dir = dir.normalized;
-            Quaternion lookRotation = Quaternion.LookRotation(dir);
-            Vector3 nextRotation = Quaternion.RotateTowards(
-                    horizontalRotationPart.rotation,
-                    lookRotation,
-                    Time.deltaTime * horizontalRotationSpeed
-                )
-                .eulerAngles;
-            horizontalRotationPart.rotation = Quaternion.Euler(nextRotation);
+            Vector3 horizontalDirection = VectorTools.HorizontalComponent(targetPoint - position).normalized;
+            Quaternion desiredLookRotation = Quaternion.LookRotation(horizontalDirection);
 
-            return lookRotation.eulerAngles.y;
+            Quaternion nextRotation = Quaternion.RotateTowards(
+                horizontalRotationPart.rotation,
+                desiredLookRotation,
+                Time.deltaTime * horizontalRotationSpeed
+            );
+            horizontalRotationPart.rotation = nextRotation;
+
+            return desiredLookRotation.eulerAngles.y;
+        }
+
+        protected float RotateTurretClamped(Vector3 targetPoint) {
+            Vector3 position = horizontalRotationPart.position;
+            Vector3 horizontalDirection = VectorTools.HorizontalComponent(targetPoint - position).normalized;
+            Quaternion desiredLookRotation = Quaternion.LookRotation(horizontalDirection);
+            float globalDesiredLookAngle = desiredLookRotation.eulerAngles.y;
+            float globalRotPartAngle = horizontalRotationPart.rotation.eulerAngles.y;
+            float localRotPartAngle = horizontalRotationPart.localRotation.eulerAngles.y;
+            float globalRotPartZeroAngle = Mathf.Repeat(globalRotPartAngle - localRotPartAngle, 360f);
+            float localDesiredLookAngle = Mathf.Repeat(globalDesiredLookAngle - globalRotPartZeroAngle, 360f);
+
+
+            Vector3 nextRotation;
+
+            if (localRotPartAngle < 180f && localDesiredLookAngle > 180f) {
+                nextRotation = Quaternion.RotateTowards(
+                    horizontalRotationPart.localRotation,
+                    Quaternion.Euler(0f, 359f, 0f),
+                    Time.deltaTime * horizontalRotationSpeed
+                ).eulerAngles;
+            } else if (localRotPartAngle > 180f && localDesiredLookAngle < 180f) {
+                nextRotation = Quaternion.RotateTowards(
+                    horizontalRotationPart.localRotation,
+                    Quaternion.Euler(0f, 1f, 0f),
+                    Time.deltaTime * horizontalRotationSpeed
+                ).eulerAngles;
+            }
+            else {
+                nextRotation = Quaternion.RotateTowards(
+                    horizontalRotationPart.localRotation,
+                    Quaternion.Euler(0f, localDesiredLookAngle, 0f), 
+                    Time.deltaTime * horizontalRotationSpeed
+                ).eulerAngles;
+            }
+
+            if (nextRotation.y > 180f && nextRotation.y < 360-maxHorizontalRotation) {
+                nextRotation.y = 360f - maxHorizontalRotation;
+            } else if (nextRotation.y < 180f && nextRotation.y > maxHorizontalRotation) {
+                nextRotation.y = maxHorizontalRotation;
+            }
+            
+            horizontalRotationPart.localRotation = Quaternion.Euler(nextRotation);
+
+            return desiredLookRotation.eulerAngles.y;
         }
 
         protected float RotateGunElevation(Vector3 targetPoint) {
@@ -120,7 +174,7 @@ namespace Ship {
                 Random.Range(-spreadAngle, spreadAngle),
                 Random.Range(-spreadAngle, spreadAngle)
             );
-            
+
             Quaternion muzzleRotation = verticalRotationPart.rotation * spread;
 
             Shell firedShell = Instantiate(ammunitionPrefab, MuzzlePosition, muzzleRotation);
