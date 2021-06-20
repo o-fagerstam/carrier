@@ -67,7 +67,9 @@ namespace Ship {
             bool hasValidAngle = ProjectileMotion.FiringAngle(
                 deltaPosition,
                 tracingGun.muzzleVelocity,
-                out float angle
+                out float angle,
+                tracingGun.minElevation,
+                tracingGun.maxElevation
             );
             if (!hasValidAngle) {
                 return new GunImpactPrediction(false, new Vector3());
