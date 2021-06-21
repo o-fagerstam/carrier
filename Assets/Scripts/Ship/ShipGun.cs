@@ -1,7 +1,5 @@
-using System;
 using PhysicsUtilities;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace Ship {
     public abstract class ShipGun : MonoBehaviour {
@@ -15,8 +13,8 @@ namespace Ship {
         [SerializeField] protected float horizontalRotationSpeed = 2f;
         [SerializeField] protected float maxHorizontalRotation = 181f; // Put it above 180 for 180 degree rotation
         [SerializeField] protected float verticalElevationSpeed = 1f;
-        [SerializeField] protected float maxElevation;
-        [SerializeField] protected float minElevation;
+        public float maxElevation;
+        public float minElevation;
         public float muzzleVelocity = 100f;
         [SerializeField] protected float reloadTime = 3f;
         public float spreadAngle;
@@ -103,31 +101,36 @@ namespace Ship {
 
             if (localRotPartAngle < 180f && localDesiredLookAngle > 180f) {
                 nextRotation = Quaternion.RotateTowards(
-                    horizontalRotationPart.localRotation,
-                    Quaternion.Euler(0f, 359f, 0f),
-                    Time.deltaTime * horizontalRotationSpeed
-                ).eulerAngles;
-            } else if (localRotPartAngle > 180f && localDesiredLookAngle < 180f) {
+                        horizontalRotationPart.localRotation,
+                        Quaternion.Euler(0f, 359f, 0f),
+                        Time.deltaTime * horizontalRotationSpeed
+                    )
+                    .eulerAngles;
+            }
+            else if (localRotPartAngle > 180f && localDesiredLookAngle < 180f) {
                 nextRotation = Quaternion.RotateTowards(
-                    horizontalRotationPart.localRotation,
-                    Quaternion.Euler(0f, 1f, 0f),
-                    Time.deltaTime * horizontalRotationSpeed
-                ).eulerAngles;
+                        horizontalRotationPart.localRotation,
+                        Quaternion.Euler(0f, 1f, 0f),
+                        Time.deltaTime * horizontalRotationSpeed
+                    )
+                    .eulerAngles;
             }
             else {
                 nextRotation = Quaternion.RotateTowards(
-                    horizontalRotationPart.localRotation,
-                    Quaternion.Euler(0f, localDesiredLookAngle, 0f), 
-                    Time.deltaTime * horizontalRotationSpeed
-                ).eulerAngles;
+                        horizontalRotationPart.localRotation,
+                        Quaternion.Euler(0f, localDesiredLookAngle, 0f),
+                        Time.deltaTime * horizontalRotationSpeed
+                    )
+                    .eulerAngles;
             }
 
-            if (nextRotation.y > 180f && nextRotation.y < 360-maxHorizontalRotation) {
+            if (nextRotation.y > 180f && nextRotation.y < 360 - maxHorizontalRotation) {
                 nextRotation.y = 360f - maxHorizontalRotation;
-            } else if (nextRotation.y < 180f && nextRotation.y > maxHorizontalRotation) {
+            }
+            else if (nextRotation.y < 180f && nextRotation.y > maxHorizontalRotation) {
                 nextRotation.y = maxHorizontalRotation;
             }
-            
+
             horizontalRotationPart.localRotation = Quaternion.Euler(nextRotation);
 
             return desiredLookRotation.eulerAngles.y;
@@ -135,11 +138,18 @@ namespace Ship {
 
         protected float RotateGunElevation(Vector3 targetPoint) {
             Vector3 deltaPosition = targetPoint - MuzzlePosition;
-            bool validAngle = ProjectileMotion.FiringAngle(deltaPosition, muzzleVelocity, out float angle);
-            angle = -angle;
+            bool validAngle = ProjectileMotion.FiringAngle(
+                deltaPosition,
+                muzzleVelocity,
+                out float angle,
+                minElevation,
+                maxElevation
+            );
             if (!validAngle) {
                 return -90;
             }
+
+            angle = -angle;
 
             Quaternion targetGunElevation = Quaternion.Euler(angle, 0f, 0f);
             Quaternion nextGunElevation = Quaternion.RotateTowards(

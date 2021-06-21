@@ -8,35 +8,72 @@ public class GameCamera : MonoBehaviour {
     public static bool RayCastMadeGunTargetingHit;
     public static LayerMask GunTargetingMask;
     private readonly float _mouseScrollSensitivity = 100f;
-    private float _xRotation, _yRotation, _scrollLevel;
+    private float _xRotation, _yRotation, _thirdPersonScrollLevel;
+    private float _scopedScrollLevel = 1f;
+    private bool _inScopeMode = false;
     public float mouseSensitivity = 100f;
+    private Camera _cameraComponent;
+
+    public float thirdPersonFov = 60f;
+    public float scopeMinFov = 2f;
+    public float scopeMaxFov = 55f;
 
     public Transform objectToFollow;
 
     public Transform swivel, stick, cameraTransform;
     public static Camera CurrentCamera { get; private set; }
 
-    private void Start() {
+    private void Awake() {
+        _cameraComponent = GetComponentInChildren<Camera>();
+        GunTargetingMask = LayerMask.GetMask("Water", "Targetable");
+        
         CurrentCamera = Camera.main;
 
         swivel = transform.GetChild(0);
         stick = swivel.GetChild(0);
         cameraTransform = stick.GetChild(0);
+        
         _xRotation = cameraTransform.localRotation.eulerAngles.x;
         _yRotation = swivel.rotation.eulerAngles.y;
-        _scrollLevel = 0.3f;
+        
+        _thirdPersonScrollLevel = 0.3f;
 
         Cursor.lockState = CursorLockMode.Locked;
     }
 
-    private void Awake() {
-        GunTargetingMask = LayerMask.GetMask("Water", "Targetable");
-        CurrentCamera = Camera.main;
-    }
-
-    private void Update() {
+    private void LateUpdate() {
         UpdateMouseTarget();
 
+        if (Input.GetKeyDown(KeyCode.LeftShift)) {
+            SwitchCameraMode();
+        }
+        else {
+            if (_inScopeMode) {
+                ScopedCameraUpdate();
+            }
+            else {
+                ThirdPersonCameraUpdate();
+            }
+        }
+
+        GunMarkerDrawer.Instance.RefreshMarkers();
+    }
+
+    private void SwitchCameraMode() {
+        _inScopeMode = !_inScopeMode;
+
+        if (_inScopeMode) {
+            ScopedCameraUpdate();
+        }
+        else {
+            _cameraComponent.fieldOfView = thirdPersonFov;
+            ThirdPersonCameraUpdate();
+        }
+    }
+
+    private void ThirdPersonCameraUpdate() {
+        swivel.position = objectToFollow.position;
+        
         var mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         var mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
         var mouseScrollWheel = Input.GetAxis("Mouse ScrollWheel") * _mouseScrollSensitivity * Time.deltaTime;
@@ -45,17 +82,17 @@ public class GameCamera : MonoBehaviour {
         _yRotation += mouseX;
         _yRotation = Mathf.Repeat(_yRotation, 360f);
 
-        _scrollLevel += -mouseScrollWheel;
-        _scrollLevel = Mathf.Clamp(_scrollLevel, 0f, 1f);
+        _thirdPersonScrollLevel += -mouseScrollWheel;
+        _thirdPersonScrollLevel = Mathf.Clamp(_thirdPersonScrollLevel, 0f, 1f);
 
 
         Vector3 oldCameraPosition = cameraTransform.position;
 
-        var swivelXAngle = Mathf.Lerp(15f, 30f, _scrollLevel);
+        var swivelXAngle = Mathf.Lerp(15f, 30f, _thirdPersonScrollLevel);
         swivel.localRotation = Quaternion.Euler(swivelXAngle, _yRotation, 0f);
 
         if (mouseScrollWheel != 0f) {
-            var stickDistance = Mathf.Lerp(20f, 120f, _scrollLevel);
+            var stickDistance = Mathf.Lerp(20f, 120f, _thirdPersonScrollLevel);
             stick.localPosition = new Vector3(0f, 0f, -stickDistance);
 
             Vector3 newCameraPosition = cameraTransform.position;
@@ -74,8 +111,32 @@ public class GameCamera : MonoBehaviour {
         _xRotation = Mathf.Clamp(_xRotation, -swivelXAngle, 90f - swivelXAngle);
 
         cameraTransform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
+    }
 
+    private void ScopedCameraUpdate() {
         swivel.position = objectToFollow.position;
+        
+        var mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        var mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        var mouseScrollWheel = Input.GetAxis("Mouse ScrollWheel") * _mouseScrollSensitivity * Time.deltaTime;
+
+        
+        _scopedScrollLevel += -mouseScrollWheel;
+        _scopedScrollLevel = Mathf.Clamp(_scopedScrollLevel, 0f, 1f);
+        float currentFov = Mathf.Lerp(scopeMinFov, scopeMaxFov, _scopedScrollLevel);
+        
+        _yRotation += mouseX * currentFov / scopeMaxFov;
+        _yRotation = Mathf.Repeat(_yRotation, 360f);
+        
+        float cameraHeight = Mathf.Lerp(10f, 60f, 1-_scopedScrollLevel);
+        
+        _xRotation -= mouseY * currentFov / scopeMaxFov;
+        _xRotation = Mathf.Clamp(_xRotation, -1f, 45f);
+
+        swivel.localRotation = Quaternion.Euler(0f, _yRotation, 0f);
+        _cameraComponent.fieldOfView = currentFov;
+        stick.localPosition = new Vector3(0f, cameraHeight, 0f);
+        cameraTransform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
     }
 
     private void UpdateMouseTarget() {
@@ -115,10 +176,9 @@ public class GameCamera : MonoBehaviour {
                 RayCastGunTargetingHit = hit;
                 return;
             }
-
-            RayCastMadeGunTargetingHit = false;
-            return;
         }
+            
+        RayCastMadeGunTargetingHit = false;
     }
 
     private void OnDrawGizmos() {

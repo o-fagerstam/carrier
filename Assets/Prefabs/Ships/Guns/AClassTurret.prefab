@@ -68,8 +68,8 @@ MonoBehaviour:
   horizontalRotationSpeed: 5
   maxHorizontalRotation: 170
   verticalElevationSpeed: 6
-  maxElevation: 0
-  minElevation: 0
+  maxElevation: 30
+  minElevation: -10
   muzzleVelocity: 300
   reloadTime: 4
   spreadAngle: 0.15

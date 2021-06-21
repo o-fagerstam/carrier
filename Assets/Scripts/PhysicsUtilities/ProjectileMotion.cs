@@ -9,9 +9,15 @@ namespace PhysicsUtilities {
             var h = deltaPosition.y;
 
             FiringAngle(d, h, v0, G, out angle, directFire);
-            FiringAngle(d, -h, v0, -G, out var reverseAngle, directFire);
 
             return FiringAngle(d, h, v0, G, out angle, directFire);
+        }
+
+        public static bool FiringAngle(Vector3 deltaPosition, float v0, out float angle, float minElevation,
+            float maxElevation, bool directFire = true) {
+            var valid = FiringAngle(deltaPosition, v0, out angle, directFire);
+
+            return valid && angle >= minElevation && angle <= maxElevation;
         }
 
         private static bool FiringAngle(float d, float h, float v0, float g, out float angle, bool directFire) {
