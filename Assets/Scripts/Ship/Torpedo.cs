@@ -18,8 +18,8 @@ namespace Ship {
 
         private void Awake() {
             _rigidbody = GetComponent<Rigidbody>();
+            _rigidbody.isKinematic = true;
             _forwardRotation = Quaternion.LookRotation(new Vector3(transform.forward.x, 0f, transform.forward.z).normalized);
-            Activate();
         }
 
         private void FixedUpdate() {
@@ -63,6 +63,7 @@ namespace Ship {
         }
 
         public void Activate() {
+            _rigidbody.isKinematic = false;
             isRunning = true;
         }
     }
