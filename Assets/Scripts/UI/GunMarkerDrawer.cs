@@ -10,7 +10,6 @@ public class GunMarkerDrawer : MonoBehaviour {
     private readonly Dictionary<ShipGun, GunMarker> _gunIdToMarkerDict = new Dictionary<ShipGun, GunMarker>();
     private RectTransform _canvasRectTransform;
     [SerializeField] private GunMarker gunMarkerPrefab;
-    [SerializeField] private List<ShipGun> startingGuns = new List<ShipGun>();
     private Vector2 uiOffset;
 
     private static GunMarkerDrawer _instance;
