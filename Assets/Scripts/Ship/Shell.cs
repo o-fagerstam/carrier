@@ -25,7 +25,7 @@ namespace Ship {
 
             int collisionLayerMask = 1 << other.gameObject.layer;
 
-            if ((collisionLayerMask & GameCamera.WaterMask) != 0) {
+            if ((collisionLayerMask & ShipCamera.WaterMask) != 0) {
                 Instantiate(waterSplashPrefab, transform.position, quaternion.Euler(-90f, 0f, 0f));
             }
             
