@@ -77,9 +77,11 @@ namespace Ship {
             _inScopeMode = !_inScopeMode;
 
             if (_inScopeMode) {
+                PostProcessor.Instance.EnableVignette();
                 ScopedCameraUpdate();
             }
             else {
+                PostProcessor.Instance.DisableVignette();
                 _cameraComponent.fieldOfView = thirdPersonFov;
                 ThirdPersonCameraUpdate();
             }
@@ -151,6 +153,9 @@ namespace Ship {
             _cameraComponent.fieldOfView = currentFov;
             stick.localPosition = new Vector3(0f, cameraHeight, 0f);
             cameraTransform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
+
+            float vignetteLevel = Mathf.Lerp(0.3f, 0.5f, 1f-_scopedScrollLevel);
+            PostProcessor.Instance.SetVignetteIntensity(vignetteLevel);
         }
 
         private void UpdateMouseTarget() {
