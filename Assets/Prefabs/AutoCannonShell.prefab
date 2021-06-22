@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5190563054851097251}
   - component: {fileID: 1582805129152917545}
   - component: {fileID: 8357447388892018008}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ShellBody
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -108,7 +108,7 @@ GameObject:
   - component: {fileID: 6769962326619836744}
   - component: {fileID: -3929713924382397910}
   - component: {fileID: -559559837266049238}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: AutoCannonShell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -267,5 +267,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shellOwner: {fileID: 0}
   ShellPower: 20
+  explosionPrefab: {fileID: 6202326797283409654, guid: ceddb64f1bdc36147984ddf62d84b8c9, type: 3}
+  waterSplashPrefab: {fileID: 3568454800795732518, guid: 32d34ca13096287408662da5d6096b79, type: 3}
   maxDistance: 0
   distanceTravelled: 0

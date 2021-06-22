@@ -7,6 +7,7 @@ public class GameCamera : MonoBehaviour {
     public static RaycastHit RayCastGunTargetingHit;
     public static bool RayCastMadeGunTargetingHit;
     public static LayerMask GunTargetingMask;
+    public static LayerMask WaterMask;
     private readonly float _mouseScrollSensitivity = 100f;
     private float _xRotation, _yRotation, _thirdPersonScrollLevel;
     private float _scopedScrollLevel = 1f;
@@ -26,6 +27,7 @@ public class GameCamera : MonoBehaviour {
     private void Awake() {
         _cameraComponent = GetComponentInChildren<Camera>();
         GunTargetingMask = LayerMask.GetMask("Water", "Targetable");
+        WaterMask = LayerMask.GetMask("Water");
         
         CurrentCamera = Camera.main;
 

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5190563054851097251}
   - component: {fileID: 1582805129152917545}
   - component: {fileID: 8357447388892018008}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ShellBody
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -108,7 +108,7 @@ GameObject:
   - component: {fileID: 6769962326619836744}
   - component: {fileID: 4096043700518103695}
   - component: {fileID: -3929713924382397910}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: NavalGunShell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -160,6 +160,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shellOwner: {fileID: 0}
   ShellPower: 1000
+  explosionPrefab: {fileID: 6202326797283409654, guid: 2687c27b4cabb104a8a4f29f5a3e5851, type: 3}
+  waterSplashPrefab: {fileID: 3568454800795732518, guid: 827a908215b4e1f44bbcec87acc1e773, type: 3}
 --- !u!96 &-3929713924382397910
 TrailRenderer:
   serializedVersion: 2
