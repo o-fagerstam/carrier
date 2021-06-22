@@ -10,7 +10,6 @@ public class GunMarkerDrawer : MonoBehaviour {
     private readonly Dictionary<ShipGun, GunMarker> _gunIdToMarkerDict = new Dictionary<ShipGun, GunMarker>();
     private RectTransform _canvasRectTransform;
     [SerializeField] private GunMarker gunMarkerPrefab;
-    [SerializeField] private List<ShipGun> startingGuns = new List<ShipGun>();
     private Vector2 uiOffset;
 
     private static GunMarkerDrawer _instance;
@@ -29,9 +28,6 @@ public class GunMarkerDrawer : MonoBehaviour {
         _canvasRectTransform = GetComponent<RectTransform>();
         Vector2 sizeDelta = _canvasRectTransform.sizeDelta;
         uiOffset = new Vector2(sizeDelta.x * 0.5f, sizeDelta.y * 0.5f);
-        foreach (ShipGun gun in startingGuns) {
-            AddMarker(gun);
-        }
     }
     public void RefreshMarkers() {
         foreach (ShipGun gun in _gunIdToMarkerDict.Keys) {
@@ -47,7 +43,7 @@ public class GunMarkerDrawer : MonoBehaviour {
             marker.IsHidden = true;
             return;
         }
-        Camera currentCamera = GameCamera.CurrentCamera;
+        Camera currentCamera = ShipCamera.CurrentCamera;
         var angleIsValid = CheckValidAngle(currentCamera, prediction.impactPosition);
         if (!angleIsValid) {
             marker.IsHidden = true;
@@ -65,12 +61,22 @@ public class GunMarkerDrawer : MonoBehaviour {
                cameraPosition.z > 0;
     }
 
-    public void AddMarker(ShipGun gun) {
+    private void AddMarker(ShipGun gun) {
         if (_gunIdToMarkerDict.ContainsKey(gun)) {
             throw new ArgumentException($"Gun with id {gun.GetInstanceID()} already has marker", nameof(gun));
         }
 
         _gunIdToMarkerDict[gun] = Instantiate(gunMarkerPrefab, Vector3.zero, Quaternion.identity, transform);
+    }
+
+    public void AcquireMarkers(ShipGun[] guns) {
+        foreach (ShipGun oldGun in _gunIdToMarkerDict.Keys) {
+            RemoveMarker(oldGun);
+        }
+
+        foreach (ShipGun newGun in guns) {
+            AddMarker(newGun);
+        }
     }
 
     private void MoveMarkerToWorldPoint(Camera currentCamera, GunMarker marker, Vector3 worldPosition) {
@@ -95,7 +101,7 @@ public class GunMarkerDrawer : MonoBehaviour {
         }
     }
 
-    public void RemoveMarker(ShipGun gun) {
+    private void RemoveMarker(ShipGun gun) {
         Destroy(_gunIdToMarkerDict[gun].gameObject);
         _gunIdToMarkerDict.Remove(gun);
     }

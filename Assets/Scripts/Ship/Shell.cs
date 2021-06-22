@@ -1,3 +1,4 @@
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace Ship {
@@ -5,6 +6,8 @@ namespace Ship {
         public Transform shellOwner;
         public float ShellPower;
         public Rigidbody Rigidbody { get; private set; }
+        public ParticleSystem explosionPrefab;
+        public ParticleSystem waterSplashPrefab;
 
         private void Awake() {
             Rigidbody = GetComponent<Rigidbody>();
@@ -19,7 +22,14 @@ namespace Ship {
         }
 
         private void OnTriggerEnter(Collider other) {
-            if (((1 << other.gameObject.layer) & ShellImpact.ShellTargetableLayerMask) != 0 &&
+
+            int collisionLayerMask = 1 << other.gameObject.layer;
+
+            if ((collisionLayerMask & ShipCamera.WaterMask) != 0) {
+                Instantiate(waterSplashPrefab, transform.position, quaternion.Euler(-90f, 0f, 0f));
+            }
+            
+            if ((collisionLayerMask & ShellImpact.ShellTargetableLayerMask) != 0 &&
                 other.transform != shellOwner) {
                 Transform thisTransform = transform;
                 Vector3 shellVelocity = Rigidbody.velocity;
@@ -31,9 +41,8 @@ namespace Ship {
                     targetTransform = targetTransform.parent;
                     targetShellImpact = targetTransform.GetComponent<ShellImpact>();
                 }
-
-                //Debug.DrawRay(traceStartPoint, shellVelocity.normalized * ShellImpact.ShellRayMaxDistance, Color.red, 0.2f, false);
-                //Debug.Break();
+                
+                Instantiate(explosionPrefab, transform.position - Rigidbody.velocity * Time.fixedDeltaTime * 2, Quaternion.identity);
 
                 targetShellImpact.CalculateImpact(traceStartPoint, shellVelocity.normalized, ShellPower);
                 Destroy(gameObject);

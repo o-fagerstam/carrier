@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5190563054851097251}
   - component: {fileID: 1582805129152917545}
   - component: {fileID: 8357447388892018008}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ShellBody
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -108,7 +108,7 @@ GameObject:
   - component: {fileID: 6769962326619836744}
   - component: {fileID: -3929713924382397910}
   - component: {fileID: -559559837266049238}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: AutoCannonShell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -155,7 +155,7 @@ TrailRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 967554145729119165}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_MotionVectors: 0
@@ -217,9 +217,9 @@ TrailRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 0.8867924, g: 0.69164115, b: 0, a: 1}
-      key1: {r: 1, g: 0.947142, b: 0.6745283, a: 1}
-      key2: {r: 1, g: 1, b: 1, a: 0}
+      key0: {r: 1, g: 0.97157174, b: 0.8726415, a: 1}
+      key1: {r: 1, g: 0.84337354, b: 0, a: 1}
+      key2: {r: 1, g: 0.947142, b: 0.6745283, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
       key5: {r: 0, g: 0, b: 0, a: 0}
@@ -267,5 +267,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shellOwner: {fileID: 0}
   ShellPower: 20
+  explosionPrefab: {fileID: 6202326797283409654, guid: ceddb64f1bdc36147984ddf62d84b8c9, type: 3}
+  waterSplashPrefab: {fileID: 3568454800795732518, guid: 32d34ca13096287408662da5d6096b79, type: 3}
   maxDistance: 0
   distanceTravelled: 0

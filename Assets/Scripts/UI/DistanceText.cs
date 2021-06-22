@@ -1,3 +1,4 @@
+using Ship;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,8 +10,8 @@ public class DistanceText : MonoBehaviour {
     }
 
     private void Update() {
-        if (GameCamera.RayCastMadeGunTargetingHit) {
-            var distance = (GameCamera.RayCastGunTargetingHit.point - GameCamera.CurrentCamera.transform.position)
+        if (ShipCamera.RayCastMadeGunTargetingHit) {
+            var distance = (ShipCamera.RayCastGunTargetingHit.point - ShipCamera.CurrentCamera.transform.position)
                 .magnitude;
             _text.text = distance.ToString();
         }

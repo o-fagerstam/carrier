@@ -18,7 +18,7 @@ namespace Ship {
         [SerializeField] private float enginePower;
         [SerializeField] private List<WheelCollider> engineWheels;
         [SerializeField] private List<WheelCollider> rudderWheels;
-        
+
         public Rigidbody Rigidbody { get; private set; }
         public ShipGun[] MainGuns { get; private set; }
 
@@ -26,13 +26,16 @@ namespace Ship {
             MainGuns = GetComponentsInChildren<ShipGun>();
             Rigidbody = GetComponent<Rigidbody>();
             Rigidbody.centerOfMass = Vector3.down * transform.localScale.y * 0.4f;
+        }
+
+        private void Start() {
             UpdateControllerType();
         }
 
         private void UpdateControllerType() {
             switch (vehicleUserType) {
                 case VehicleUserType.Human:
-                    shipController = new HumanShipController();
+                    shipController = ShipCamera.AcquireCamera(this);
                     isActive = true;
                     break;
                 case VehicleUserType.Ai:
