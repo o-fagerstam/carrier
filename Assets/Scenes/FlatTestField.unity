@@ -611,14 +611,14 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 877816146}
+  m_Father: {fileID: 2092176623}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 200, y: 200}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0.49999997, y: 0.51}
 --- !u!114 &559673707
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -718,7 +718,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5643515800464806579, guid: 69db026f80414724b82d8eb173e68034, type: 3}
       propertyPath: vehicleUserType
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 69db026f80414724b82d8eb173e68034, type: 3}
@@ -788,7 +788,6 @@ RectTransform:
   - {fileID: 1420984791}
   - {fileID: 1015210747}
   - {fileID: 1259255965}
-  - {fileID: 877816146}
   m_Father: {fileID: 1923080389}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -985,7 +984,7 @@ GameObject:
   - component: {fileID: 877816148}
   - component: {fileID: 877816147}
   m_Layer: 5
-  m_Name: Compass
+  m_Name: CompassRing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1001,14 +1000,13 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 559673706}
-  m_Father: {fileID: 700752706}
-  m_RootOrder: 3
+  m_Children: []
+  m_Father: {fileID: 2092176623}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -169, y: -28}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 200, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &877816147
@@ -1331,7 +1329,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5643515800464806578, guid: 4db01a22f1fa1bf4b8eaae4ddf691685, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1
+      value: 0.76
       objectReference: {fileID: 0}
     - target: {fileID: 5643515800464806578, guid: 4db01a22f1fa1bf4b8eaae4ddf691685, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1535,15 +1533,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5643515800464806578, guid: 69db026f80414724b82d8eb173e68034, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -266.75
+      value: -78.8
       objectReference: {fileID: 0}
     - target: {fileID: 5643515800464806578, guid: 69db026f80414724b82d8eb173e68034, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.75
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 5643515800464806578, guid: 69db026f80414724b82d8eb173e68034, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.2670708
+      value: 241.7
       objectReference: {fileID: 0}
     - target: {fileID: 5643515800464806578, guid: 69db026f80414724b82d8eb173e68034, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1583,7 +1581,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5643515800464806579, guid: 69db026f80414724b82d8eb173e68034, type: 3}
       propertyPath: vehicleUserType
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 69db026f80414724b82d8eb173e68034, type: 3}
@@ -2145,11 +2143,11 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1635616351}
-  m_Material: {fileID: 13400000, guid: 3904097579d0fd144b945ec9a0643528, type: 2}
+  m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 10, y: 2, z: 10}
+  m_Size: {x: 100000, y: 2, z: 100000}
   m_Center: {x: 0, y: -1, z: 0}
 --- !u!1 &1923080385
 GameObject:
@@ -2246,6 +2244,7 @@ RectTransform:
   - {fileID: 1620562558}
   - {fileID: 307445551}
   - {fileID: 700752706}
+  - {fileID: 2092176623}
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2328,6 +2327,58 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a2ca5cbb1453e4419f9b5eb03c06b5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &2092176622
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2092176623}
+  - component: {fileID: 2092176624}
+  m_Layer: 5
+  m_Name: Compass
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2092176623
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2092176622}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 559673706}
+  - {fileID: 877816146}
+  m_Father: {fileID: 1923080389}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 132.9831, y: 133.6}
+  m_SizeDelta: {x: 200, y: 200}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2092176624
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2092176622}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 811a41f351f24442a91c697e2a4f92ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _compassRing: {fileID: 877816146}
+  _compassArrow: {fileID: 559673706}
 --- !u!1001 &1047425673067582034
 PrefabInstance:
   m_ObjectHideFlags: 0
