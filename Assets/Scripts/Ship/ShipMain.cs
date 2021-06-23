@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,6 +22,8 @@ namespace Ship {
         public Rigidbody Rigidbody { get; private set; }
         public ShipGun[] MainGuns { get; private set; }
         public ShipDamageModule DamageModule { get; private set; }
+
+        public event Action<ShipMain> OnShipDestruction; 
 
 
         private void Awake() {
@@ -109,6 +112,10 @@ namespace Ship {
         private void ResetInputAccumulators() {
             _verticalInputAccumulator = 0f;
             _horizontalInputAccumulator = 0f;
+        }
+
+        private void OnDestroy() {
+            OnShipDestruction?.Invoke(this);
         }
     }
 }

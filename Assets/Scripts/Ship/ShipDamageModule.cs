@@ -9,10 +9,17 @@ namespace Ship {
         public const int ShellTargetableLayerMask = 1 << 3;
         public float maxHealth = 3000f;
         public float health;
+        
+        public event EventHandler<OnDamageTakenArgs> OnDamageTaken;
 
-        public delegate void OnDamageTaken(float damageTaken, float healthRemaining, float maxHealth);
-
-        public OnDamageTaken onDamageTaken;
+        public class OnDamageTakenArgs : EventArgs {
+            public float damageTaken, healthRemaining, maxHealth;
+            public OnDamageTakenArgs(float damageTaken, float healthRemaining, float maxHealth) {
+                this.damageTaken = damageTaken;
+                this.healthRemaining = healthRemaining;
+                this.maxHealth = maxHealth;
+            }
+        }
 
         private void Awake() {
             health = maxHealth;
@@ -72,7 +79,7 @@ namespace Ship {
             }
 
             health -= totalDamage;
-            onDamageTaken?.Invoke(totalDamage, health, maxHealth);
+            OnDamageTaken?.Invoke(this, new OnDamageTakenArgs(totalDamage, health, maxHealth));
 
             if (health <= 0f) {
                 Destroy(gameObject);

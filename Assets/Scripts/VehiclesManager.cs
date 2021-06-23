@@ -3,37 +3,38 @@ using Ship;
 using UnityEngine;
 
 public class VehiclesManager : MonoBehaviour {
-    private static VehiclesManager _instance;
-    public HashSet<Ship.ShipMain> AllShips { get; private set; }
-    public Dictionary<int, HashSet<Ship.ShipMain>> ShipsByTeam { get; private set; }
+    public HashSet<ShipMain> AllShips { get; private set; }
+    public Dictionary<int, HashSet<ShipMain>> ShipsByTeam { get; private set; }
 
-    public static VehiclesManager Instance => _instance;
+    public static VehiclesManager Instance { get; private set; }
 
     private void Awake() {
-        if (_instance != null && _instance != this) {
+        if (Instance != null && Instance != this) {
             Destroy(gameObject);
         }
         else {
-            _instance = this;
+            Instance = this;
         }
-        
-        AllShips = new HashSet<Ship.ShipMain>();
-        ShipsByTeam = new Dictionary<int, HashSet<Ship.ShipMain>>();
-        foreach (Ship.ShipMain ship in FindObjectsOfType<Ship.ShipMain>()) {
+
+        AllShips = new HashSet<ShipMain>();
+        ShipsByTeam = new Dictionary<int, HashSet<ShipMain>>();
+        foreach (ShipMain ship in FindObjectsOfType<ShipMain>()) {
             AddShip(ship);
         }
     }
 
-    public void AddShip(Ship.ShipMain ship) {
+    private void AddShip(ShipMain ship) {
         AllShips.Add(ship);
         if (!ShipsByTeam.ContainsKey(ship.team)) {
-            ShipsByTeam[ship.team] = new HashSet<Ship.ShipMain>();
+            ShipsByTeam[ship.team] = new HashSet<ShipMain>();
         }
 
         ShipsByTeam[ship.team].Add(ship);
+
+        ship.OnShipDestruction += RemoveShip;
     }
 
-    public void RemoveShip(Ship.ShipMain ship) {
+    public void RemoveShip(ShipMain ship) {
         AllShips.Remove(ship);
         ShipsByTeam[ship.team].Remove(ship);
     }

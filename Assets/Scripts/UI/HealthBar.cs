@@ -18,18 +18,18 @@ namespace UI {
             }
 
             trackedDamageModule = ship.DamageModule;
-            trackedDamageModule.onDamageTaken += OnShipDamageTaken;
+            trackedDamageModule.OnDamageTaken += OnShipDamageTaken;
             SetSlider(trackedDamageModule.health, trackedDamageModule.maxHealth);
         }
 
         public void ReleaseShip() {
-            trackedDamageModule.onDamageTaken -= OnShipDamageTaken;
+            trackedDamageModule.OnDamageTaken -= OnShipDamageTaken;
             trackedDamageModule = null;
             SetSlider(0, 1);
         }
 
-        private void OnShipDamageTaken(float damagetaken, float healthRemaining, float maxHealth) {
-            SetSlider(healthRemaining, maxHealth);
+        private void OnShipDamageTaken(object sender, ShipDamageModule.OnDamageTakenArgs e) {
+            SetSlider(e.healthRemaining, e.maxHealth);
         }
 
         private void SetSlider(float currentHealth, float maxHealth) {
