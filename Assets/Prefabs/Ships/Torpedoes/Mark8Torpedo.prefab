@@ -294,10 +294,10 @@ MonoBehaviour:
   maxSpeed: 65
   maxRange: 15000
   blastPower: 1000
-  fuseLength: 3
+  fuseLength: 6
   clockwiseRotor: {fileID: 1265679171498976400}
   counterClockwiseRotor: {fileID: 4318941127548346726}
-  movementWaterSprayPrefab: {fileID: 6466414930483971925, guid: e6fa3b9c6bf8b84439dd2629e7dc8107, type: 3}
+  movementWaterSpray: {fileID: 5655622419698833752}
   onImpactWaterSplashPrefab: {fileID: 3568454800795732518, guid: f599f805969619b4da55c3d702137ffb, type: 3}
 --- !u!1001 &1711821674714095117
 PrefabInstance:
@@ -363,5 +363,10 @@ PrefabInstance:
 --- !u!4 &390848156764287391 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1345748277695934354, guid: e6fa3b9c6bf8b84439dd2629e7dc8107, type: 3}
+  m_PrefabInstance: {fileID: 1711821674714095117}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &5655622419698833752 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 6466414930483971925, guid: e6fa3b9c6bf8b84439dd2629e7dc8107, type: 3}
   m_PrefabInstance: {fileID: 1711821674714095117}
   m_PrefabAsset: {fileID: 0}

@@ -12,7 +12,7 @@ namespace Ship {
         
         [SerializeField] private Transform clockwiseRotor;
         [SerializeField] private Transform counterClockwiseRotor;
-        [SerializeField] private ParticleSystem movementWaterSprayPrefab;
+        [SerializeField] private ParticleSystem movementWaterSpray;
         [SerializeField] private ParticleSystem onImpactWaterSplashPrefab;
 
         private bool _waterSprayActivated = false;
@@ -49,9 +49,9 @@ namespace Ship {
                 _rigidbody.useGravity = true;
             }
 
-            if (!_waterSprayActivated && VectorTools.HorizontalComponent(_rigidbody.velocity).magnitude > 10f) {
+            if (!_waterSprayActivated && PayloadIsActive) {
                 _waterSprayActivated = true;
-                movementWaterSprayPrefab.Play();
+                movementWaterSpray.Play();
             }
 
             distanceTravelled += _rigidbody.velocity.magnitude * Time.fixedDeltaTime;
