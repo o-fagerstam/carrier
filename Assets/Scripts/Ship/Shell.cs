@@ -29,17 +29,17 @@ namespace Ship {
                 Instantiate(waterSplashPrefab, transform.position, quaternion.Euler(-90f, 0f, 0f));
             }
             
-            if ((collisionLayerMask & ShellImpact.ShellTargetableLayerMask) != 0 &&
+            if ((collisionLayerMask & ShipDamageModule.ShellTargetableLayerMask) != 0 &&
                 other.transform != shellOwner) {
                 Transform thisTransform = transform;
                 Vector3 shellVelocity = Rigidbody.velocity;
                 Vector3 traceStartPoint = thisTransform.position - shellVelocity * Time.deltaTime * 3f;
 
                 Transform targetTransform = other.transform;
-                var targetShellImpact = targetTransform.GetComponent<ShellImpact>();
+                var targetShellImpact = targetTransform.GetComponent<ShipDamageModule>();
                 while (targetShellImpact == null) {
                     targetTransform = targetTransform.parent;
-                    targetShellImpact = targetTransform.GetComponent<ShellImpact>();
+                    targetShellImpact = targetTransform.GetComponent<ShipDamageModule>();
                 }
                 
                 Instantiate(explosionPrefab, transform.position - Rigidbody.velocity * Time.fixedDeltaTime * 2, Quaternion.identity);

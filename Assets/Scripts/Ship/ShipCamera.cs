@@ -20,7 +20,7 @@ namespace Ship {
         public float scopeMinFov = 2f;
         public float scopeMaxFov = 55f;
 
-        public Ship shipToFollow;
+        public ShipMain shipToFollow;
 
         public Transform swivel, stick, cameraTransform;
         public static Camera CurrentCamera { get; private set; }
@@ -70,7 +70,7 @@ namespace Ship {
                 }
             }
 
-            GunMarkerDrawer.Instance.RefreshMarkers();
+            ShipUI.Instance.RefreshMarkers();
         }
 
         private void SwitchCameraMode() {
@@ -224,9 +224,9 @@ namespace Ship {
             return Input.GetKeyDown(KeyCode.Q);
         }
 
-        public static ShipController AcquireCamera(Ship shipToFollow) {
+        public static ShipController AcquireCamera(ShipMain shipToFollow) {
             Instance.shipToFollow = shipToFollow;
-            GunMarkerDrawer.Instance.AcquireMarkers(shipToFollow.MainGuns);
+            ShipUI.Instance.AcquireShip(shipToFollow);
             return Instance;
         }
     }

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Ship {
-    public class Ship : MonoBehaviour {
+    public class ShipMain : MonoBehaviour {
         private float _horizontalInputAccumulator;
         private float _verticalInputAccumulator;
         private float _steeringAngle;
@@ -20,6 +20,7 @@ namespace Ship {
 
         public Rigidbody Rigidbody { get; private set; }
         public ShipGun[] MainGuns { get; private set; }
+        public ShipDamageModule DamageModule { get; private set; }
 
 
         private void Awake() {
@@ -30,6 +31,8 @@ namespace Ship {
 
             Rigidbody = GetComponent<Rigidbody>();
             Rigidbody.centerOfMass = Vector3.down * transform.localScale.y * 0.4f;
+
+            DamageModule = GetComponent<ShipDamageModule>();
         }
 
         private void Start() {

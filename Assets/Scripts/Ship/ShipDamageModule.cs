@@ -1,12 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using PhysicsUtilities;
 using UnityEngine;
 
 namespace Ship {
-    public class ShellImpact : MonoBehaviour {
+    public class ShipDamageModule : MonoBehaviour {
         public const float ShellRayMaxDistance = 70f;
         public const int ShellTargetableLayerMask = 1 << 3;
-        public float health = 3000f;
+        public float maxHealth = 3000f;
+        public float health;
+
+        public delegate void OnDamageTaken(float damageTaken, float healthRemaining, float maxHealth);
+
+        public OnDamageTaken onDamageTaken;
+
+        private void Awake() {
+            health = maxHealth;
+        }
 
         public void CalculateImpact(Vector3 impactPosition, Vector3 directionVector, float shellPower) {
             var hitComponents = GenerateHitComponentsList(impactPosition, directionVector);
@@ -47,18 +57,22 @@ namespace Ship {
 
         private void CalculateDamage(List<ShipDamageableComponent> hitComponents, float shellPower) {
             var currentShellPower = shellPower;
+            float totalDamage = 0f;
             foreach (ShipDamageableComponent hitComponent in hitComponents) {
                 currentShellPower -= hitComponent.armor;
                 if (currentShellPower <= 0f) {
                     break;
                 }
 
-                health -= hitComponent.damagePointValue;
+                totalDamage += hitComponent.damagePointValue;
                 currentShellPower -= hitComponent.shellPowerReduction;
                 if (currentShellPower < 0f) {
                     break;
                 }
             }
+
+            health -= totalDamage;
+            onDamageTaken?.Invoke(totalDamage, health, maxHealth);
 
             if (health <= 0f) {
                 Destroy(gameObject);

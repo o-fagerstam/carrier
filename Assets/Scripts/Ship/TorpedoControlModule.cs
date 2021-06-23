@@ -4,14 +4,14 @@ using UnityEngine;
 namespace Ship {
     public class TorpedoControlModule : MonoBehaviour {
         public TorpedoLauncher[] TorpedoLaunchers { get; private set; }
-        public Ship parentShip;
+        public ShipMain parentShip;
 
         private int _currentlyActiveLauncher;
         private bool _isActive = true;
         
         
         private void Awake() {
-            parentShip = GetComponentInParent<Ship>();
+            parentShip = GetComponentInParent<ShipMain>();
             TorpedoLaunchers = GetComponentsInChildren<TorpedoLauncher>();
             foreach (TorpedoLauncher launcher in TorpedoLaunchers) {
                 launcher.parentShip = parentShip;

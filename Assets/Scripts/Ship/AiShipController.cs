@@ -5,14 +5,14 @@ using UnityEngine;
 
 namespace Ship {
     public class AiShipController : ShipController {
-        private readonly Ship _controlledShip;
+        private readonly ShipMain _controlledShip;
         
-        private Ship _currentGunTarget;
+        private ShipMain _currentGunTarget;
         private Vector3 currentAimPoint;
         
         private float _nextSeekTime = float.MinValue;
 
-        public AiShipController(Ship controlledShip) {
+        public AiShipController(ShipMain controlledShip) {
             _controlledShip = controlledShip;
         }
 
@@ -47,11 +47,11 @@ namespace Ship {
             return false; // Not yet implemented
         }
 
-        private Ship SeekTarget() {
-            HashSet<Ship> allShips = VehiclesManager.Instance.AllShips;
-            Ship closestShip = null;
+        private ShipMain SeekTarget() {
+            HashSet<ShipMain> allShips = VehiclesManager.Instance.AllShips;
+            ShipMain closestShip = null;
             float closestShipDistance = float.MaxValue;
-            foreach (Ship ship in allShips) {
+            foreach (ShipMain ship in allShips) {
                 if (ship.team == _controlledShip.team) {
                     continue;
                 }
@@ -67,7 +67,7 @@ namespace Ship {
             return closestShip;
         }
 
-        private GunImpactPrediction PredictPosition(Ship target) {
+        private GunImpactPrediction PredictPosition(ShipMain target) {
             ShipGun tracingGun = _controlledShip.MainGuns[0];
             Vector3 deltaPosition = target.transform.position - _controlledShip.transform.position;
             

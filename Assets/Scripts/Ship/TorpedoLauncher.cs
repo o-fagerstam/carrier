@@ -10,7 +10,7 @@ namespace Ship {
         private bool _isActive;
 
         private GameObject _torpedoArrow;
-        public Ship parentShip;
+        public ShipMain parentShip;
 
         private void Update() {
             if (!_isActive) {

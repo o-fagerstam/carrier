@@ -6,7 +6,7 @@ namespace Ship {
         [SerializeField] public Shell ammunitionPrefab;
         [SerializeField] protected ParticleSystem muzzleParticleSystemPrefab;
 
-        public Ship parentBoat;
+        public ShipMain parentBoat;
         [SerializeField] protected Transform horizontalRotationPart;
         public Transform verticalRotationPart;
 
