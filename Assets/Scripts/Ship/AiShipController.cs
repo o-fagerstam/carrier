@@ -43,6 +43,10 @@ namespace Ship {
             return _currentGunTarget != null;
         }
 
+        public bool GetTorpedoInput() {
+            return false; // Not yet implemented
+        }
+
         private Ship SeekTarget() {
             HashSet<Ship> allShips = VehiclesManager.Instance.AllShips;
             Ship closestShip = null;

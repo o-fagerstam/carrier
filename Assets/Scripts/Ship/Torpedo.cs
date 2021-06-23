@@ -31,7 +31,7 @@ namespace Ship {
                 transform.rotation = newRotation;
                 
                 if (_rigidbody.velocity.magnitude < maxSpeed) {
-                    _rigidbody.AddForce(Vector3.forward * acceleration, ForceMode.Acceleration);
+                    _rigidbody.AddForce(transform.forward * acceleration, ForceMode.Acceleration);
                 }
             }
 
@@ -63,6 +63,10 @@ namespace Ship {
         }
 
         public void Activate() {
+            if (transform.parent != null) {
+                transform.parent = null;
+            }
+            _forwardRotation = Quaternion.LookRotation(VectorTools.HorizontalComponent(transform.forward).normalized);
             _rigidbody.isKinematic = false;
             isRunning = true;
         }

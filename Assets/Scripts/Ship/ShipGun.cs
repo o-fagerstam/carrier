@@ -15,8 +15,9 @@ namespace Ship {
         [SerializeField] protected float verticalElevationSpeed = 1f;
         public float maxElevation;
         public float minElevation;
-        public float muzzleVelocity = 100f;
+        
         [SerializeField] protected float reloadTime = 3f;
+        public float muzzleVelocity = 100f;
         public float spreadAngle;
 
         public bool IsLoaded => _lastFired <= Time.time - reloadTime;

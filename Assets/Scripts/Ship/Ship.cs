@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -22,8 +21,13 @@ namespace Ship {
         public Rigidbody Rigidbody { get; private set; }
         public ShipGun[] MainGuns { get; private set; }
 
+
         private void Awake() {
             MainGuns = GetComponentsInChildren<ShipGun>();
+            foreach (ShipGun mainGun in MainGuns) {
+                mainGun.parentBoat = this;
+            }
+
             Rigidbody = GetComponent<Rigidbody>();
             Rigidbody.centerOfMass = Vector3.down * transform.localScale.y * 0.4f;
         }

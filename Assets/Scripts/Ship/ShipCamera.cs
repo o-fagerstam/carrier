@@ -220,6 +220,10 @@ namespace Ship {
             return Input.GetMouseButton(0);
         }
 
+        public bool GetTorpedoInput() {
+            return Input.GetKeyDown(KeyCode.Q);
+        }
+
         public static ShipController AcquireCamera(Ship shipToFollow) {
             Instance.shipToFollow = shipToFollow;
             GunMarkerDrawer.Instance.AcquireMarkers(shipToFollow.MainGuns);

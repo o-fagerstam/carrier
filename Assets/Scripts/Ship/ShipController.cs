@@ -6,5 +6,6 @@ namespace Ship {
         public float GetHorizontalInput();
         public Vector3 GetAimPoint();
         public bool GetFireInput();
+        public bool GetTorpedoInput();
     }
 }
