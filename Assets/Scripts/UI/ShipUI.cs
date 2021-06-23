@@ -14,7 +14,7 @@ public class ShipUI : MonoBehaviour {
 
     private static ShipUI _instance;
     public static ShipUI Instance => _instance;
-    private HealthBar _healthBar;
+    private ShipTrackingUIComponent[] _shipTrackingComponents;
 
     private void Awake() {
         if (_instance != null && _instance != this) {
@@ -24,7 +24,7 @@ public class ShipUI : MonoBehaviour {
             _instance = this;
         }
         _canvasRectTransform = GetComponent<RectTransform>();
-        _healthBar = GetComponentInChildren<HealthBar>();
+        _shipTrackingComponents = GetComponentsInChildren<ShipTrackingUIComponent>();
         Vector2 sizeDelta = _canvasRectTransform.sizeDelta;
         uiOffset = new Vector2(sizeDelta.x * 0.5f, sizeDelta.y * 0.5f);
     }
@@ -77,7 +77,10 @@ public class ShipUI : MonoBehaviour {
         foreach (ShipGun newGun in ship.MainGuns) {
             AddMarker(newGun);
         }
-        _healthBar.AcquireShip(ship);
+
+        foreach (ShipTrackingUIComponent component in _shipTrackingComponents) {
+            component.AcquireShip(ship);
+        }
     }
 
     private void MoveMarkerToWorldPoint(Camera currentCamera, GunMarker marker, Vector3 worldPosition) {

@@ -16,8 +16,8 @@ namespace Ship {
             _controlledShip = controlledShip;
         }
 
-        public float GetVerticalInput() {
-            return 0f; // Not yet implemented
+        public ShipGearInput GetVerticalInput() {
+            return ShipGearInput.None;
         }
 
         public float GetHorizontalInput() {

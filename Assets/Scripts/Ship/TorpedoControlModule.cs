@@ -21,7 +21,7 @@ namespace Ship {
         }
 
         private void Update() {
-            if (_isActive && Input.GetKeyDown(KeyCode.Q)) {
+            if (_isActive && parentShip.shipController.GetTorpedoInput()) {
                 FireTorpedo();
             }
         }

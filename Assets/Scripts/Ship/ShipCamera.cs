@@ -204,8 +204,15 @@ namespace Ship {
          * SHIP CONTROLLER
          */
 
-        public float GetVerticalInput() {
-            return Input.GetAxis("Vertical");
+        public ShipGearInput GetVerticalInput() {
+            if (Input.GetKeyDown(KeyCode.W)) {
+                return ShipGearInput.Raise;
+            } else if (Input.GetKeyDown(KeyCode.S)) {
+                return ShipGearInput.Lower;
+            }
+            else {
+                return ShipGearInput.None;
+            }
         }
 
         public float GetHorizontalInput() {

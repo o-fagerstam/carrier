@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI {
-    public class HealthBar : MonoBehaviour {
+    public class HealthBar : MonoBehaviour, ShipTrackingUIComponent {
         private ShipDamageModule trackedDamageModule;
         private Slider healthBarSlider;
 

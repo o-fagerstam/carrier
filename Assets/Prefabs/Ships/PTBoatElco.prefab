@@ -363,6 +363,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9d086fb832f60b479aabec36579fa0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rudderAnglesPerSecond: 30
   maxSteerAngle: 25
   vehicleUserType: 2
   isActive: 0
@@ -387,6 +388,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1da4bfaec6d492f89bdffd86528c81f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxHealth: 3000
   health: 12000
 --- !u!1 &5777158050603826089
 GameObject:
