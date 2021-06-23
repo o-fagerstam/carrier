@@ -43,3 +43,6 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: WorldSpriteLayer
+    uniqueID: 3779325947
+    locked: 0

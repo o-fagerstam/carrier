@@ -4,20 +4,20 @@ using PhysicsUtilities;
 using UnityEngine;
 
 namespace Ship {
-    public class AiShipController : ShipController {
-        private readonly Ship _controlledShip;
+    public class AiShipController : IShipController {
+        private readonly ShipMain _controlledShip;
         
-        private Ship _currentGunTarget;
+        private ShipMain _currentGunTarget;
         private Vector3 currentAimPoint;
         
         private float _nextSeekTime = float.MinValue;
 
-        public AiShipController(Ship controlledShip) {
+        public AiShipController(ShipMain controlledShip) {
             _controlledShip = controlledShip;
         }
 
-        public float GetVerticalInput() {
-            return 0f; // Not yet implemented
+        public ShipGearInput GetVerticalInput() {
+            return ShipGearInput.None;
         }
 
         public float GetHorizontalInput() {
@@ -43,11 +43,15 @@ namespace Ship {
             return _currentGunTarget != null;
         }
 
-        private Ship SeekTarget() {
-            HashSet<Ship> allShips = VehiclesManager.Instance.AllShips;
-            Ship closestShip = null;
+        public bool GetTorpedoInput() {
+            return false; // Not yet implemented
+        }
+
+        private ShipMain SeekTarget() {
+            HashSet<ShipMain> allShips = VehiclesManager.Instance.AllShips;
+            ShipMain closestShip = null;
             float closestShipDistance = float.MaxValue;
-            foreach (Ship ship in allShips) {
+            foreach (ShipMain ship in allShips) {
                 if (ship.team == _controlledShip.team) {
                     continue;
                 }
@@ -63,7 +67,7 @@ namespace Ship {
             return closestShip;
         }
 
-        private GunImpactPrediction PredictPosition(Ship target) {
+        private GunImpactPrediction PredictPosition(ShipMain target) {
             ShipGun tracingGun = _controlledShip.MainGuns[0];
             Vector3 deltaPosition = target.transform.position - _controlledShip.transform.position;
             

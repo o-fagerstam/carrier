@@ -1,4 +1,3 @@
-using Unity.Mathematics;
 using UnityEngine;
 
 namespace Ship {
@@ -26,25 +25,21 @@ namespace Ship {
             int collisionLayerMask = 1 << other.gameObject.layer;
 
             if ((collisionLayerMask & ShipCamera.WaterMask) != 0) {
-                Instantiate(waterSplashPrefab, transform.position, quaternion.Euler(-90f, 0f, 0f));
+                Instantiate(waterSplashPrefab, transform.position, Quaternion.Euler(-90f, 0f, 0f));
             }
             
-            if ((collisionLayerMask & ShellImpact.ShellTargetableLayerMask) != 0 &&
+            if ((collisionLayerMask & ShipDamageModule.ShellTargetableLayerMask) != 0 &&
                 other.transform != shellOwner) {
                 Transform thisTransform = transform;
                 Vector3 shellVelocity = Rigidbody.velocity;
-                Vector3 traceStartPoint = thisTransform.position - shellVelocity * Time.deltaTime * 3f;
+                Vector3 traceStartPoint = thisTransform.position - shellVelocity * Time.fixedDeltaTime;
 
                 Transform targetTransform = other.transform;
-                var targetShellImpact = targetTransform.GetComponent<ShellImpact>();
-                while (targetShellImpact == null) {
-                    targetTransform = targetTransform.parent;
-                    targetShellImpact = targetTransform.GetComponent<ShellImpact>();
-                }
+                ShipDamageModule damageModule = targetTransform.GetComponentInParent<ShipDamageModule>();
                 
-                Instantiate(explosionPrefab, transform.position - Rigidbody.velocity * Time.fixedDeltaTime * 2, Quaternion.identity);
+                Instantiate(explosionPrefab, transform.position - shellVelocity * Time.fixedDeltaTime * 2, Quaternion.identity);
 
-                targetShellImpact.CalculateImpact(traceStartPoint, shellVelocity.normalized, ShellPower);
+                damageModule.CalculateImpact(traceStartPoint, shellVelocity.normalized, ShellPower);
                 Destroy(gameObject);
             }
         }

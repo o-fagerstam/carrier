@@ -1,5 +1,4 @@
-﻿using System;
-using PhysicsUtilities;
+﻿using PhysicsUtilities;
 using UnityEngine;
 
 namespace Ship {
@@ -8,13 +7,21 @@ namespace Ship {
         [SerializeField] private float acceleration;
         [SerializeField] private float maxSpeed;
         [SerializeField] private float maxRange;
+        [SerializeField] private float blastPower;
+        [SerializeField] private float fuseLength;
+        
         [SerializeField] private Transform clockwiseRotor;
         [SerializeField] private Transform counterClockwiseRotor;
-        [SerializeField] private ParticleSystem waterSprayParticleSystem;
+        [SerializeField] private ParticleSystem movementWaterSpray;
+        [SerializeField] private ParticleSystem onImpactWaterSplashPrefab;
+
         private bool _waterSprayActivated = false;
         private Quaternion _forwardRotation;
         private float distanceTravelled;
+        private float activationTime;
         private bool isRunning;
+
+        private bool PayloadIsActive => activationTime + fuseLength <= Time.time;
 
         private void Awake() {
             _rigidbody = GetComponent<Rigidbody>();
@@ -31,7 +38,7 @@ namespace Ship {
                 transform.rotation = newRotation;
                 
                 if (_rigidbody.velocity.magnitude < maxSpeed) {
-                    _rigidbody.AddForce(Vector3.forward * acceleration, ForceMode.Acceleration);
+                    _rigidbody.AddForce(transform.forward * acceleration, ForceMode.Acceleration);
                 }
             }
 
@@ -42,9 +49,9 @@ namespace Ship {
                 _rigidbody.useGravity = true;
             }
 
-            if (!_waterSprayActivated && VectorTools.HorizontalComponent(_rigidbody.velocity).magnitude > 10f) {
+            if (!_waterSprayActivated && PayloadIsActive) {
                 _waterSprayActivated = true;
-                waterSprayParticleSystem.Play();
+                movementWaterSpray.Play();
             }
 
             distanceTravelled += _rigidbody.velocity.magnitude * Time.fixedDeltaTime;
@@ -63,8 +70,35 @@ namespace Ship {
         }
 
         public void Activate() {
+            if (transform.parent != null) {
+                transform.parent = null;
+            }
+            _forwardRotation = Quaternion.LookRotation(VectorTools.HorizontalComponent(transform.forward).normalized);
             _rigidbody.isKinematic = false;
             isRunning = true;
+            activationTime = Time.time;
+        }
+
+        private void OnTriggerEnter(Collider other) {
+            int collisionLayerMask = 1 << other.gameObject.layer;
+            
+            if ((collisionLayerMask & ShipDamageModule.ShellTargetableLayerMask) != 0 &&
+                isRunning &&
+                PayloadIsActive) {
+                Debug.Log("Boom");
+                Transform thisTransform = transform;
+                Transform targetTransform = other.transform;
+                Vector3 torpedoVelocity = _rigidbody.velocity;
+                
+                ShipDamageModule damageModule = targetTransform.GetComponentInParent<ShipDamageModule>();
+
+                Vector3 traceStartPoint = thisTransform.position - torpedoVelocity * Time.fixedDeltaTime;
+                Vector3 splashPosition = VectorTools.HorizontalComponent(transform.position);
+                
+                Instantiate(onImpactWaterSplashPrefab, splashPosition, Quaternion.Euler(-90f, 0f, 0f));
+                damageModule.CalculateImpact(traceStartPoint, torpedoVelocity.normalized, blastPower);
+                Destroy(gameObject);
+            }
         }
     }
 }

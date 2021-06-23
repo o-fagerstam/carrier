@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 
 namespace Ship {
-    public class ShipCamera : MonoBehaviour, ShipController {
+    public class ShipCamera : MonoBehaviour, IShipController {
         public static Ray MouseRay;
         public static RaycastHit RayCastGunTargetingHit;
         public static bool RayCastMadeGunTargetingHit;
@@ -20,7 +20,7 @@ namespace Ship {
         public float scopeMinFov = 2f;
         public float scopeMaxFov = 55f;
 
-        public Ship shipToFollow;
+        public ShipMain shipToFollow;
 
         public Transform swivel, stick, cameraTransform;
         public static Camera CurrentCamera { get; private set; }
@@ -70,7 +70,7 @@ namespace Ship {
                 }
             }
 
-            GunMarkerDrawer.Instance.RefreshMarkers();
+            ShipUI.Instance.RefreshMarkers();
         }
 
         private void SwitchCameraMode() {
@@ -204,8 +204,15 @@ namespace Ship {
          * SHIP CONTROLLER
          */
 
-        public float GetVerticalInput() {
-            return Input.GetAxis("Vertical");
+        public ShipGearInput GetVerticalInput() {
+            if (Input.GetKeyDown(KeyCode.W)) {
+                return ShipGearInput.Raise;
+            } else if (Input.GetKeyDown(KeyCode.S)) {
+                return ShipGearInput.Lower;
+            }
+            else {
+                return ShipGearInput.None;
+            }
         }
 
         public float GetHorizontalInput() {
@@ -220,9 +227,13 @@ namespace Ship {
             return Input.GetMouseButton(0);
         }
 
-        public static ShipController AcquireCamera(Ship shipToFollow) {
+        public bool GetTorpedoInput() {
+            return Input.GetKeyDown(KeyCode.Q);
+        }
+
+        public static IShipController AcquireCamera(ShipMain shipToFollow) {
             Instance.shipToFollow = shipToFollow;
-            GunMarkerDrawer.Instance.AcquireMarkers(shipToFollow.MainGuns);
+            ShipUI.Instance.AcquireShip(shipToFollow);
             return Instance;
         }
     }

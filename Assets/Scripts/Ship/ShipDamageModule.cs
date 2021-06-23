@@ -1,12 +1,29 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using PhysicsUtilities;
 using UnityEngine;
 
 namespace Ship {
-    public class ShellImpact : MonoBehaviour {
+    public class ShipDamageModule : MonoBehaviour {
         public const float ShellRayMaxDistance = 70f;
         public const int ShellTargetableLayerMask = 1 << 3;
-        public float health = 3000f;
+        public float maxHealth = 3000f;
+        public float health;
+        
+        public event EventHandler<OnDamageTakenArgs> OnDamageTaken;
+
+        public class OnDamageTakenArgs : EventArgs {
+            public float damageTaken, healthRemaining, maxHealth;
+            public OnDamageTakenArgs(float damageTaken, float healthRemaining, float maxHealth) {
+                this.damageTaken = damageTaken;
+                this.healthRemaining = healthRemaining;
+                this.maxHealth = maxHealth;
+            }
+        }
+
+        private void Awake() {
+            health = maxHealth;
+        }
 
         public void CalculateImpact(Vector3 impactPosition, Vector3 directionVector, float shellPower) {
             var hitComponents = GenerateHitComponentsList(impactPosition, directionVector);
@@ -47,18 +64,22 @@ namespace Ship {
 
         private void CalculateDamage(List<ShipDamageableComponent> hitComponents, float shellPower) {
             var currentShellPower = shellPower;
+            float totalDamage = 0f;
             foreach (ShipDamageableComponent hitComponent in hitComponents) {
                 currentShellPower -= hitComponent.armor;
                 if (currentShellPower <= 0f) {
                     break;
                 }
 
-                health -= hitComponent.damagePointValue;
+                totalDamage += hitComponent.damagePointValue;
                 currentShellPower -= hitComponent.shellPowerReduction;
                 if (currentShellPower < 0f) {
                     break;
                 }
             }
+
+            health -= totalDamage;
+            OnDamageTaken?.Invoke(this, new OnDamageTakenArgs(totalDamage, health, maxHealth));
 
             if (health <= 0f) {
                 Destroy(gameObject);

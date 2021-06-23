@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6380704500364131512}
   - component: {fileID: 8008257183407911709}
   - component: {fileID: 5244437588763166679}
+  - component: {fileID: 7665638600567130862}
   m_Layer: 0
   m_Name: Mark8Rack
   m_TagString: Untagged
@@ -82,6 +83,22 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &7665638600567130862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6036794114656232962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06b6d50b9ca4476d963a69cd372208dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  torpedo: {fileID: 5120127678996804092}
+  torpedoArrowPrefab: {fileID: 2742074175017977872, guid: a0c65072f4ee22e488e20c6792f4c0a6, type: 3}
+  torpedoLaunchPosition: {fileID: 6790592104698972320}
+  showTorpedoArrow: 1
 --- !u!1 &8935513165740926927
 GameObject:
   m_ObjectHideFlags: 0
@@ -175,3 +192,14 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7538587507766954508, guid: 5622986dbd0b64c4bae57541c9c8ec8f, type: 3}
   m_PrefabInstance: {fileID: 7842370707444468917}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5120127678996804092 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3160377280913997129, guid: 5622986dbd0b64c4bae57541c9c8ec8f, type: 3}
+  m_PrefabInstance: {fileID: 7842370707444468917}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8fdcb296a393470e9f364193e85bbfc4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
