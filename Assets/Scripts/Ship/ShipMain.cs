@@ -10,7 +10,7 @@ namespace Ship {
         public float rudderAnglesPerSecond;
         public float maxSteerAngle;
 
-        public ShipController shipController;
+        public IShipController shipController;
         public VehicleUserType vehicleUserType = VehicleUserType.None;
         public bool isActive;
         public int team;

@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 
 namespace Ship {
-    public class ShipCamera : MonoBehaviour, ShipController {
+    public class ShipCamera : MonoBehaviour, IShipController {
         public static Ray MouseRay;
         public static RaycastHit RayCastGunTargetingHit;
         public static bool RayCastMadeGunTargetingHit;
@@ -231,7 +231,7 @@ namespace Ship {
             return Input.GetKeyDown(KeyCode.Q);
         }
 
-        public static ShipController AcquireCamera(ShipMain shipToFollow) {
+        public static IShipController AcquireCamera(ShipMain shipToFollow) {
             Instance.shipToFollow = shipToFollow;
             ShipUI.Instance.AcquireShip(shipToFollow);
             return Instance;

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 namespace Ship {
-    public interface ShipController {
+    public interface IShipController {
         public ShipGearInput GetVerticalInput();
         public float GetHorizontalInput();
         public Vector3 GetAimPoint();

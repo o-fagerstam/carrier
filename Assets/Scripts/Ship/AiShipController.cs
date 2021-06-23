@@ -4,7 +4,7 @@ using PhysicsUtilities;
 using UnityEngine;
 
 namespace Ship {
-    public class AiShipController : ShipController {
+    public class AiShipController : IShipController {
         private readonly ShipMain _controlledShip;
         
         private ShipMain _currentGunTarget;

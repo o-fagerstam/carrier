@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI {
-    public class RudderSlider : MonoBehaviour, ShipTrackingUIComponent {
+    public class RudderSlider : MonoBehaviour, IShipTrackingUiComponent {
         private Slider _slider;
         private ShipMain _trackedShip;
 

@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI {
-    public class GearSlider : MonoBehaviour, ShipTrackingUIComponent {
+    public class GearSlider : MonoBehaviour, IShipTrackingUiComponent {
         private Slider _slider;
         private ShipMain _trackedShip;
 
