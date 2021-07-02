@@ -78,11 +78,20 @@ namespace Ship {
         }
 
         private void OnTriggerEnter(Collider other) {
+
+            if (!isRunning || !PayloadIsActive) {
+                return;
+            }
+
             int collisionLayerMask = 1 << other.gameObject.layer;
+
+            if ((collisionLayerMask & (int) LayerMasks.Land) != 0) {
+                Vector3 splashPosition = VectorTools.HorizontalComponent(transform.position);
+                Instantiate(onImpactWaterSplashPrefab, splashPosition, Quaternion.Euler(-90f, 0f, 0f));
+                Destroy(gameObject);
+            }
             
-            if ((collisionLayerMask & (int) LayerMasks.Targetable) != 0 &&
-                isRunning &&
-                PayloadIsActive) {
+            if ((collisionLayerMask & (int) LayerMasks.Targetable) != 0) {
                 Transform thisTransform = transform;
                 Transform targetTransform = other.transform;
                 Vector3 torpedoVelocity = _rigidbody.velocity;
@@ -96,6 +105,8 @@ namespace Ship {
                 damageModule.CalculateImpact(traceStartPoint, torpedoVelocity.normalized, blastPower);
                 Destroy(gameObject);
             }
+            
+            
         }
     }
 }
