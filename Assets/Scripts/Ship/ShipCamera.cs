@@ -7,8 +7,6 @@ namespace Ship {
         public static Ray MouseRay;
         public static RaycastHit RayCastGunTargetingHit;
         public static bool RayCastMadeGunTargetingHit;
-        public static LayerMask GunTargetingMask;
-        public static LayerMask WaterMask;
         private readonly float _mouseScrollSensitivity = 100f;
         private float _xRotation, _yRotation, _thirdPersonScrollLevel;
         private float _scopedScrollLevel = 1f;
@@ -34,13 +32,10 @@ namespace Ship {
             }
             else {
                 _instance = this;
-                Debug.Log("Set instance to " + _instance.name);    
             }
         
             _cameraComponent = GetComponentInChildren<Camera>();
-            GunTargetingMask = LayerMask.GetMask("Water", "Targetable");
-            WaterMask = LayerMask.GetMask("Water");
-        
+
             CurrentCamera = Camera.main;
 
             swivel = transform.GetChild(0);
@@ -161,7 +156,7 @@ namespace Ship {
         private void UpdateMouseTarget() {
             MouseRay = CurrentCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f));
             var hits = new RaycastHit[10];
-            var numHits = Physics.RaycastNonAlloc(MouseRay, hits, CurrentCamera.farClipPlane, GunTargetingMask);
+            var numHits = Physics.RaycastNonAlloc(MouseRay, hits, CurrentCamera.farClipPlane, (int) LayerMasks.Water);
 
 
             if (numHits == 0) {

@@ -6,7 +6,6 @@ using UnityEngine;
 namespace Ship {
     public class ShipDamageModule : MonoBehaviour {
         public const float ShellRayMaxDistance = 70f;
-        public const int ShellTargetableLayerMask = 1 << 3;
         public float maxHealth = 3000f;
         public float health;
         
@@ -37,22 +36,23 @@ namespace Ship {
                 directionVector,
                 ShellRayMaxDistance,
                 20,
-                ShellTargetableLayerMask
+                (int) LayerMasks.Targetable
             );
 
             var hitComponents = new List<ShipDamageableComponent>();
             for (var i = 0; i < sortedHits.Length; i++) {
                 Transform hitTransform = sortedHits[i].collider.transform;
-                if (hitTransform == transform || hitTransform.parent != transform) {
+                if (hitTransform == transform ) {
                     continue;
                 }
 
                 var hitComponent = hitTransform.GetComponent<ShipDamageableComponent>();
+
                 if (hitComponent == null) {
                     throw new UnityException("Failed to find Damage Component. Forgot to set it in editor?");
                 }
 
-                if (hitComponents.Contains(hitComponent)) {
+                if (hitComponents.Contains(hitComponent) || hitComponent.parent != this) {
                     continue;
                 }
 
