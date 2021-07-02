@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections;
 
@@ -55,8 +56,6 @@ public static class MeshGenerator {
 					meshData.AddTriangle (a,d,c);
 					meshData.AddTriangle (d,a,b);
 				}
-
-				vertexIndex++;
 			}
 		}
 		

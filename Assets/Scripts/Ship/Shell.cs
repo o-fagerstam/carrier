@@ -1,3 +1,5 @@
+using System;
+using PhysicsUtilities;
 using UnityEngine;
 
 namespace Ship {
@@ -19,29 +21,65 @@ namespace Ship {
                 Destroy(gameObject);
             }
         }
+        
 
-        private void OnTriggerEnter(Collider other) {
+        private void FixedUpdate() {
+            CheckForImpact();
+        }
 
-            int collisionLayerMask = 1 << other.gameObject.layer;
+        private void CheckForImpact() {
+            Vector3 velocity = Rigidbody.velocity;
+            RaycastHit[] hits = Raycasting.SortedRaycast(
+                Rigidbody.position,
+                velocity,
+                velocity.magnitude * Time.fixedDeltaTime,
+                5,
+                (int) LayerMasks.ShipGunTarget
+            );
+            foreach (RaycastHit hit in hits) {
+                bool destructiveHit = CalculateImpact(hit);
+                if (destructiveHit) {
+                    Destroy(gameObject);
+                    return;
+                }
+            }
+        }
 
+        /// <summary>
+        /// Calculates a shell impact.
+        /// </summary>
+        /// <param name="hit"></param>
+        /// <returns>Returns true if hit should destroy the projectile</returns>
+        private bool CalculateImpact(RaycastHit hit) {
+            Transform hitTransform = hit.transform;
+            Vector3 hitPosition = hit.point;
+            
+            int collisionLayerMask = 1 << hitTransform.gameObject.layer;
+            
             if ((collisionLayerMask & (int) LayerMasks.Water) != 0) {
-                Instantiate(waterSplashPrefab, transform.position, Quaternion.Euler(-90f, 0f, 0f));
+                Instantiate(waterSplashPrefab, hitPosition, Quaternion.Euler(-90f, 0f, 0f));
+            }
+            
+            if ((collisionLayerMask & (int) LayerMasks.Land) != 0) {
+                Instantiate(explosionPrefab, hitPosition, Quaternion.identity);
+                return true;
             }
             
             if ((collisionLayerMask & ShipDamageModule.ShellTargetableLayerMask) != 0 &&
-                other.transform != shellOwner) {
+                hitTransform.transform != shellOwner) {
                 Transform thisTransform = transform;
                 Vector3 shellVelocity = Rigidbody.velocity;
-                Vector3 traceStartPoint = thisTransform.position - shellVelocity * Time.fixedDeltaTime;
+                Vector3 traceStartPoint = thisTransform.position;
 
-                Transform targetTransform = other.transform;
-                ShipDamageModule damageModule = targetTransform.GetComponentInParent<ShipDamageModule>();
+                ShipDamageModule damageModule = hitTransform.GetComponentInParent<ShipDamageModule>();
                 
-                Instantiate(explosionPrefab, transform.position - shellVelocity * Time.fixedDeltaTime * 2, Quaternion.identity);
+                Instantiate(explosionPrefab, hitPosition, Quaternion.identity);
 
                 damageModule.CalculateImpact(traceStartPoint, shellVelocity.normalized, ShellPower);
-                Destroy(gameObject);
+                return true;
             }
+
+            return false;
         }
     }
 }

@@ -32,7 +32,6 @@ namespace Ship {
             }
             else {
                 _instance = this;
-                Debug.Log("Set instance to " + _instance.name);    
             }
         
             _cameraComponent = GetComponentInChildren<Camera>();
