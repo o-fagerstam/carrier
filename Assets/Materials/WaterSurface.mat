@@ -145,7 +145,7 @@ Material:
     - _SrcBlend: 1
     - _Surface: 0
     - _UVSec: 0
-    - _WaterClearness: 0.016
+    - _WaterClearness: 0
     - _WaterDepth: 10
     - _WaveAmplitude: 0.25
     - _WaveDirection: -0.077
