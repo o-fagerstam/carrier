@@ -4,7 +4,7 @@ namespace Ship {
     public class ShipDamageableComponent : MonoBehaviour {
         public float armor;
         public float damagePointValue;
-        [SerializeField] private ShipDamageModule parent;
+        public ShipDamageModule parent;
         public float shellPowerReduction;
     }
 }

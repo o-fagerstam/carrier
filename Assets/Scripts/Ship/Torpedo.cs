@@ -70,9 +70,7 @@ namespace Ship {
         }
 
         public void Activate() {
-            if (transform.parent != null) {
-                transform.parent = null;
-            }
+            transform.parent = null;
             _forwardRotation = Quaternion.LookRotation(VectorTools.HorizontalComponent(transform.forward).normalized);
             _rigidbody.isKinematic = false;
             isRunning = true;
@@ -82,10 +80,9 @@ namespace Ship {
         private void OnTriggerEnter(Collider other) {
             int collisionLayerMask = 1 << other.gameObject.layer;
             
-            if ((collisionLayerMask & ShipDamageModule.ShellTargetableLayerMask) != 0 &&
+            if ((collisionLayerMask & (int) LayerMasks.Targetable) != 0 &&
                 isRunning &&
                 PayloadIsActive) {
-                Debug.Log("Boom");
                 Transform thisTransform = transform;
                 Transform targetTransform = other.transform;
                 Vector3 torpedoVelocity = _rigidbody.velocity;

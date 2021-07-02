@@ -65,7 +65,7 @@ namespace Ship {
                 return true;
             }
             
-            if ((collisionLayerMask & ShipDamageModule.ShellTargetableLayerMask) != 0 &&
+            if ((collisionLayerMask & (int) LayerMasks.Targetable) != 0 &&
                 hitTransform.transform != shellOwner) {
                 Transform thisTransform = transform;
                 Vector3 shellVelocity = Rigidbody.velocity;
