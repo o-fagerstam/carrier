@@ -101,7 +101,9 @@ namespace Ship {
         }
 
         private void Steer() {
-            if (Mathf.Abs(_rudderInput) > 0.02f) {
+            float steeringAngleFactor = Mathf.InverseLerp(-maxSteerAngle, maxSteerAngle, _steeringAngle) * 2f - 1f;
+            if ((_rudderInput > 0f && _rudderInput > steeringAngleFactor) ||
+                (_rudderInput < 0f && _rudderInput < steeringAngleFactor)) {
                 float steeringDiff = rudderAnglesPerSecond * Time.deltaTime * _rudderInput;
                 _steeringAngle = Mathf.Clamp(_steeringAngle + steeringDiff, -maxSteerAngle, maxSteerAngle);
             }

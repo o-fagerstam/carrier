@@ -7,11 +7,14 @@ using Random = UnityEngine.Random;
 
 namespace Ship {
     public class AiShipController : MonoBehaviour, IShipController {
+        private const float NextWaypointDistanceSquared = 10f * 10f;
+        private const float MaxReverseDistanceSquared = 100f * 100f;
+        private const float SteeringSmoothFactor = 0.7f;
+        
         private ShipMain _controlledShip;
         private Seeker _seeker;
         private Path _path;
         private int _currentWayPointIndex;
-        private float _nextWaypointDistanceSquared = 10f * 10f;
         private bool _reachedEndOfPath;
         
         private ShipMain _currentGunTarget;
@@ -27,7 +30,7 @@ namespace Ship {
             _seeker = gameObject.AddComponent<Seeker>();
             
             RaycastModifier raycastModifier = gameObject.AddComponent<RaycastModifier>();
-            raycastModifier.quality = RaycastModifier.Quality.Low;
+            raycastModifier.quality = RaycastModifier.Quality.Highest;
         }
 
         private void Update() {
@@ -89,10 +92,11 @@ namespace Ship {
             _reachedEndOfPath = false;
 
             Vector3 currentPosition = transform.position;
+            float squareDistanceToWaypoint;
             while (true) {
-                float squareDistanceToWaypoint =
+                squareDistanceToWaypoint =
                     Vector3.SqrMagnitude(_path.vectorPath[_currentWayPointIndex] - currentPosition);
-                if (squareDistanceToWaypoint < _nextWaypointDistanceSquared) {
+                if (squareDistanceToWaypoint < NextWaypointDistanceSquared) {
                     if (_currentWayPointIndex < _path.vectorPath.Count - 1) {
                         _currentWayPointIndex++;
                     }
@@ -106,13 +110,11 @@ namespace Ship {
                 }
             }
 
-
             Vector3 targetWaypoint = _path.vectorPath[_currentWayPointIndex];
             Vector3 moveDirection = (targetWaypoint - currentPosition).normalized;
-            float dotProduct = Vector3.Dot(transform.forward, moveDirection);
             float angleToDir = Vector3.SignedAngle(transform.forward, moveDirection, Vector3.up);
             float steeringAngle = Mathf.Clamp(
-                angleToDir,
+                angleToDir * SteeringSmoothFactor,
                 -_controlledShip.maxSteerAngle,
                 _controlledShip.maxSteerAngle
             );
@@ -121,10 +123,27 @@ namespace Ship {
                 _controlledShip.maxSteerAngle,
                 steeringAngle
             ) * 2f - 1f;
-            Debug.Log($"Steering angle: {steeringAngle}, rudder input: {newRudderInput}");
 
-            _currentGearInput = dotProduct > 0f ? ShipGearInput.Raise : ShipGearInput.Lower;
-            _currentRudderInput = newRudderInput;
+            
+            float dotProduct = Vector3.Dot(transform.forward, moveDirection);
+            if (dotProduct >= 0f) {
+                // Forward movement
+                _currentGearInput = ShipGearInput.Raise;
+                _currentRudderInput = newRudderInput;
+            }
+            else {
+                // Backwards movement
+                _currentGearInput = ShipGearInput.Lower;
+                if (squareDistanceToWaypoint > MaxReverseDistanceSquared) {
+                    // Far away, make T turn
+                    _currentRudderInput = -newRudderInput;
+                }
+                else {
+                    // Close by, reverse to waypoint
+                    _currentRudderInput = newRudderInput;
+                }
+            }
+
 
         }
 
@@ -136,6 +155,7 @@ namespace Ship {
             if (!p.error) {
                 _path = p;
                 _currentWayPointIndex = 0;
+                _reachedEndOfPath = false;
             }
             else {
                 Debug.Log("Pathing error: " + p.error);
