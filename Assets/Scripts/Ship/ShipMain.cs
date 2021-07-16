@@ -15,7 +15,7 @@ namespace Ship {
         public bool isActive;
         public int team;
         
-        [SerializeField] private float maxSpeed;
+        public float maxSpeed;
         [SerializeField] private float enginePower;
         [SerializeField] private List<WheelCollider> engineWheels;
         [SerializeField] private List<WheelCollider> rudderWheels;
@@ -49,16 +49,21 @@ namespace Ship {
         }
 
         private void UpdateControllerType() {
+            if (shipController != null && shipController.GetType() == typeof(AiShipController)) {
+                Destroy(shipController as AiShipController);
+            }
+
             switch (vehicleUserType) {
                 case VehicleUserType.Human:
                     shipController = ShipCamera.AcquireCamera(this);
                     isActive = true;
                     break;
                 case VehicleUserType.Ai:
-                    shipController = new AiShipController(this);
+                    shipController = gameObject.AddComponent<AiShipController>();
                     isActive = true;
                     break;
                 case VehicleUserType.None:
+                    shipController = null;
                     isActive = false;
                     break;
             }

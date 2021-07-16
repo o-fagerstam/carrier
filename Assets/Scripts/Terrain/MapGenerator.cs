@@ -127,6 +127,8 @@ public class MapGenerator : MonoBehaviour {
                 MapThreadInfo<MeshData> threadInfo = _meshDataThreadInfoQueue.Dequeue();
                 threadInfo.callback(threadInfo.parameter);
             }
+
+            AstarPath.active.Scan();
         }
     }
 
