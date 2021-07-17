@@ -45,7 +45,7 @@ namespace Ship {
 
         protected void Update() {
             _hasPredictedImpactThisTick = false;
-            if (parentBoat.isActive) {
+            if (parentBoat.IsActive) {
                 HandleGunControl();
             }
         }

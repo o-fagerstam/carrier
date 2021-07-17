@@ -3,41 +3,47 @@ using UnityEngine;
 
 namespace Ship {
     public class TorpedoControlModule : MonoBehaviour {
-        public TorpedoLauncher[] TorpedoLaunchers { get; private set; }
+        private TorpedoLauncher[] _torpedoLaunchers;
         public ShipMain parentShip;
 
         private int _currentlyActiveLauncher;
-        private bool _isActive = true;
-        
-        
+
+
         private void Awake() {
             parentShip = GetComponentInParent<ShipMain>();
-            TorpedoLaunchers = GetComponentsInChildren<TorpedoLauncher>();
-            foreach (TorpedoLauncher launcher in TorpedoLaunchers) {
+            _torpedoLaunchers = GetComponentsInChildren<TorpedoLauncher>();
+            foreach (TorpedoLauncher launcher in _torpedoLaunchers) {
                 launcher.parentShip = parentShip;
             }
             
-            TorpedoLaunchers[0].Activate();
+            _torpedoLaunchers[0].Activate();
+            parentShip.OnShipDestroyed += OnShipDestruction;
         }
 
         private void Update() {
-            if (_isActive && parentShip.shipController.GetTorpedoInput()) {
+            if (parentShip.IsActive &&
+                _currentlyActiveLauncher < _torpedoLaunchers.Length &&
+                parentShip.shipController.GetTorpedoInput()) {
                 FireTorpedo();
             }
         }
 
         private void FireTorpedo() {
-            TorpedoLaunchers[_currentlyActiveLauncher++].FireTorpedo();
-            if (_currentlyActiveLauncher < TorpedoLaunchers.Length) {
-                TorpedoLaunchers[_currentlyActiveLauncher].Activate();
-            }
-            else {
-                Deactivate();
+            _torpedoLaunchers[_currentlyActiveLauncher++].FireTorpedo();
+            if (_currentlyActiveLauncher < _torpedoLaunchers.Length) {
+                _torpedoLaunchers[_currentlyActiveLauncher].Activate();
             }
         }
 
-        private void Deactivate() {
-            _isActive = false;
+        private void OnShipDestruction(ShipMain _) {
+            parentShip.OnShipDestroyed -= OnShipDestruction;
+            foreach (TorpedoLauncher torpedoLauncher in _torpedoLaunchers) {
+                torpedoLauncher.Deactivate();
+            }
+        }
+
+        private void OnDestroy() {
+            parentShip.OnShipDestroyed -= OnShipDestruction;
         }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Ship {
     public class ShipMain : MonoBehaviour {
@@ -12,8 +13,9 @@ namespace Ship {
 
         public IShipController shipController;
         public VehicleUserType vehicleUserType = VehicleUserType.None;
-        public bool isActive;
+
         public int team;
+        public bool isAlive = true;
         
         public float maxSpeed;
         [SerializeField] private float enginePower;
@@ -23,13 +25,17 @@ namespace Ship {
         public Rigidbody Rigidbody { get; private set; }
         public ShipGun[] MainGuns { get; private set; }
         public ShipDamageModule DamageModule { get; private set; }
+        public bool IsActive => vehicleUserType != VehicleUserType.None && isAlive;
 
         private const int maxGearLevel = 4;
         private const int minGearlevel = -2;
 
-        public event Action<ShipMain> OnShipDestruction;
+        private const float OnDestructionDrag = 0.4f;
+        private readonly Vector3 OnDestructionGravityMitigationForce = Vector3.up * (-Physics.gravity.y * 0.995f);
+        
         public event Action<float> OnChangeSteeringAngle;
         public event Action<float> OnChangeGearLevel;
+        public event Action<ShipMain> OnShipDestroyed;
 
 
         private void Awake() {
@@ -56,30 +62,31 @@ namespace Ship {
             switch (vehicleUserType) {
                 case VehicleUserType.Human:
                     shipController = ShipCamera.AcquireCamera(this);
-                    isActive = true;
                     break;
                 case VehicleUserType.Ai:
                     shipController = gameObject.AddComponent<AiShipController>();
-                    isActive = true;
                     break;
                 case VehicleUserType.None:
                     shipController = null;
-                    isActive = false;
                     break;
             }
         }
 
         private void Update() {
-            if (isActive) {
+            if (IsActive) {
                 GetInput();
             }
         }
 
         private void FixedUpdate() {
-            if (isActive) {
+            if (IsActive) {
                 Steer();
                 Accelerate();
                 ResetInputAccumulators();
+            }
+
+            if (!isAlive) {
+                Rigidbody.AddForce(OnDestructionGravityMitigationForce, ForceMode.Acceleration);
             }
 
             ReduceHorizontalDrift();
@@ -149,8 +156,18 @@ namespace Ship {
             _rudderInput = 0f;
         }
 
-        private void OnDestroy() {
-            OnShipDestruction?.Invoke(this);
+        public void DestroyShip() {
+            isAlive = false;
+            
+            OnShipDestroyed?.Invoke(this);
+
+            WheelCollider[] allWheels = GetComponentsInChildren<WheelCollider>();
+            foreach (WheelCollider wheel in allWheels) {
+                wheel.enabled = false;
+            }
+
+            Rigidbody.drag = OnDestructionDrag;
+            Rigidbody.AddRelativeTorque(Vector3.forward * Random.Range(-0.3f, 0.3f), ForceMode.VelocityChange);
         }
     }
 }
