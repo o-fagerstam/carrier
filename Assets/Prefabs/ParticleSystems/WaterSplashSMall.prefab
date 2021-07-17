@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3568454800795732518}
   - component: {fileID: 3568454800795732519}
   m_Layer: 0
-  m_Name: WaterSplashSmall
+  m_Name: WaterSplashSMall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4834,8 +4834,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -515641349
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_RenderMode: 0
   m_SortMode: 0
