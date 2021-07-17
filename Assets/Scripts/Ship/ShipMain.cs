@@ -30,7 +30,11 @@ namespace Ship {
         private const int maxGearLevel = 4;
         private const int minGearlevel = -2;
 
+        private float _timeOfDestruction;
+
         private const float OnDestructionDrag = 0.4f;
+        private const float DestructionMinDrag = 0.2f;
+        private const float TimeFromDestructionToMinDrag = 40f;
         private readonly Vector3 OnDestructionGravityMitigationForce = Vector3.up * (-Physics.gravity.y * 0.995f);
         
         public event Action<float> OnChangeSteeringAngle;
@@ -87,6 +91,16 @@ namespace Ship {
 
             if (!isAlive) {
                 Rigidbody.AddForce(OnDestructionGravityMitigationForce, ForceMode.Acceleration);
+
+                float timeSinceDestruction = Time.time - _timeOfDestruction;
+                if (timeSinceDestruction < TimeFromDestructionToMinDrag) {
+                    float dragFactor = Mathf.InverseLerp(
+                        0,
+                        20f,
+                        Mathf.Max(timeSinceDestruction, TimeFromDestructionToMinDrag)
+                    );
+                    Rigidbody.drag = Mathf.Lerp(OnDestructionDrag, DestructionMinDrag, dragFactor);
+                }
             }
 
             ReduceHorizontalDrift();
@@ -158,6 +172,7 @@ namespace Ship {
 
         public void DestroyShip() {
             isAlive = false;
+            _timeOfDestruction = Time.time;
             
             OnShipDestroyed?.Invoke(this);
 
