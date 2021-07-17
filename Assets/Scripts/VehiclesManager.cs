@@ -31,10 +31,11 @@ public class VehiclesManager : MonoBehaviour {
 
         ShipsByTeam[ship.team].Add(ship);
 
-        ship.OnShipDestruction += RemoveShip;
+        ship.OnShipDestroyed += RemoveShip;
     }
 
     public void RemoveShip(ShipMain ship) {
+        ship.OnShipDestroyed -= RemoveShip;
         AllShips.Remove(ship);
         ShipsByTeam[ship.team].Remove(ship);
     }
