@@ -20,10 +20,6 @@ namespace Ship {
             }
         }
 
-        private void Awake() {
-            health = maxHealth;
-        }
-
         public void CalculateImpact(Vector3 impactPosition, Vector3 directionVector, float shellPower) {
             var hitComponents = GenerateHitComponentsList(impactPosition, directionVector);
             CalculateDamage(hitComponents, shellPower);

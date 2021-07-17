@@ -12,7 +12,7 @@ namespace Ship {
 
         public IShipController shipController;
         public VehicleUserType vehicleUserType = VehicleUserType.None;
-        public bool isActive;
+
         public int team;
         
         public float maxSpeed;
@@ -23,6 +23,7 @@ namespace Ship {
         public Rigidbody Rigidbody { get; private set; }
         public ShipGun[] MainGuns { get; private set; }
         public ShipDamageModule DamageModule { get; private set; }
+        public bool IsActive => vehicleUserType != VehicleUserType.None;
 
         private const int maxGearLevel = 4;
         private const int minGearlevel = -2;
@@ -56,27 +57,24 @@ namespace Ship {
             switch (vehicleUserType) {
                 case VehicleUserType.Human:
                     shipController = ShipCamera.AcquireCamera(this);
-                    isActive = true;
                     break;
                 case VehicleUserType.Ai:
                     shipController = gameObject.AddComponent<AiShipController>();
-                    isActive = true;
                     break;
                 case VehicleUserType.None:
                     shipController = null;
-                    isActive = false;
                     break;
             }
         }
 
         private void Update() {
-            if (isActive) {
+            if (IsActive) {
                 GetInput();
             }
         }
 
         private void FixedUpdate() {
-            if (isActive) {
+            if (IsActive) {
                 Steer();
                 Accelerate();
                 ResetInputAccumulators();

@@ -7,11 +7,12 @@ namespace Ship {
         public ShipMain parentShip;
 
         private int _currentlyActiveLauncher;
-        private bool _isActive = true;
+        private bool _isActive;
         
         
         private void Awake() {
             parentShip = GetComponentInParent<ShipMain>();
+            _isActive = parentShip.IsActive;
             TorpedoLaunchers = GetComponentsInChildren<TorpedoLauncher>();
             foreach (TorpedoLauncher launcher in TorpedoLaunchers) {
                 launcher.parentShip = parentShip;
