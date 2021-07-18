@@ -11,7 +11,7 @@ public class DistanceText : MonoBehaviour {
 
     private void Update() {
         if (ShipCamera.RayCastMadeGunTargetingHit) {
-            var distance = (ShipCamera.RayCastGunTargetingHit.point - ShipCamera.CurrentCamera.transform.position)
+            var distance = (ShipCamera.RayCastGunTargetingHit.point - ShipCamera.Instance.cameraHolderTransform.position)
                 .magnitude;
             _text.text = distance.ToString();
         }

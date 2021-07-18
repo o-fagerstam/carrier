@@ -43,7 +43,7 @@ public class ShipUI : MonoBehaviour {
             marker.IsHidden = true;
             return;
         }
-        Camera currentCamera = ShipCamera.CurrentCamera;
+        Camera currentCamera = PlayerCamera.Instance.Camera;
         var angleIsValid = CheckValidAngle(currentCamera, prediction.impactPosition);
         if (!angleIsValid) {
             marker.IsHidden = true;

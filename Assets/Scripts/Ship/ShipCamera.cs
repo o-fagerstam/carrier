@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using CommandMode;
 using UnityEngine;
 
 namespace Ship {
@@ -12,19 +13,19 @@ namespace Ship {
         private float _scopedScrollLevel = 1f;
         private bool _inScopeMode = false;
         public float mouseSensitivity = 100f;
-        private Camera _cameraComponent;
-
-        public float thirdPersonFov = 60f;
-        public float scopeMinFov = 2f;
-        public float scopeMaxFov = 55f;
+        private PlayerCamera _playerCamera;
+        private bool _hasControl = false;
+        private bool _acquiredControlThisFrame;
 
         public ShipMain shipToFollow;
 
-        public Transform swivel, stick, cameraTransform;
-        public static Camera CurrentCamera { get; private set; }
+        public Transform swivel, stick, cameraHolderTransform;
 
         private static ShipCamera _instance;
         public static ShipCamera Instance => _instance;
+        
+        private const float ScopeMinFov = 2f;
+        private const float ScopeMaxFov = 55f;
 
         private void Awake() {
             if (_instance != null && _instance != this) {
@@ -33,28 +34,35 @@ namespace Ship {
             else {
                 _instance = this;
             }
-        
-            _cameraComponent = GetComponentInChildren<Camera>();
-
-            CurrentCamera = Camera.main;
 
             swivel = transform.GetChild(0);
             stick = swivel.GetChild(0);
-            cameraTransform = stick.GetChild(0);
+            cameraHolderTransform = stick.GetChild(0);
         
-            _xRotation = cameraTransform.localRotation.eulerAngles.x;
+            _xRotation = cameraHolderTransform.localRotation.eulerAngles.x;
             _yRotation = swivel.rotation.eulerAngles.y;
         
             _thirdPersonScrollLevel = 0.3f;
 
             Cursor.lockState = CursorLockMode.Locked;
+
+            _playerCamera = FindObjectOfType<PlayerCamera>();
         }
 
         private void LateUpdate() {
+            if (!_hasControl) {
+                return;
+            }
+
+            if (!_acquiredControlThisFrame && Input.GetKeyDown(KeyCode.Tab)) {
+                SwitchToCommandMode();
+                return;
+            }
+            
             UpdateMouseTarget();
 
             if (Input.GetKeyDown(KeyCode.LeftShift)) {
-                SwitchCameraMode();
+                SwitchScopeMode();
             }
             else {
                 if (_inScopeMode) {
@@ -66,19 +74,42 @@ namespace Ship {
             }
 
             ShipUI.Instance.RefreshMarkers();
+            
+            if (_acquiredControlThisFrame) {
+                _acquiredControlThisFrame = false;
+            }
         }
 
-        private void SwitchCameraMode() {
+        private void SwitchToCommandMode() {
+            _hasControl = false;
+            _playerCamera.Release();
+            CommandModeCamera.Instance.AcquireControl();
+        }
+
+        public void AcquireControl() {
+            _hasControl = true;
+            _acquiredControlThisFrame = true;
+            _playerCamera.FollowTransform(cameraHolderTransform);
+            if (_inScopeMode) {
+                _playerCamera.SetMode(PlayerCamera.CameraMode.ShipScope);
+            }
+            else {
+                _playerCamera.SetMode(PlayerCamera.CameraMode.ShipNormal);
+            }
+        }
+        
+        /*
+         * CAMERA CONTROLLER
+         */
+
+        private void SwitchScopeMode() {
             _inScopeMode = !_inScopeMode;
 
             if (_inScopeMode) {
-                PostProcessor.Instance.EnableVignette();
-                ScopedCameraUpdate();
+                _playerCamera.SetMode(PlayerCamera.CameraMode.ShipScope);
             }
             else {
-                PostProcessor.Instance.DisableVignette();
-                _cameraComponent.fieldOfView = thirdPersonFov;
-                ThirdPersonCameraUpdate();
+                _playerCamera.SetMode(PlayerCamera.CameraMode.ShipNormal);
             }
         }
 
@@ -95,9 +126,8 @@ namespace Ship {
 
             _thirdPersonScrollLevel += -mouseScrollWheel;
             _thirdPersonScrollLevel = Mathf.Clamp(_thirdPersonScrollLevel, 0f, 1f);
-
-
-            Vector3 oldCameraPosition = cameraTransform.position;
+            
+            Vector3 oldCameraPosition = cameraHolderTransform.position;
 
             var swivelXAngle = Mathf.Lerp(15f, 30f, _thirdPersonScrollLevel);
             swivel.localRotation = Quaternion.Euler(swivelXAngle, _yRotation, 0f);
@@ -106,7 +136,7 @@ namespace Ship {
                 var stickDistance = Mathf.Lerp(20f, 120f, _thirdPersonScrollLevel);
                 stick.localPosition = new Vector3(0f, 0f, -stickDistance);
 
-                Vector3 newCameraPosition = cameraTransform.position;
+                Vector3 newCameraPosition = cameraHolderTransform.position;
                 var angularChange = Vector3.Angle(
                     (newCameraPosition - RayCastGunTargetingHit.point).normalized,
                     (oldCameraPosition - RayCastGunTargetingHit.point).normalized
@@ -121,7 +151,7 @@ namespace Ship {
             _xRotation -= mouseY;
             _xRotation = Mathf.Clamp(_xRotation, -swivelXAngle, 90f - swivelXAngle);
 
-            cameraTransform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
+            cameraHolderTransform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
         }
 
         private void ScopedCameraUpdate() {
@@ -131,42 +161,40 @@ namespace Ship {
             var mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
             var mouseScrollWheel = Input.GetAxis("Mouse ScrollWheel") * _mouseScrollSensitivity * Time.deltaTime;
 
-        
             _scopedScrollLevel += -mouseScrollWheel;
             _scopedScrollLevel = Mathf.Clamp(_scopedScrollLevel, 0f, 1f);
-            float currentFov = Mathf.Lerp(scopeMinFov, scopeMaxFov, _scopedScrollLevel);
+            float currentFov = Mathf.Lerp(ScopeMinFov, ScopeMaxFov, _scopedScrollLevel);
         
-            _yRotation += mouseX * currentFov / scopeMaxFov;
+            _yRotation += mouseX * currentFov / ScopeMaxFov;
             _yRotation = Mathf.Repeat(_yRotation, 360f);
         
             float cameraHeight = Mathf.Lerp(10f, 60f, 1-_scopedScrollLevel);
         
-            _xRotation -= mouseY * currentFov / scopeMaxFov;
+            _xRotation -= mouseY * currentFov / ScopeMaxFov;
             _xRotation = Mathf.Clamp(_xRotation, -1f, 45f);
 
             swivel.localRotation = Quaternion.Euler(0f, _yRotation, 0f);
-            _cameraComponent.fieldOfView = currentFov;
+            _playerCamera.SetFov(currentFov);
             stick.localPosition = new Vector3(0f, cameraHeight, 0f);
-            cameraTransform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
+            cameraHolderTransform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
 
             float vignetteLevel = Mathf.Lerp(0.3f, 0.5f, 1f-_scopedScrollLevel);
             PostProcessor.Instance.SetVignetteIntensity(vignetteLevel);
         }
 
         private void UpdateMouseTarget() {
-            MouseRay = CurrentCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f));
+            MouseRay = _playerCamera.Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f));
             var hits = new RaycastHit[10];
-            var numHits = Physics.RaycastNonAlloc(MouseRay, hits, CurrentCamera.farClipPlane, (int) LayerMasks.Water);
+            var numHits = Physics.RaycastNonAlloc(MouseRay, hits, _playerCamera.Camera.farClipPlane, (int) LayerMasks.Water);
 
 
             if (numHits == 0) {
                 RayCastMadeGunTargetingHit = false;
                 return;
             }
-
-            Vector3 cameraPos = CurrentCamera.transform.position;
+            
             Array.Resize(ref hits, numHits);
-            hits = hits.OrderBy(h => (h.point - cameraPos).magnitude).ToArray();
+            hits = hits.OrderBy(h => (h.point - cameraHolderTransform.position).magnitude).ToArray();
 
             foreach (RaycastHit hit in hits) {
                 Transform t = hit.transform;
@@ -200,9 +228,14 @@ namespace Ship {
          */
 
         public ShipGearInput GetVerticalInput() {
-            if (Input.GetKeyDown(KeyCode.W)) {
+            if (!_hasControl) {
+                return ShipGearInput.None;
+            }
+
+            float verticalInput = Input.GetAxisRaw("Vertical");
+            if (verticalInput > 0.01f) {
                 return ShipGearInput.Raise;
-            } else if (Input.GetKeyDown(KeyCode.S)) {
+            } else if (verticalInput < -0.01f) {
                 return ShipGearInput.Lower;
             }
             else {
@@ -211,6 +244,10 @@ namespace Ship {
         }
 
         public float GetHorizontalInput() {
+            if (!_hasControl) {
+                return 0f;
+            }
+            
             return Input.GetAxis("Horizontal");
         }
 
@@ -219,10 +256,16 @@ namespace Ship {
         }
 
         public bool GetFireInput() {
+            if (!_hasControl) {
+                return false;
+            }
             return Input.GetMouseButton(0);
         }
 
         public bool GetTorpedoInput() {
+            if (!_hasControl) {
+                return false;
+            }
             return Input.GetKeyDown(KeyCode.Q);
         }
 
