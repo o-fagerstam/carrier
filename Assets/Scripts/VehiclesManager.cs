@@ -34,8 +34,8 @@ public class VehiclesManager : MonoBehaviour {
         ship.OnDeath += RemoveShip;
     }
 
-    public void RemoveShip(GameUnit shipGame) {
-        ShipMain ship = shipGame as ShipMain;
+    private void RemoveShip(GameUnit shipUnit) {
+        ShipMain ship = (ShipMain) shipUnit; // This cast is a code smell, but I don't know how else 
         ship.OnDeath -= RemoveShip;
         AllShips.Remove(ship);
         ShipsByTeam[ship.team].Remove(ship);
