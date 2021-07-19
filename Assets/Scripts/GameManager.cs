@@ -36,7 +36,6 @@ public class GameManager : MonoBehaviour {
         switch (speed) {
             case GameSpeed.Normal:
                 Time.timeScale = 1f;
-                Debug.Log($"Timescale is {Time.timeScale}");
                 break;
             case GameSpeed.Paused:
                 Time.timeScale = 0f;

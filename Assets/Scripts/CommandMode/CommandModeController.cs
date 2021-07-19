@@ -94,6 +94,7 @@ namespace CommandMode {
                 (int) LayerMasks.Selectable
             );
             if (!madeHit) {
+                DeselectAll();
                 return;
             }
 
@@ -111,6 +112,13 @@ namespace CommandMode {
             }
         }
 
+        private void DeselectAll() {
+            foreach (GameUnit unit in _selectedUnits) {
+                ProcessDeselection(unit);
+            }
+            _selectedUnits.Clear();
+        }
+
         private void SelectUnit(GameUnit u) {
             _selectedUnits.Add(u);
             u.Select();
@@ -119,6 +127,10 @@ namespace CommandMode {
 
         private void DeselectUnit(GameUnit u) {
             _selectedUnits.Remove(u);
+            ProcessDeselection(u);
+        }
+
+        private void ProcessDeselection(GameUnit u) {
             u.Deselect();
             u.OnDeath -= OnSelectedUnitDeath;
         }
