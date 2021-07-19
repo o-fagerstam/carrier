@@ -5,6 +5,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour {
     private static GameManager _instance;
     public static GameManager Instance => _instance;
+    public const int PlayerTeam = 0;
     private GameSpeed _lastGameSpeed = GameSpeed.Normal;
     private bool _lateInitFinished;
 
@@ -32,7 +33,6 @@ public class GameManager : MonoBehaviour {
     }
 
     private void ChangeTimeScale(GameSpeed speed) {
-        Debug.Log("Changing game speed to " + speed);
         switch (speed) {
             case GameSpeed.Normal:
                 Time.timeScale = 1f;

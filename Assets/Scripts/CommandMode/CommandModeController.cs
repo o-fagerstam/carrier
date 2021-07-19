@@ -98,6 +98,11 @@ namespace CommandMode {
             }
 
             GameUnit hitUnit = hit.transform.GetComponent<GameUnit>();
+
+            if (hitUnit.team != GameManager.PlayerTeam) {
+                return;
+            }
+            
             if (hitUnit.IsSelected) {
                 DeselectUnit(hitUnit);
             }
