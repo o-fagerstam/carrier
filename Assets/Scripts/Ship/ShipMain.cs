@@ -4,7 +4,7 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Ship {
-    public class ShipMain : MonoBehaviour {
+    public class ShipMain : GameUnit {
         private float _rudderInput;
         private int _gearLevel;
         private float _steeringAngle;
@@ -12,11 +12,7 @@ namespace Ship {
         public float maxSteerAngle;
 
         public IShipController shipController;
-        public VehicleUserType vehicleUserType = VehicleUserType.None;
 
-        public int team;
-        public bool isAlive = true;
-        
         public float maxSpeed;
         [SerializeField] private float enginePower;
         [SerializeField] private List<WheelCollider> engineWheels;
@@ -25,12 +21,9 @@ namespace Ship {
         public Rigidbody Rigidbody { get; private set; }
         public ShipGun[] MainGuns { get; private set; }
         public ShipDamageModule DamageModule { get; private set; }
-        public bool IsActive => vehicleUserType != VehicleUserType.None && isAlive;
 
         private const int maxGearLevel = 4;
         private const int minGearlevel = -2;
-
-        private float _timeOfDestruction;
 
         private const float OnDestructionDrag = 0.4f;
         private const float DestructionMinDrag = 0.2f;
@@ -39,7 +32,6 @@ namespace Ship {
         
         public event Action<float> OnChangeSteeringAngle;
         public event Action<float> OnChangeGearLevel;
-        public event Action<ShipMain> OnShipDestroyed;
 
 
         private void Awake() {
@@ -89,10 +81,10 @@ namespace Ship {
                 ResetInputAccumulators();
             }
 
-            if (!isAlive) {
+            if (!alive) {
                 Rigidbody.AddForce(OnDestructionGravityMitigationForce, ForceMode.Acceleration);
 
-                float timeSinceDestruction = Time.time - _timeOfDestruction;
+                float timeSinceDestruction = Time.time - timeOfDestruction;
                 if (timeSinceDestruction < TimeFromDestructionToMinDrag) {
                     float dragFactor = Mathf.InverseLerp(
                         0,
@@ -170,11 +162,8 @@ namespace Ship {
             _rudderInput = 0f;
         }
 
-        public void DestroyShip() {
-            isAlive = false;
-            _timeOfDestruction = Time.time;
-            
-            OnShipDestroyed?.Invoke(this);
+        public override void Destroy() {
+            base.Destroy();
 
             WheelCollider[] allWheels = GetComponentsInChildren<WheelCollider>();
             foreach (WheelCollider wheel in allWheels) {

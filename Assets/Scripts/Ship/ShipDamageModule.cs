@@ -80,7 +80,7 @@ namespace Ship {
                 }
             }
 
-            if (!_shipMain.isAlive) {
+            if (!_shipMain.alive) {
                 return;
             }
 
@@ -88,7 +88,7 @@ namespace Ship {
             OnDamageTaken?.Invoke(this, new OnDamageTakenArgs(totalDamage, health, maxHealth));
 
             if (health <= 0f) {
-                _shipMain.DestroyShip();
+                _shipMain.Destroy();
             }
         }
     }

@@ -13,7 +13,7 @@ namespace Ship {
 
         private void Awake() {
             _shipMain = GetComponentInParent<ShipMain>();
-            _shipMain.OnShipDestroyed += OnShipDestroyed;
+            _shipMain.OnDeath += OnParentDeath;
         
             _damageModule = GetComponentInParent<ShipDamageModule>();
             _damageModule.OnDamageTaken += OnShipDamaged;
@@ -48,8 +48,8 @@ namespace Ship {
             }
         }
 
-        private void OnShipDestroyed(ShipMain _) {
-            _shipMain.OnShipDestroyed -= OnShipDestroyed;
+        private void OnParentDeath(GameUnit _) {
+            _shipMain.OnDeath -= OnParentDeath;
             foreach (DamageParticleSystem system in _explosionParticleSystems) {
                 system.Play();
             }
@@ -57,7 +57,7 @@ namespace Ship {
 
         private void OnDestroy() {
             _damageModule.OnDamageTaken -= OnShipDamaged;
-            _shipMain.OnShipDestroyed -= OnShipDestroyed;
+            _shipMain.OnDeath -= OnParentDeath;
         }
     }
 }
