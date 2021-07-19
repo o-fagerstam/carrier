@@ -40,7 +40,9 @@ namespace CommandMode {
 
             Scroll();
             if (Input.GetMouseButtonDown(0)) {
-                TraceSelection();
+                LeftClickSelection();
+            } else if (Input.GetMouseButtonDown(1)) {
+                // Orders here
             }
             
             if (_acquiredControlThisFrame) {
@@ -85,7 +87,32 @@ namespace CommandMode {
          * SELECTION
          */
 
-        private void TraceSelection() {
+        /// <summary>
+        /// Selects a single unit with a left click.
+        /// </summary>
+        private void LeftClickSelection() {
+            bool madeHit = UnitRay(out GameUnit hitUnit);
+            
+            if (!madeHit) {
+                DeselectAll();
+                return;
+            }
+            
+            if (hitUnit.team != GameManager.PlayerTeam) {
+                return;
+            }
+            
+            DeselectAll();
+            SelectUnit(hitUnit);
+            
+        }
+        
+        /// <summary>
+        /// Makes a raycast to check for unit selection.
+        /// </summary>
+        /// <param name="hitUnit">Reference to the unit that was hit (returns null if no hit).</param>
+        /// <returns>True if a unit was hit, else false.</returns>
+        private bool UnitRay(out GameUnit hitUnit) {
             Ray mouseRay = _playerCamera.Camera.ScreenPointToRay(Input.mousePosition);
             bool madeHit = Physics.Raycast(
                 mouseRay,
@@ -93,23 +120,25 @@ namespace CommandMode {
                 _playerCamera.Camera.farClipPlane,
                 (int) LayerMasks.Selectable
             );
-            if (!madeHit) {
-                DeselectAll();
-                return;
-            }
+            hitUnit = madeHit? hit.transform.GetComponent<GameUnit>() : null;
+            return madeHit;
+        }
 
-            GameUnit hitUnit = hit.transform.GetComponent<GameUnit>();
-
-            if (hitUnit.team != GameManager.PlayerTeam) {
-                return;
-            }
-            
-            if (hitUnit.IsSelected) {
-                DeselectUnit(hitUnit);
-            }
-            else {
-                SelectUnit(hitUnit);
-            }
+        /// <summary>
+        /// Makes a raycast to check for terrain hit.
+        /// </summary>
+        /// <param name="hitPosition">The position that was hit (returns Vector3.zero if no hit).</param>
+        /// <returns>True if terrain was hit, else false.</returns>
+        private bool TerrainRay(out Vector3 hitPosition) {
+            Ray mouseRay = _playerCamera.Camera.ScreenPointToRay(Input.mousePosition);
+            bool madeHit = Physics.Raycast(
+                mouseRay,
+                out RaycastHit hit,
+                _playerCamera.Camera.farClipPlane,
+                (int) LayerMasks.Terrain
+            );
+            hitPosition = madeHit? hit.point : Vector3.zero;
+            return madeHit;
         }
 
         private void DeselectAll() {
@@ -130,6 +159,11 @@ namespace CommandMode {
             ProcessDeselection(u);
         }
 
+        /// <summary>
+        /// Processes deselection of a unit without removing it from _selectedUnits.
+        /// Used when iterating over _selectedUnits without changing its contents.
+        /// (Remember to clear the unit from _selectedUnits afterwards.)
+        /// </summary>
         private void ProcessDeselection(GameUnit u) {
             u.Deselect();
             u.OnDeath -= OnSelectedUnitDeath;

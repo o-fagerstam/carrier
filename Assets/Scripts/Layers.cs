@@ -10,6 +10,7 @@
 public enum LayerMasks {
     Water = (1 << Layers.Water),
     Land = (1 << Layers.Land),
+    Terrain = (1 << Layers.Land) + (1 << Layers.Water),
     Targetable = (1 << Layers.Targetable),
     ShipGunTarget = (1 << Layers.Land) + (1 << Layers.Targetable) + (1 << Layers.Water),
     Selectable = (1 << Layers.Selectable)
