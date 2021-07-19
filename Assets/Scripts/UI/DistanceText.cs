@@ -10,8 +10,8 @@ public class DistanceText : MonoBehaviour {
     }
 
     private void Update() {
-        if (ShipCamera.RayCastMadeGunTargetingHit) {
-            var distance = (ShipCamera.RayCastGunTargetingHit.point - ShipCamera.Instance.cameraHolderTransform.position)
+        if (PlayerShipController.RayCastMadeGunTargetingHit) {
+            var distance = (PlayerShipController.RayCastGunTargetingHit.point - PlayerShipController.Instance.cameraHolderTransform.position)
                 .magnitude;
             _text.text = distance.ToString();
         }

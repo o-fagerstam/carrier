@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour {
     private void Update() {
         if (!_lateInitFinished) {
             _lateInitFinished = true;
-            ShipCamera.Instance.AcquireControl();
+            PlayerShipController.Instance.AcquireControl();
         }
     }
 

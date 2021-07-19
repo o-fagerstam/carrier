@@ -57,7 +57,7 @@ namespace Ship {
 
             switch (vehicleUserType) {
                 case VehicleUserType.Human:
-                    shipController = ShipCamera.AcquireCamera(this);
+                    shipController = PlayerShipController.AcquireCamera(this);
                     break;
                 case VehicleUserType.Ai:
                     shipController = gameObject.AddComponent<AiShipController>();

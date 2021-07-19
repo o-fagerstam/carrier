@@ -3,12 +3,14 @@
     Water = 4,
     Projectile = 6,
     BoatWheel = 7,
-    Land = 8
+    Land = 8,
+    Selectable = 9
 }
 
 public enum LayerMasks {
     Water = (1 << Layers.Water),
     Land = (1 << Layers.Land),
     Targetable = (1 << Layers.Targetable),
-    ShipGunTarget = (1 << Layers.Land) + (1 << Layers.Targetable) + (1 << Layers.Water)
+    ShipGunTarget = (1 << Layers.Land) + (1 << Layers.Targetable) + (1 << Layers.Water),
+    Selectable = (1 << Layers.Selectable)
 }
