@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Ship;
 using UnityEngine;
 
@@ -42,7 +41,7 @@ namespace CommandMode {
             if (Input.GetMouseButtonDown(0)) {
                 LeftClickSelection();
             } else if (Input.GetMouseButtonDown(1)) {
-                // Orders here
+                RightClickOrder();
             }
             
             if (_acquiredControlThisFrame) {
@@ -105,6 +104,30 @@ namespace CommandMode {
             DeselectAll();
             SelectUnit(hitUnit);
             
+        }
+
+        private void RightClickOrder() {
+            if (_selectedUnits.Count == 0) {
+                return;
+            }
+            bool unitHit = UnitRay(out GameUnit hitUnit);
+            if (unitHit) {
+                Order order = new Order();
+                order.MoveOrder = new TrackMoveOrder(hitUnit);
+                foreach (GameUnit selectedUnit in _selectedUnits) {
+                    selectedUnit.SetOrder(order);
+                }
+                return;
+            }
+
+            bool terrainHit = TerrainRay(out Vector3 hitPosition);
+            if (terrainHit) {
+                Order order = new Order();
+                order.MoveOrder = new PointMoveOrder(hitPosition);
+                foreach (GameUnit selectedUnit in _selectedUnits) {
+                    selectedUnit.SetOrder(order);
+                }
+            }
         }
         
         /// <summary>

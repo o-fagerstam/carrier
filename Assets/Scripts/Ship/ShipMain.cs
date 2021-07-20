@@ -17,8 +17,7 @@ namespace Ship {
         [SerializeField] private float enginePower;
         [SerializeField] private List<WheelCollider> engineWheels;
         [SerializeField] private List<WheelCollider> rudderWheels;
-
-        public Rigidbody Rigidbody { get; private set; }
+        
         public ShipGun[] MainGuns { get; private set; }
         public ShipDamageModule DamageModule { get; private set; }
 
@@ -34,13 +33,13 @@ namespace Ship {
         public event Action<float> OnChangeGearLevel;
 
 
-        private void Awake() {
+        protected override void Awake() {
+            base.Awake();
             MainGuns = GetComponentsInChildren<ShipGun>();
             foreach (ShipGun mainGun in MainGuns) {
                 mainGun.parentBoat = this;
             }
-
-            Rigidbody = GetComponent<Rigidbody>();
+            
             Rigidbody.centerOfMass = Vector3.down * transform.localScale.y * 0.4f;
 
             DamageModule = GetComponent<ShipDamageModule>();
@@ -51,6 +50,7 @@ namespace Ship {
         }
 
         private void UpdateControllerType() {
+            //Todo: Parallel AI and player controller?
             if (shipController != null && shipController.GetType() == typeof(AiShipController)) {
                 Destroy(shipController as AiShipController);
             }
@@ -60,7 +60,9 @@ namespace Ship {
                     shipController = PlayerShipController.AcquireCamera(this);
                     break;
                 case VehicleUserType.Ai:
-                    shipController = gameObject.AddComponent<AiShipController>();
+                    AiShipController c = gameObject.AddComponent<AiShipController>();
+                    shipController = c;
+                    AiController = c;
                     break;
                 case VehicleUserType.None:
                     shipController = null;

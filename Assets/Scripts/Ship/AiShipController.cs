@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using CommandMode;
 using Pathfinding;
 using PhysicsUtilities;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Ship {
-    public class AiShipController : MonoBehaviour, IShipController {
+    public class AiShipController : Unit.AiUnitController, IShipController {
         private const float NextWaypointDistanceSquared = 10f * 10f;
         private const float MaxReverseDistanceSquared = 100f * 100f;
         private const float SteeringSmoothFactor = 0.7f;
@@ -39,39 +40,13 @@ namespace Ship {
 
         public ShipGearInput GetVerticalInput() {
             return _currentGearInput;
-            /*if (_currentGunTarget != null) {
-                Vector3 targetPos = _shipNavigatorAgent.transform.position;
-                Transform myTransform = _controlledShip.transform;
-                Vector3 targetDir = (targetPos - myTransform.position).normalized;
-
-                float dot = Vector3.Dot(targetDir, myTransform.forward);
-                if (dot >= 0) {
-                    return ShipGearInput.Raise;
-                }
-                else {
-                    return ShipGearInput.Lower;
-                }
-            }
-            else {
-                return ShipGearInput.None;
-            }*/
         }
 
         public float GetHorizontalInput() {
             return _currentRudderInput;
-
         }
 
         public Vector3 GetAimPoint() {
-            if (Time.time >= _nextSeekTime) {
-                _currentGunTarget = SeekTarget();
-
-                if (_currentGunTarget != null) {
-                    RefreshNavigationPath();
-                }
-                
-            }
-
             if (_currentGunTarget != null) {
                 GunImpactPrediction prediction = PredictPosition(_currentGunTarget);
                 if (prediction.willImpact) {
@@ -81,9 +56,23 @@ namespace Ship {
 
             return _currentAimPoint;
         }
+        
+        public bool GetFireInput() {
+            return _currentGunTarget != null;
+        }
+
+        public bool GetTorpedoInput() {
+            return false; // Not yet implemented
+        }
+
+        public override void SetOrder(Order order) {
+            base.SetOrder(order);
+            Debug.Log($"{transform.name} Received order {order}");
+            RefreshNavigationPath();
+        }
 
         private void UpdateMovementInput() {
-            if (_path == null) {
+            if ( _path == null) {
                 _currentGearInput = ShipGearInput.None;
                 _currentRudderInput = 0f;
                 return;
@@ -126,12 +115,15 @@ namespace Ship {
 
             
             float dotProduct = Vector3.Dot(transform.forward, moveDirection);
+            Debug.Log($"Dotproduct {dotProduct}");
             if (dotProduct >= 0f) {
                 // Forward movement
+                Debug.Log("MoveForward");
                 _currentGearInput = ShipGearInput.Raise;
                 _currentRudderInput = newRudderInput;
             }
             else {
+                Debug.Log("MoveBackward");
                 // Backwards movement
                 _currentGearInput = ShipGearInput.Lower;
                 if (squareDistanceToWaypoint > MaxReverseDistanceSquared) {
@@ -143,12 +135,10 @@ namespace Ship {
                     _currentRudderInput = newRudderInput;
                 }
             }
-
-
         }
 
         private void RefreshNavigationPath() {
-            _seeker.StartPath(transform.position, _currentGunTarget.transform.position, OnPathComplete);
+            _seeker.StartPath(transform.position, _currentOrder.MoveOrder.TargetPos, OnPathComplete);
         }
 
         public void OnPathComplete(Path p) {
@@ -160,14 +150,6 @@ namespace Ship {
             else {
                 Debug.Log("Pathing error: " + p.error);
             }
-        }
-
-        public bool GetFireInput() {
-            return _currentGunTarget != null;
-        }
-
-        public bool GetTorpedoInput() {
-            return false; // Not yet implemented
         }
 
         private ShipMain SeekTarget() {
@@ -214,5 +196,7 @@ namespace Ship {
         private void OnDestroy() {
             Destroy(_seeker);
         }
+        
+       
     }
 }
