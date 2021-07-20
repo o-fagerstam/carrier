@@ -255,7 +255,7 @@ namespace Ship {
         }
 
         public bool GetFireInput() {
-            if (!_hasControl) {
+            if (!_hasControl) {    
                 return false;
             }
             return Input.GetMouseButton(0);
