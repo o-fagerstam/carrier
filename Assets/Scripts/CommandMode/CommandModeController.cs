@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Ship;
+using Unit;
 using UnityEngine;
 
 namespace CommandMode {
@@ -112,21 +113,28 @@ namespace CommandMode {
             }
             bool unitHit = UnitRay(out GameUnit hitUnit);
             if (unitHit) {
-                Order order = new Order();
-                order.MoveOrder = new TrackMoveOrder(hitUnit);
                 foreach (GameUnit selectedUnit in _selectedUnits) {
-                    selectedUnit.SetOrder(order);
+                    Command c = new FollowCommand(selectedUnit.AiController, hitUnit);
+                    SetOrEnqueueCommand(selectedUnit.AiController, c);
                 }
                 return;
             }
 
             bool terrainHit = TerrainRay(out Vector3 hitPosition);
             if (terrainHit) {
-                Order order = new Order();
-                order.MoveOrder = new PointMoveOrder(hitPosition);
                 foreach (GameUnit selectedUnit in _selectedUnits) {
-                    selectedUnit.SetOrder(order);
+                    Command c = new MoveToPointCommand(selectedUnit.AiController, hitPosition, 100f);
+                    SetOrEnqueueCommand(selectedUnit.AiController, c);
                 }
+            }
+        }
+
+        private void SetOrEnqueueCommand(AiUnitController controller, Command command) {
+            if (Input.GetKey(KeyCode.LeftShift)) {
+                controller.EnqueueCommand(command);
+            }
+            else {
+                controller.SetCommand(command);
             }
         }
         

@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using CommandMode;
+﻿using System.Collections.Generic;
 using Pathfinding;
 using PhysicsUtilities;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace Ship {
     public class AiShipController : Unit.AiUnitController, IShipController {
@@ -24,9 +21,11 @@ namespace Ship {
         private ShipGearInput _currentGearInput = ShipGearInput.None;
         private float _currentRudderInput;
 
-        private float _nextSeekTime = float.MinValue;
+        private float _lastPathUpdateTime = float.MinValue;
+        private const float PathUpdateFrequency = 5f;
 
-        private void Awake() {
+        protected override void Awake() {
+            base.Awake();
             _controlledShip = GetComponent<ShipMain>();
             _seeker = gameObject.AddComponent<Seeker>();
             
@@ -34,7 +33,8 @@ namespace Ship {
             raycastModifier.quality = RaycastModifier.Quality.Highest;
         }
 
-        private void Update() {
+        protected override void Update() {
+            base.Update();
             UpdateMovementInput();
         }
 
@@ -63,12 +63,6 @@ namespace Ship {
 
         public bool GetTorpedoInput() {
             return false; // Not yet implemented
-        }
-
-        public override void SetOrder(Order order) {
-            base.SetOrder(order);
-            Debug.Log($"{transform.name} Received order {order}");
-            RefreshNavigationPath();
         }
 
         private void UpdateMovementInput() {
@@ -115,15 +109,12 @@ namespace Ship {
 
             
             float dotProduct = Vector3.Dot(transform.forward, moveDirection);
-            Debug.Log($"Dotproduct {dotProduct}");
             if (dotProduct >= 0f) {
                 // Forward movement
-                Debug.Log("MoveForward");
                 _currentGearInput = ShipGearInput.Raise;
                 _currentRudderInput = newRudderInput;
             }
             else {
-                Debug.Log("MoveBackward");
                 // Backwards movement
                 _currentGearInput = ShipGearInput.Lower;
                 if (squareDistanceToWaypoint > MaxReverseDistanceSquared) {
@@ -137,8 +128,9 @@ namespace Ship {
             }
         }
 
-        private void RefreshNavigationPath() {
-            _seeker.StartPath(transform.position, _currentOrder.MoveOrder.TargetPos, OnPathComplete);
+        private void RecalculateNavPath(Vector3 targetPosition) {
+            _lastPathUpdateTime = Time.time;
+            _seeker.StartPath(transform.position, targetPosition, OnPathComplete);
         }
 
         public void OnPathComplete(Path p) {
@@ -167,8 +159,6 @@ namespace Ship {
                 }
             }
 
-            _nextSeekTime = Time.time + Random.Range(2.5f, 3.5f);
-
             return closestShip;
         }
 
@@ -193,10 +183,31 @@ namespace Ship {
             return new GunImpactPrediction(true, target.transform.position + positionOffset);
         }
 
-        private void OnDestroy() {
+        protected override void OnDestroy() {
+            base.OnDestroy();
             Destroy(_seeker);
         }
         
-       
+        /*
+         * ORDERS
+         */
+
+        public override void OnNewCommand() {
+            _lastPathUpdateTime = float.MinValue;
+        }
+
+        public override void IdleCommand() { }
+
+        public override void PointMoveCommand(Vector3 targetPoint) {
+            if (Time.time - _lastPathUpdateTime > PathUpdateFrequency) {
+                RecalculateNavPath(targetPoint);
+            }
+        }
+
+        public override void FollowCommand(GameUnit unitToFollow) {
+            if (Time.time - _lastPathUpdateTime > PathUpdateFrequency) {
+                RecalculateNavPath(unitToFollow.transform.position);
+            }
+        }
     }
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 
 public abstract class GameUnit : MonoBehaviour {
     public VehicleUserType vehicleUserType = VehicleUserType.None;
-    protected AiUnitController AiController;
+    public AiUnitController AiController { get; protected set; }
     public int team;
     
     public bool alive = true;
@@ -38,9 +38,5 @@ public abstract class GameUnit : MonoBehaviour {
     public void Deselect() {
         IsSelected = false;
         OnDeselected?.Invoke(this);
-    }
-
-    public void SetOrder(Order o) {
-        AiController.SetOrder(o);
     }
 } 
