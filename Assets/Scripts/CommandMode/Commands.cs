@@ -1,6 +1,4 @@
 ﻿using System;
-using PhysicsUtilities;
-using Ship;
 using Unit;
 using UnityEngine;
 
@@ -20,9 +18,12 @@ namespace CommandMode {
         }
     }
 
-    public class EmptyCommand : Command {
-        public EmptyCommand(AiUnitController controller) : base(controller) { }
-        public override void Execute() { }
+    public class IdleCommand : Command {
+        public IdleCommand(AiUnitController controller) : base(controller) { }
+
+        public override void Execute() {
+            _controller.IdleCommand();
+        }
     }
 
     public class MoveToPointCommand : Command {
@@ -50,6 +51,21 @@ namespace CommandMode {
 
         public override void Execute() {
             _controller.FollowCommand(_unitToFollow);
+        }
+    }
+
+    public class AttackCommand : Command {
+        private GameUnit _target;
+
+        public AttackCommand(AiUnitController controller, GameUnit target) : base(controller) {
+            _target = target;
+        }
+
+        public override void Execute() {
+            if (!_target.alive) {
+                FinishCommand();
+            }
+            _controller.AttackCommand(_target);
         }
     }
 }

@@ -228,7 +228,7 @@ namespace Ship {
 
         public ShipGearInput GetVerticalInput() {
             if (!_hasControl) {
-                return ShipGearInput.None;
+                return ShipGearInput.NoInput;
             }
 
             float verticalInput = Input.GetAxisRaw("Vertical");
@@ -238,7 +238,7 @@ namespace Ship {
                 return ShipGearInput.Lower;
             }
             else {
-                return ShipGearInput.None;
+                return ShipGearInput.NoInput;
             }
         }
 

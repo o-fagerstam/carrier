@@ -15,10 +15,10 @@ namespace Ship {
         private int _currentWayPointIndex;
         private bool _reachedEndOfPath;
         
-        private ShipMain _currentGunTarget;
+        private GameUnit _currentGunTarget;
         private Vector3 _currentAimPoint;
 
-        private ShipGearInput _currentGearInput = ShipGearInput.None;
+        private ShipGearInput _currentGearInput = ShipGearInput.NoInput;
         private float _currentRudderInput;
 
         private float _lastPathUpdateTime = float.MinValue;
@@ -67,7 +67,7 @@ namespace Ship {
 
         private void UpdateMovementInput() {
             if ( _path == null) {
-                _currentGearInput = ShipGearInput.None;
+                _currentGearInput = ShipGearInput.Zero;
                 _currentRudderInput = 0f;
                 return;
             }
@@ -162,7 +162,7 @@ namespace Ship {
             return closestShip;
         }
 
-        private GunImpactPrediction PredictPosition(ShipMain target) {
+        private GunImpactPrediction PredictPosition(GameUnit target) {
             ShipGun tracingGun = _controlledShip.MainGuns[0];
             Vector3 deltaPosition = target.transform.position - _controlledShip.transform.position;
             
@@ -196,7 +196,10 @@ namespace Ship {
             _lastPathUpdateTime = float.MinValue;
         }
 
-        public override void IdleCommand() { }
+        public override void IdleCommand() {
+            _path = null;
+            _currentGunTarget = null;
+        }
 
         public override void PointMoveCommand(Vector3 targetPoint) {
             if (Time.time - _lastPathUpdateTime > PathUpdateFrequency) {
@@ -208,6 +211,14 @@ namespace Ship {
             if (Time.time - _lastPathUpdateTime > PathUpdateFrequency) {
                 RecalculateNavPath(unitToFollow.transform.position);
             }
+        }
+
+        public override void AttackCommand(GameUnit target) {
+            if (Time.time - _lastPathUpdateTime > PathUpdateFrequency) {
+                RecalculateNavPath(target.transform.position);
+            }
+
+            _currentGunTarget = target;
         }
     }
 }

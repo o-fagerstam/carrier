@@ -111,6 +111,9 @@ namespace Ship {
                 _gearLevel -= 1;
                 _gearLevel = Math.Max(minGearlevel, _gearLevel);
                 OnChangeGearLevel?.Invoke(Mathf.InverseLerp(minGearlevel, maxGearLevel, _gearLevel));
+            } else if (gearInput == ShipGearInput.Zero) {
+                _gearLevel = 0;
+                OnChangeGearLevel?.Invoke(Mathf.InverseLerp(minGearlevel, maxGearLevel, _gearLevel));
             }
             _rudderInput = shipController.GetHorizontalInput();
         }

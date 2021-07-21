@@ -113,11 +113,21 @@ namespace CommandMode {
             }
             bool unitHit = UnitRay(out GameUnit hitUnit);
             if (unitHit) {
-                foreach (GameUnit selectedUnit in _selectedUnits) {
-                    Command c = new FollowCommand(selectedUnit.AiController, hitUnit);
-                    SetOrEnqueueCommand(selectedUnit.AiController, c);
+                if (hitUnit.team == GameManager.PlayerTeam) {
+                    foreach (GameUnit selectedUnit in _selectedUnits) {
+                        Command c = new FollowCommand(selectedUnit.AiController, hitUnit);
+                        SetOrEnqueueCommand(selectedUnit.AiController, c);
+                    }
+                    return;
                 }
-                return;
+                else {
+                    foreach (GameUnit selectedUnit in _selectedUnits) {
+                        Command c = new AttackCommand(selectedUnit.AiController, hitUnit);
+                        SetOrEnqueueCommand(selectedUnit.AiController, c);
+                    }
+                    return;
+                }
+
             }
 
             bool terrainHit = TerrainRay(out Vector3 hitPosition);

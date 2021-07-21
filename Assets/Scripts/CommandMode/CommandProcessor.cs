@@ -7,13 +7,13 @@ namespace CommandMode {
     public class CommandProcessor {
         private Queue<Command> _commands = new Queue<Command>();
         private Command ActiveCommand => _commands.Peek();
-        private bool Idle => ActiveCommand.GetType() == typeof(EmptyCommand);
+        private bool Idle => ActiveCommand.GetType() == typeof(IdleCommand);
         public event Action OnNewCommand;
-        private AiUnitController _owner;
+        private AiUnitController _controller;
 
-        public CommandProcessor(AiUnitController owner) {
-            _owner = owner;
-            SetCommand(new EmptyCommand(owner));
+        public CommandProcessor(AiUnitController controller) {
+            _controller = controller;
+            SetCommand(new IdleCommand(controller));
         }
 
         public void SetCommand(Command o) {
@@ -38,6 +38,9 @@ namespace CommandMode {
         public void OnCommandFinished() {
             ActiveCommand.OnCommandFinished -= OnCommandFinished;
             _commands.Dequeue();
+            if (_commands.Count == 0) {
+                _commands.Enqueue(new IdleCommand(_controller));
+            }
             OnNewCommand?.Invoke();
         }
         

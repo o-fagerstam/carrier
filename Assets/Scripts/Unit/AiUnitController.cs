@@ -37,5 +37,6 @@ namespace Unit {
         public abstract void IdleCommand();
         public abstract void PointMoveCommand(Vector3 targetPoint);
         public abstract void FollowCommand(GameUnit unitToFollow);
+        public abstract void AttackCommand(GameUnit target);
     }
 }
