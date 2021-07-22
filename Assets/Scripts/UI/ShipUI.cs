@@ -7,9 +7,9 @@ using UnityEngine;
 public class ShipUI : MonoBehaviour {
     private static readonly Color ReadyColor = new Color(25f / 255f, 191f / 255f, 70 / 255f);
     private static readonly Color LoadingColor = new Color(219f / 255f, 143f / 255f, 29f / 255f);
-    private readonly Dictionary<ShipGun, GunMarker> _gunIdToMarkerDict = new Dictionary<ShipGun, GunMarker>();
+    private readonly Dictionary<ShipGun, ScreenProjectedObject> _gunIdToMarkerDict = new Dictionary<ShipGun, ScreenProjectedObject>();
     private RectTransform _canvasRectTransform;
-    [SerializeField] private GunMarker gunMarkerPrefab;
+    [SerializeField] private ScreenProjectedObject gunMarkerPrefab;
     private Vector2 uiOffset;
 
     private static ShipUI _instance;
@@ -31,35 +31,30 @@ public class ShipUI : MonoBehaviour {
 
     public void RefreshMarkers() {
         foreach (ShipGun gun in _gunIdToMarkerDict.Keys) {
-            GunMarker marker = _gunIdToMarkerDict[gun];
+            ScreenProjectedObject marker = _gunIdToMarkerDict[gun];
             RefreshMarker(marker, gun);
         }
     }
 
 
-    private void RefreshMarker(GunMarker marker, ShipGun gun) {
+    private void RefreshMarker(ScreenProjectedObject marker, ShipGun gun) {
         GunImpactPrediction prediction = gun.GunImpactPrediction;
         if (!prediction.willImpact) {
-            marker.IsHidden = true;
+            marker.Visible = false;
             return;
         }
         Camera currentCamera = PlayerCamera.Instance.Camera;
-        var angleIsValid = CheckValidAngle(currentCamera, prediction.impactPosition);
+        bool angleIsValid = marker.CheckVisibleWorldPosition(currentCamera, prediction.impactPosition);
         if (!angleIsValid) {
-            marker.IsHidden = true;
+            marker.Visible = false;
             return;
         }
-        marker.IsHidden = false;
+        marker.Visible = true;
         MoveMarkerToWorldPoint(currentCamera, marker, prediction.impactPosition);
         SetMarkerColor(marker, gun.IsLoaded);
     }
 
-    private static bool CheckValidAngle(Camera currentCamera, Vector3 gunImpactPoint) {
-        Vector3 cameraPosition = currentCamera.WorldToViewportPoint(gunImpactPoint);
-        return cameraPosition.x >= 0 && cameraPosition.x <= 1 &&
-               cameraPosition.y >= 0 && cameraPosition.y <= 1 &&
-               cameraPosition.z > 0;
-    }
+
 
     private void AddMarker(ShipGun gun) {
         if (_gunIdToMarkerDict.ContainsKey(gun)) {
@@ -83,7 +78,7 @@ public class ShipUI : MonoBehaviour {
         }
     }
 
-    private void MoveMarkerToWorldPoint(Camera currentCamera, GunMarker marker, Vector3 worldPosition) {
+    private void MoveMarkerToWorldPoint(Camera currentCamera, ScreenProjectedObject marker, Vector3 worldPosition) {
         Vector2 viewPortPosition = currentCamera.WorldToViewportPoint(worldPosition);
         Vector2 canvasSizeDelta = _canvasRectTransform.sizeDelta;
         var proportionalPosition = new Vector2(
@@ -96,7 +91,7 @@ public class ShipUI : MonoBehaviour {
         marker.SetLocalPosition(proportionalPosition - uiOffset);
     }
 
-    private static void SetMarkerColor(GunMarker marker, bool isLoaded) {
+    private static void SetMarkerColor(ScreenProjectedObject marker, bool isLoaded) {
         if (isLoaded) {
             marker.SetColor(ReadyColor);
         }
