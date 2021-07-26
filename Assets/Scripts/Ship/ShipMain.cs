@@ -43,6 +43,7 @@ namespace Ship {
             Rigidbody.centerOfMass = Vector3.down * transform.localScale.y * 0.4f;
 
             DamageModule = GetComponent<ShipDamageModule>();
+            AiController = gameObject.AddComponent<AiShipController>();
         }
 
         private void Start() {
@@ -50,24 +51,12 @@ namespace Ship {
         }
 
         private void UpdateControllerType() {
-            //Todo: Parallel AI and player controller?
-            if (shipController != null && shipController.GetType() == typeof(AiShipController)) {
-                Destroy(shipController as AiShipController);
-            }
-
-            switch (vehicleUserType) {
-                case VehicleUserType.Human:
-                    shipController = PlayerShipController.AcquireCamera(this);
-                    break;
-                case VehicleUserType.Ai:
-                    AiShipController c = gameObject.AddComponent<AiShipController>();
-                    shipController = c;
-                    AiController = c;
-                    break;
-                case VehicleUserType.None:
-                    shipController = null;
-                    break;
-            }
+            shipController = vehicleUserType switch {
+                VehicleUserType.Human => PlayerShipController.AcquireCamera(this),
+                VehicleUserType.Ai => (AiShipController) AiController,
+                VehicleUserType.None => null,
+                _ => shipController
+            };
         }
 
         private void Update() {
