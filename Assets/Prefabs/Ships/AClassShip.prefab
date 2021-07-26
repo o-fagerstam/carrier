@@ -805,6 +805,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _selectionRingRenderer: {fileID: 4167098955167208820}
+  commandLineRendererPrefab: {fileID: 6958824368534247957, guid: b57cbc42906406046a7abdbbdd65f156, type: 3}
 --- !u!65 &1174869279992948643
 BoxCollider:
   m_ObjectHideFlags: 0

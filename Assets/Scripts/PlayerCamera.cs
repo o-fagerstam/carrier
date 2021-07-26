@@ -4,6 +4,7 @@ using UnityEngine;
 public class PlayerCamera : MonoBehaviour {
     private static PlayerCamera _instance;
     public static PlayerCamera Instance => _instance;
+    public static Vector3 Position => _instance.transform.position;
     
     public Camera Camera { get; private set; }
     private Transform _transformToFollow;
