@@ -27,6 +27,9 @@ namespace Ship {
         private const float ScopeMinFov = 2f;
         private const float ScopeMaxFov = 55f;
 
+        public event Action<ShipMain> OnAcquireCamera;
+        public event Action OnReleaseCamera;
+
         private void Awake() {
             if (_instance != null && _instance != this) {
                 Destroy(gameObject);
@@ -53,7 +56,7 @@ namespace Ship {
             }
 
             if (!_acquiredControlThisFrame && Input.GetKeyDown(KeyCode.Tab)) {
-                SwitchToCommandMode();
+                ReleaseToCommandMode();
                 return;
             }
             
@@ -78,13 +81,14 @@ namespace Ship {
             }
         }
 
-        private void SwitchToCommandMode() {
+        private void ReleaseToCommandMode() {
             _hasControl = false;
             _playerCamera.Release();
-            CommandModeController.Instance.AcquireControl();
+            OnReleaseCamera?.Invoke();
+            CommandModeController.Instance.AcquireCamera();
         }
 
-        public void AcquireControl() {
+        public void AcquireCamera() {
             _hasControl = true;
             _acquiredControlThisFrame = true;
             _playerCamera.FollowTransform(cameraHolderTransform);
@@ -95,6 +99,8 @@ namespace Ship {
             else {
                 _playerCamera.SetMode(PlayerCamera.CameraMode.ShipNormal);
             }
+
+            OnAcquireCamera?.Invoke(shipToFollow);
         }
         
         /*
@@ -268,7 +274,7 @@ namespace Ship {
             return Input.GetKeyDown(KeyCode.Q);
         }
 
-        public static IShipController AcquireCamera(ShipMain shipToFollow) {
+        public static IShipController AcquireController(ShipMain shipToFollow) {
             Instance.shipToFollow = shipToFollow;
             ShipUI.Instance.AcquireShip(shipToFollow);
             return Instance;

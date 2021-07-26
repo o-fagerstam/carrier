@@ -34,8 +34,8 @@ namespace CommandMode {
             }
 
             if (!_acquiredControlThisFrame && Input.GetKeyDown(KeyCode.Tab)) {
-                ReleaseControl();
-                PlayerShipController.Instance.AcquireControl();
+                ReleaseCamera();
+                PlayerShipController.Instance.AcquireCamera();
             }
 
             Scroll();
@@ -50,7 +50,7 @@ namespace CommandMode {
             }
         }
 
-        public void AcquireControl() {
+        public void AcquireCamera() {
             _hasControl = true;
             _acquiredControlThisFrame = true;
             Cursor.lockState = CursorLockMode.None;
@@ -59,7 +59,7 @@ namespace CommandMode {
             _playerCamera.FollowTransform(transform);
         }
 
-        public void ReleaseControl() {
+        public void ReleaseCamera() {
             _hasControl = false;
             _playerCamera.Release();
             GameManager.Instance.Resume();

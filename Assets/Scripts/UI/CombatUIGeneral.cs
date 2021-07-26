@@ -22,7 +22,6 @@ namespace UI {
         public void AddUnit(GameUnit g) {
             ScreenProjectedTrackingObject o = Instantiate(unitMarker, transform).GetComponent<ScreenProjectedTrackingObject>();
             _markedUnits[g] = o;
-            Debug.Log("CombatUI.OnUnitAdded");
 
             o.trackedTransform = g.transform;
             o.offset = new Vector3(0f, 20f, 0f);

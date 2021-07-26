@@ -52,7 +52,7 @@ namespace Ship {
 
         private void UpdateControllerType() {
             shipController = vehicleUserType switch {
-                VehicleUserType.Human => PlayerShipController.AcquireCamera(this),
+                VehicleUserType.Human => PlayerShipController.AcquireController(this),
                 VehicleUserType.Ai => (AiShipController) AiController,
                 VehicleUserType.None => null,
                 _ => shipController

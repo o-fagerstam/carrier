@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Ship;
 using UI;
 using UnityEngine;
@@ -27,6 +28,11 @@ public class ShipUI : MonoBehaviour {
         _shipTrackingComponents = GetComponentsInChildren<IShipTrackingUiComponent>();
         Vector2 sizeDelta = _canvasRectTransform.sizeDelta;
         uiOffset = new Vector2(sizeDelta.x * 0.5f, sizeDelta.y * 0.5f);
+    }
+
+    private void Start() {
+        PlayerShipController.Instance.OnAcquireCamera += AcquireShip;
+        PlayerShipController.Instance.OnReleaseCamera += ReleaseCurrentShip;
     }
 
     public void RefreshMarkers() {
@@ -64,10 +70,14 @@ public class ShipUI : MonoBehaviour {
         _gunIdToMarkerDict[gun] = Instantiate(gunMarkerPrefab, Vector3.zero, Quaternion.identity, transform);
     }
 
-    public void AcquireShip(ShipMain ship) {
-        foreach (ShipGun oldGun in _gunIdToMarkerDict.Keys) {
+    public void ReleaseCurrentShip() {
+        foreach (ShipGun oldGun in _gunIdToMarkerDict.Keys.ToList()) {
             RemoveMarker(oldGun);
         }
+    }
+
+    public void AcquireShip(ShipMain ship) {
+        ReleaseCurrentShip();
 
         foreach (ShipGun newGun in ship.MainGuns) {
             AddMarker(newGun);
@@ -103,5 +113,10 @@ public class ShipUI : MonoBehaviour {
     private void RemoveMarker(ShipGun gun) {
         Destroy(_gunIdToMarkerDict[gun].gameObject);
         _gunIdToMarkerDict.Remove(gun);
+    }
+
+    private void OnDestroy() {
+        PlayerShipController.Instance.OnAcquireCamera -= AcquireShip;
+        PlayerShipController.Instance.OnReleaseCamera -= ReleaseCurrentShip;
     }
 }

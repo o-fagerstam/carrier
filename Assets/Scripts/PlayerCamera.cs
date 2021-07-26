@@ -7,8 +7,7 @@ public class PlayerCamera : MonoBehaviour {
     public static Vector3 Position => _instance.transform.position;
     
     public Camera Camera { get; private set; }
-    private Transform _transformToFollow;
-    
+
     public const float StandardFov = 60f;
 
 
@@ -23,7 +22,6 @@ public class PlayerCamera : MonoBehaviour {
     }
 
     public void FollowTransform(Transform t) {
-        _transformToFollow = t;
         transform.parent = t;
         transform.localPosition = Vector3.zero;
         transform.localRotation = Quaternion.identity;
@@ -56,8 +54,7 @@ public class PlayerCamera : MonoBehaviour {
     public void SetFov(float fov) {
         Camera.fieldOfView = fov;
     }
-    
-    
+
     public enum CameraMode {
         ShipNormal, ShipScope, Command 
     }
