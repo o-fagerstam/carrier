@@ -47,16 +47,17 @@ namespace Ship {
         }
 
         private void Start() {
-            UpdateControllerType();
+            UpdateControllerType(vehicleUserType);
         }
 
-        private void UpdateControllerType() {
-            shipController = vehicleUserType switch {
-                VehicleUserType.Human => PlayerShipController.AcquireController(this),
+        public void UpdateControllerType(VehicleUserType type) {
+            shipController = type switch {
+                VehicleUserType.Human => PlayerShipController.AcquireShip(this),
                 VehicleUserType.Ai => (AiShipController) AiController,
                 VehicleUserType.None => null,
                 _ => shipController
             };
+            vehicleUserType = type;
         }
 
         private void Update() {

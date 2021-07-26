@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Ship;
 using Unit;
 using UnityEngine;
@@ -35,6 +36,14 @@ namespace CommandMode {
 
             if (!_acquiredControlThisFrame && Input.GetKeyDown(KeyCode.Tab)) {
                 ReleaseCamera();
+                PlayerShipController.Instance.AcquireCamera();
+            }
+
+            if (Input.GetKeyDown(KeyCode.C) && _selectedUnits.Count == 1) {
+                ReleaseCamera();
+                // VERY janky cast that will have to be fixed when we make airplanes!
+                ShipMain ship = _selectedUnits.ToArray()[0] as ShipMain;
+                ship.UpdateControllerType(VehicleUserType.Human);
                 PlayerShipController.Instance.AcquireCamera();
             }
 

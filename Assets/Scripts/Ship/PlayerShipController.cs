@@ -274,8 +274,13 @@ namespace Ship {
             return Input.GetKeyDown(KeyCode.Q);
         }
 
-        public static IShipController AcquireController(ShipMain shipToFollow) {
-            Instance.shipToFollow = shipToFollow;
+        public static IShipController AcquireShip(ShipMain shipToFollow) {
+            if (_instance.shipToFollow != null) {
+                _instance.shipToFollow.UpdateControllerType(VehicleUserType.Ai);
+            }
+
+            
+            _instance.shipToFollow = shipToFollow;
             ShipUI.Instance.AcquireShip(shipToFollow);
             return Instance;
         }
