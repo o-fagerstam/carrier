@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Ship;
 using Unit;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace CommandMode {
     public class CommandModeController : MonoBehaviour {
@@ -17,6 +19,9 @@ namespace CommandMode {
         private const float VerticalScrollSpeed = 2000f;
 
         private HashSet<GameUnit> _selectedUnits = new HashSet<GameUnit>();
+
+        public static event Action OnEnterCommandMode;
+        public static event Action OnExitCommandMode;
 
         private void Awake() {
             if (_instance != null && _instance != this) {
@@ -48,9 +53,9 @@ namespace CommandMode {
             }
 
             Scroll();
-            if (Input.GetMouseButtonDown(0)) {
+            if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) {
                 LeftClickSelection();
-            } else if (Input.GetMouseButtonDown(1)) {
+            } else if (Input.GetMouseButtonDown(1) && !EventSystem.current.IsPointerOverGameObject()) {
                 RightClickOrder();
             }
             
@@ -66,12 +71,14 @@ namespace CommandMode {
             GameManager.Instance.SetGameSpeed(GameManager.GameSpeed.Paused);
             _playerCamera.SetMode(PlayerCamera.CameraMode.Command);
             _playerCamera.FollowTransform(transform);
+            OnEnterCommandMode?.Invoke();
         }
 
         public void ReleaseCamera() {
             _hasControl = false;
             _playerCamera.Release();
             GameManager.Instance.Resume();
+            OnExitCommandMode?.Invoke();
         }
         
         /*

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CommandMode;
+using UI;
 using UnityEngine;
 
 namespace Unit {
@@ -11,6 +12,7 @@ namespace Unit {
         [SerializeField] private GameObject commandLineRendererPrefab;
         private List<CommandLineRenderer> _commandLineRenderers = new List<CommandLineRenderer>();
         private bool _isSelected;
+        private bool _displayAllowed;
         private int _numOrdersLastIteration;
 
         private void Awake() {
@@ -21,37 +23,60 @@ namespace Unit {
             _selectionRingRenderer = GetComponentInChildren<MeshRenderer>();
         }
 
+        private void Start() {
+            CommandUI ui = CommandUI.Instance;
+            _displayAllowed = ui.DisplaySelection;
+            ui.OnDisplaySelectionSettingsChanged += OnUiDisplaySelectionSettingsChanged;
+            UpdateSelectionVisibility();
+        }
+
         private void Update() {
-            if (_isSelected) {
+            if (_isSelected && _displayAllowed) {
                 UpdateLineDrawer();
             }
         }
 
+        private void OnUiDisplaySelectionSettingsChanged(bool value) {
+            _displayAllowed = value;
+            UpdateSelectionVisibility();
+        }
+
         private void OnParentSelected(GameUnit parent) {
             _isSelected = true;
-            _selectionRingRenderer.enabled = true;
+            UpdateSelectionVisibility();
         }
 
         private void OnParentDeselected(GameUnit parent) {
             _isSelected = false;
-            _selectionRingRenderer.enabled = false;
-            foreach (CommandLineRenderer r in _commandLineRenderers) {
-                r.SetVisible(false);
+            UpdateSelectionVisibility();
+        }
+
+        private void UpdateSelectionVisibility() {
+            if (_displayAllowed && _isSelected) {
+                _selectionRingRenderer.enabled = true;
+            }
+            else {
+                _selectionRingRenderer.enabled = false;
+                foreach (CommandLineRenderer r in _commandLineRenderers) {
+                    r.SetVisible(false);
+                }
             }
         }
 
         private void OnDestroy() {
             Unit.OnSelected -= OnParentSelected;
             Unit.OnDeselected -= OnParentDeselected;
+            CommandUI.Instance.OnDisplaySelectionSettingsChanged -= OnUiDisplaySelectionSettingsChanged;
         }
+        
+        /*
+         * COMMAND LINE DRAWER
+         */
 
         private void UpdateLineDrawer() {
             IEnumerable<Command> commands = Unit.AiController.CurrentCommands;
             int numCommands = commands.Count();
-
-
-
-
+            
             Vector3[] positions = new Vector3[numCommands + 1];
             Color[] colors = new Color[numCommands];
             bool drawOrders = true;
@@ -87,7 +112,7 @@ namespace Unit {
                 CommandLineRenderer r = _commandLineRenderers[i];
                 r.SetVisible(true);
                 r.UpdateLine(positions[i], positions[i+1], colors[i]);
-                }
+            }
         }
 
         private void ResizeCommandLineRenderersList(int numRenderers) {
