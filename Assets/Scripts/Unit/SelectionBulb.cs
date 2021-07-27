@@ -74,8 +74,8 @@ namespace Unit {
          */
 
         private void UpdateLineDrawer() {
-            IEnumerable<Command> commands = Unit.AiController.CurrentCommands;
-            int numCommands = commands.Count();
+            IReadOnlyCollection<Command> commands = Unit.AiController.CurrentCommands;
+            int numCommands = commands.Count;
             
             Vector3[] positions = new Vector3[numCommands + 1];
             Color[] colors = new Color[numCommands];

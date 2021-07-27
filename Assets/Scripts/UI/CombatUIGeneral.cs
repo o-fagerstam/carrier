@@ -14,7 +14,7 @@ namespace UI {
             VehiclesManager.Instance.OnUnitAdded += AddUnit;
             VehiclesManager.Instance.OnUnitRemoved += RemoveUnit;
 
-            foreach (GameUnit unit in VehiclesManager.Instance.AllUnits) {
+            foreach (GameUnit unit in VehiclesManager.AllUnits) {
                 AddUnit(unit);
             }
         }

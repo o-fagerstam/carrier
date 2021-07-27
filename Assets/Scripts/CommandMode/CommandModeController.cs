@@ -20,6 +20,11 @@ namespace CommandMode {
 
         private HashSet<GameUnit> _selectedUnits = new HashSet<GameUnit>();
 
+        [SerializeField] private RectTransform selectionBoxVisual;
+        private Vector2 _selectionBoxStart;
+        private Vector2 _selectionBoxEnd;
+        private bool _isDraggingSelectionBox;
+
         public static event Action OnEnterCommandMode;
         public static event Action OnExitCommandMode;
 
@@ -30,6 +35,8 @@ namespace CommandMode {
             else {
                 _instance = this;
             }
+
+            selectionBoxVisual.sizeDelta = Vector2.zero;
             
             _playerCamera = FindObjectOfType<PlayerCamera>();
         }
@@ -54,9 +61,30 @@ namespace CommandMode {
 
             Scroll();
             if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) {
-                LeftClickSelection();
+                _selectionBoxStart = Input.mousePosition;
+                _isDraggingSelectionBox = true;
             } else if (Input.GetMouseButtonDown(1) && !EventSystem.current.IsPointerOverGameObject()) {
                 RightClickOrder();
+            }
+
+            if (_isDraggingSelectionBox && Input.GetMouseButton(0)) {
+                _selectionBoxEnd = Input.mousePosition;
+                DrawSelectionBoxVisual();
+            }
+
+            if (_isDraggingSelectionBox && Input.GetMouseButtonUp(0)) {
+                if (Input.GetKey(KeyCode.LeftShift)) {
+                    ShiftLeftClickSelection();
+                }
+                else {
+                    LeftClickSelection();
+                }
+                
+                BoxSelect(_selectionBoxStart, _selectionBoxEnd);
+                _isDraggingSelectionBox = false;
+                _selectionBoxStart = Vector2.zero;
+                _selectionBoxEnd = Vector2.zero;
+                DrawSelectionBoxVisual();
             }
             
             if (_acquiredControlThisFrame) {
@@ -121,6 +149,26 @@ namespace CommandMode {
             DeselectAll();
             SelectUnit(hitUnit);
             
+        }
+
+        private void ShiftLeftClickSelection() {
+            bool madeHit = UnitRay(out GameUnit hitUnit);
+            
+            if (!madeHit) {
+                return;
+            }
+            
+            if (hitUnit.team != GameManager.PlayerTeam) {
+                return;
+            }
+
+            if (hitUnit.IsSelected) {
+                DeselectUnit(hitUnit);
+            }
+            else {
+                SelectUnit(hitUnit);
+            }
+
         }
 
         private void RightClickOrder() {
@@ -228,6 +276,35 @@ namespace CommandMode {
 
         private void OnSelectedUnitDeath(GameUnit u) {
             DeselectUnit(u);
+        }
+        
+        /*
+         * BOX SELECTION
+         */
+
+        private void DrawSelectionBoxVisual() {
+            Vector2 boxStart = _selectionBoxStart;
+            Vector2 boxEnd = _selectionBoxEnd;
+
+            Vector2 boxCenter = (boxStart + boxEnd) / 2f;
+            selectionBoxVisual.position = boxCenter;
+            
+            Vector2 boxSize = new Vector2(Mathf.Abs(boxStart.x - boxEnd.x), Mathf.Abs(boxStart.y - boxEnd.y));
+            selectionBoxVisual.sizeDelta = boxSize;
+        }
+
+        private void BoxSelect(Vector2 boxStart, Vector2 boxEnd) {
+            Vector2 boxCenter = (boxStart + boxEnd) / 2f;
+            Vector2 boxSize = new Vector2(Mathf.Abs(boxStart.x - boxEnd.x), Mathf.Abs(boxStart.y - boxEnd.y));
+            Rect selectionBox = new Rect(boxCenter - boxSize / 2f, boxSize);
+
+            Camera camera = _playerCamera.Camera;
+            foreach (GameUnit unit in VehiclesManager.AllUnits) {
+                if (selectionBox.Contains(camera.WorldToScreenPoint(unit.transform.position)) &&
+                    !unit.IsSelected) {
+                    SelectUnit(unit);
+                }
+            }
         }
 
         private void OnDestroy() {

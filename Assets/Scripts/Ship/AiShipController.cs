@@ -145,7 +145,7 @@ namespace Ship {
         }
 
         private ShipMain SeekTarget() {
-            HashSet<ShipMain> allShips = VehiclesManager.Instance.AllShips;
+            IReadOnlyCollection<ShipMain> allShips = VehiclesManager.AllShips;
             ShipMain closestShip = null;
             float closestShipDistance = float.MaxValue;
             foreach (ShipMain ship in allShips) {

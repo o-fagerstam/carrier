@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using Unit;
-using UnityEngine;
 
 namespace CommandMode {
     public class CommandProcessor {
+        private AiUnitController _controller;
+        
         private Queue<Command> _commands = new Queue<Command>();
         private Command ActiveCommand => _commands.Peek();
-        public IEnumerable<Command> CurrentCommands => _commands;
+        public IReadOnlyCollection<Command> CurrentCommands => _commands;
         private bool Idle => ActiveCommand.GetType() == typeof(IdleCommand);
         public event Action OnNewCommand;
-        private AiUnitController _controller;
+
 
         public CommandProcessor(AiUnitController controller) {
             _controller = controller;

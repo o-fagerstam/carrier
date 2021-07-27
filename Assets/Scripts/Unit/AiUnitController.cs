@@ -7,7 +7,7 @@ namespace Unit {
     public abstract class AiUnitController : MonoBehaviour {
         private CommandProcessor _commandProcessor;
         public GameUnit ControlledUnit { get; private set; }
-        public IEnumerable<Command> CurrentCommands => _commandProcessor.CurrentCommands;
+        public IReadOnlyCollection<Command> CurrentCommands => _commandProcessor.CurrentCommands;
 
         protected virtual void Awake() {
             _commandProcessor = new CommandProcessor(this);
