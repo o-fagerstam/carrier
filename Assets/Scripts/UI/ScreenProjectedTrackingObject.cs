@@ -6,7 +6,7 @@ namespace UI {
         public Vector3 offset = Vector3.zero;
         public Vector3 onScreenOffset = Vector3.zero;
 
-        private void Update() {
+        private void LateUpdate() {
             Camera camera = PlayerCamera.Instance.Camera;
             Vector3 trackedPosition = trackedTransform.position;
             Vector3 worldScreenPoint = camera.WorldToScreenPoint(trackedPosition + offset) + onScreenOffset;
