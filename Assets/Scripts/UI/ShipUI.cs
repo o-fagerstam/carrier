@@ -10,6 +10,7 @@ public class ShipUI : MonoBehaviour {
     private static readonly Color LoadingColor = new Color(219f / 255f, 143f / 255f, 29f / 255f);
     private readonly Dictionary<ShipGun, ScreenProjectedObject> _gunIdToMarkerDict = new Dictionary<ShipGun, ScreenProjectedObject>();
     private RectTransform _canvasRectTransform;
+    [SerializeField] private GameObject _crosshair;
     [SerializeField] private ScreenProjectedObject gunMarkerPrefab;
     private Vector2 uiOffset;
 
@@ -74,6 +75,7 @@ public class ShipUI : MonoBehaviour {
         foreach (ShipGun oldGun in _gunIdToMarkerDict.Keys.ToList()) {
             RemoveMarker(oldGun);
         }
+        _crosshair.SetActive(false);
     }
 
     public void AcquireShip(ShipMain ship) {
@@ -86,6 +88,8 @@ public class ShipUI : MonoBehaviour {
         foreach (IShipTrackingUiComponent component in _shipTrackingComponents) {
             component.AcquireShip(ship);
         }
+
+        _crosshair.SetActive(true);
     }
 
     private void MoveMarkerToWorldPoint(Camera currentCamera, ScreenProjectedObject marker, Vector3 worldPosition) {
