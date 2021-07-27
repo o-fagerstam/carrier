@@ -17,7 +17,7 @@ namespace UI {
         }
 
         private void UpdateCompass() {
-            Camera cam = ShipCamera.CurrentCamera;
+            Camera cam = PlayerCamera.Instance.Camera;
             float cameraAngle = cam.transform.eulerAngles.y;
             _compassRing.rotation = Quaternion.Euler(0f, 0f, cameraAngle);
             

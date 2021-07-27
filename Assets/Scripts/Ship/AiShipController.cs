@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Pathfinding;
 using PhysicsUtilities;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace Ship {
-    public class AiShipController : MonoBehaviour, IShipController {
+    public class AiShipController : Unit.AiUnitController, IShipController {
         private const float NextWaypointDistanceSquared = 10f * 10f;
         private const float MaxReverseDistanceSquared = 100f * 100f;
         private const float SteeringSmoothFactor = 0.7f;
@@ -17,15 +15,17 @@ namespace Ship {
         private int _currentWayPointIndex;
         private bool _reachedEndOfPath;
         
-        private ShipMain _currentGunTarget;
+        private GameUnit _currentGunTarget;
         private Vector3 _currentAimPoint;
 
-        private ShipGearInput _currentGearInput = ShipGearInput.None;
+        private ShipGearInput _currentGearInput = ShipGearInput.NoInput;
         private float _currentRudderInput;
 
-        private float _nextSeekTime = float.MinValue;
+        private float _lastPathUpdateTime = float.MinValue;
+        private const float PathUpdateFrequency = 5f;
 
-        private void Awake() {
+        protected override void Awake() {
+            base.Awake();
             _controlledShip = GetComponent<ShipMain>();
             _seeker = gameObject.AddComponent<Seeker>();
             
@@ -33,45 +33,20 @@ namespace Ship {
             raycastModifier.quality = RaycastModifier.Quality.Highest;
         }
 
-        private void Update() {
+        protected override void Update() {
+            base.Update();
             UpdateMovementInput();
         }
 
         public ShipGearInput GetVerticalInput() {
             return _currentGearInput;
-            /*if (_currentGunTarget != null) {
-                Vector3 targetPos = _shipNavigatorAgent.transform.position;
-                Transform myTransform = _controlledShip.transform;
-                Vector3 targetDir = (targetPos - myTransform.position).normalized;
-
-                float dot = Vector3.Dot(targetDir, myTransform.forward);
-                if (dot >= 0) {
-                    return ShipGearInput.Raise;
-                }
-                else {
-                    return ShipGearInput.Lower;
-                }
-            }
-            else {
-                return ShipGearInput.None;
-            }*/
         }
 
         public float GetHorizontalInput() {
             return _currentRudderInput;
-
         }
 
         public Vector3 GetAimPoint() {
-            if (Time.time >= _nextSeekTime) {
-                _currentGunTarget = SeekTarget();
-
-                if (_currentGunTarget != null) {
-                    RefreshNavigationPath();
-                }
-                
-            }
-
             if (_currentGunTarget != null) {
                 GunImpactPrediction prediction = PredictPosition(_currentGunTarget);
                 if (prediction.willImpact) {
@@ -81,10 +56,18 @@ namespace Ship {
 
             return _currentAimPoint;
         }
+        
+        public bool GetFireInput() {
+            return _currentGunTarget != null;
+        }
+
+        public bool GetTorpedoInput() {
+            return false; // Not yet implemented
+        }
 
         private void UpdateMovementInput() {
-            if (_path == null) {
-                _currentGearInput = ShipGearInput.None;
+            if ( _path == null) {
+                _currentGearInput = ShipGearInput.Zero;
                 _currentRudderInput = 0f;
                 return;
             }
@@ -143,12 +126,11 @@ namespace Ship {
                     _currentRudderInput = newRudderInput;
                 }
             }
-
-
         }
 
-        private void RefreshNavigationPath() {
-            _seeker.StartPath(transform.position, _currentGunTarget.transform.position, OnPathComplete);
+        private void RecalculateNavPath(Vector3 targetPosition) {
+            _lastPathUpdateTime = Time.time;
+            _seeker.StartPath(transform.position, targetPosition, OnPathComplete);
         }
 
         public void OnPathComplete(Path p) {
@@ -162,16 +144,8 @@ namespace Ship {
             }
         }
 
-        public bool GetFireInput() {
-            return _currentGunTarget != null;
-        }
-
-        public bool GetTorpedoInput() {
-            return false; // Not yet implemented
-        }
-
         private ShipMain SeekTarget() {
-            HashSet<ShipMain> allShips = VehiclesManager.Instance.AllShips;
+            IReadOnlyCollection<ShipMain> allShips = VehiclesManager.AllShips;
             ShipMain closestShip = null;
             float closestShipDistance = float.MaxValue;
             foreach (ShipMain ship in allShips) {
@@ -185,12 +159,10 @@ namespace Ship {
                 }
             }
 
-            _nextSeekTime = Time.time + Random.Range(2.5f, 3.5f);
-
             return closestShip;
         }
 
-        private GunImpactPrediction PredictPosition(ShipMain target) {
+        private GunImpactPrediction PredictPosition(GameUnit target) {
             ShipGun tracingGun = _controlledShip.MainGuns[0];
             Vector3 deltaPosition = target.transform.position - _controlledShip.transform.position;
             
@@ -211,8 +183,42 @@ namespace Ship {
             return new GunImpactPrediction(true, target.transform.position + positionOffset);
         }
 
-        private void OnDestroy() {
+        protected override void OnDestroy() {
+            base.OnDestroy();
             Destroy(_seeker);
+        }
+        
+        /*
+         * ORDERS
+         */
+
+        public override void OnNewCommand() {
+            _lastPathUpdateTime = float.MinValue;
+        }
+
+        public override void IdleCommand() {
+            _path = null;
+            _currentGunTarget = null;
+        }
+
+        public override void PointMoveCommand(Vector3 targetPoint) {
+            if (Time.time - _lastPathUpdateTime > PathUpdateFrequency) {
+                RecalculateNavPath(targetPoint);
+            }
+        }
+
+        public override void FollowCommand(GameUnit unitToFollow) {
+            if (Time.time - _lastPathUpdateTime > PathUpdateFrequency) {
+                RecalculateNavPath(unitToFollow.transform.position);
+            }
+        }
+
+        public override void AttackCommand(GameUnit target) {
+            if (Time.time - _lastPathUpdateTime > PathUpdateFrequency) {
+                RecalculateNavPath(target.transform.position);
+            }
+
+            _currentGunTarget = target;
         }
     }
 }

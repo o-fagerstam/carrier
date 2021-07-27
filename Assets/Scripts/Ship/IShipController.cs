@@ -8,6 +8,11 @@ namespace Ship {
         public bool GetFireInput();
         public bool GetTorpedoInput();
     }
-    
-    public enum ShipGearInput {Raise, Lower, None}
+
+    public enum ShipGearInput {
+        Raise,
+        Lower,
+        NoInput,
+        Zero
+    }
 }

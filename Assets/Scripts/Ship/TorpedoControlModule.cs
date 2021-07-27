@@ -17,7 +17,7 @@ namespace Ship {
             }
             
             _torpedoLaunchers[0].Activate();
-            parentShip.OnShipDestroyed += OnShipDestruction;
+            parentShip.OnDeath += OnParentDeath;
         }
 
         private void Update() {
@@ -35,15 +35,15 @@ namespace Ship {
             }
         }
 
-        private void OnShipDestruction(ShipMain _) {
-            parentShip.OnShipDestroyed -= OnShipDestruction;
+        private void OnParentDeath(GameUnit _) {
+            parentShip.OnDeath -= OnParentDeath;
             foreach (TorpedoLauncher torpedoLauncher in _torpedoLaunchers) {
                 torpedoLauncher.Deactivate();
             }
         }
 
         private void OnDestroy() {
-            parentShip.OnShipDestroyed -= OnShipDestruction;
+            parentShip.OnDeath -= OnParentDeath;
         }
     }
 }

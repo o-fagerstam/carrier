@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Ship;
 using UI;
 using UnityEngine;
@@ -7,9 +8,10 @@ using UnityEngine;
 public class ShipUI : MonoBehaviour {
     private static readonly Color ReadyColor = new Color(25f / 255f, 191f / 255f, 70 / 255f);
     private static readonly Color LoadingColor = new Color(219f / 255f, 143f / 255f, 29f / 255f);
-    private readonly Dictionary<ShipGun, GunMarker> _gunIdToMarkerDict = new Dictionary<ShipGun, GunMarker>();
+    private readonly Dictionary<ShipGun, ScreenProjectedObject> _gunIdToMarkerDict = new Dictionary<ShipGun, ScreenProjectedObject>();
     private RectTransform _canvasRectTransform;
-    [SerializeField] private GunMarker gunMarkerPrefab;
+    [SerializeField] private GameObject _crosshair;
+    [SerializeField] private ScreenProjectedObject gunMarkerPrefab;
     private Vector2 uiOffset;
 
     private static ShipUI _instance;
@@ -29,37 +31,37 @@ public class ShipUI : MonoBehaviour {
         uiOffset = new Vector2(sizeDelta.x * 0.5f, sizeDelta.y * 0.5f);
     }
 
+    private void Start() {
+        PlayerShipController.Instance.OnAcquireCamera += AcquireShip;
+        PlayerShipController.Instance.OnReleaseCamera += ReleaseCurrentShip;
+    }
+
     public void RefreshMarkers() {
         foreach (ShipGun gun in _gunIdToMarkerDict.Keys) {
-            GunMarker marker = _gunIdToMarkerDict[gun];
+            ScreenProjectedObject marker = _gunIdToMarkerDict[gun];
             RefreshMarker(marker, gun);
         }
     }
 
 
-    private void RefreshMarker(GunMarker marker, ShipGun gun) {
+    private void RefreshMarker(ScreenProjectedObject marker, ShipGun gun) {
         GunImpactPrediction prediction = gun.GunImpactPrediction;
         if (!prediction.willImpact) {
-            marker.IsHidden = true;
+            marker.Visible = false;
             return;
         }
-        Camera currentCamera = ShipCamera.CurrentCamera;
-        var angleIsValid = CheckValidAngle(currentCamera, prediction.impactPosition);
+        Camera currentCamera = PlayerCamera.Instance.Camera;
+        bool angleIsValid = marker.CheckVisibleWorldPosition(currentCamera, prediction.impactPosition);
         if (!angleIsValid) {
-            marker.IsHidden = true;
+            marker.Visible = false;
             return;
         }
-        marker.IsHidden = false;
+        marker.Visible = true;
         MoveMarkerToWorldPoint(currentCamera, marker, prediction.impactPosition);
         SetMarkerColor(marker, gun.IsLoaded);
     }
 
-    private static bool CheckValidAngle(Camera currentCamera, Vector3 gunImpactPoint) {
-        Vector3 cameraPosition = currentCamera.WorldToViewportPoint(gunImpactPoint);
-        return cameraPosition.x >= 0 && cameraPosition.x <= 1 &&
-               cameraPosition.y >= 0 && cameraPosition.y <= 1 &&
-               cameraPosition.z > 0;
-    }
+
 
     private void AddMarker(ShipGun gun) {
         if (_gunIdToMarkerDict.ContainsKey(gun)) {
@@ -69,10 +71,15 @@ public class ShipUI : MonoBehaviour {
         _gunIdToMarkerDict[gun] = Instantiate(gunMarkerPrefab, Vector3.zero, Quaternion.identity, transform);
     }
 
-    public void AcquireShip(ShipMain ship) {
-        foreach (ShipGun oldGun in _gunIdToMarkerDict.Keys) {
+    public void ReleaseCurrentShip() {
+        foreach (ShipGun oldGun in _gunIdToMarkerDict.Keys.ToList()) {
             RemoveMarker(oldGun);
         }
+        _crosshair.SetActive(false);
+    }
+
+    public void AcquireShip(ShipMain ship) {
+        ReleaseCurrentShip();
 
         foreach (ShipGun newGun in ship.MainGuns) {
             AddMarker(newGun);
@@ -81,9 +88,11 @@ public class ShipUI : MonoBehaviour {
         foreach (IShipTrackingUiComponent component in _shipTrackingComponents) {
             component.AcquireShip(ship);
         }
+
+        _crosshair.SetActive(true);
     }
 
-    private void MoveMarkerToWorldPoint(Camera currentCamera, GunMarker marker, Vector3 worldPosition) {
+    private void MoveMarkerToWorldPoint(Camera currentCamera, ScreenProjectedObject marker, Vector3 worldPosition) {
         Vector2 viewPortPosition = currentCamera.WorldToViewportPoint(worldPosition);
         Vector2 canvasSizeDelta = _canvasRectTransform.sizeDelta;
         var proportionalPosition = new Vector2(
@@ -96,7 +105,7 @@ public class ShipUI : MonoBehaviour {
         marker.SetLocalPosition(proportionalPosition - uiOffset);
     }
 
-    private static void SetMarkerColor(GunMarker marker, bool isLoaded) {
+    private static void SetMarkerColor(ScreenProjectedObject marker, bool isLoaded) {
         if (isLoaded) {
             marker.SetColor(ReadyColor);
         }
@@ -108,5 +117,10 @@ public class ShipUI : MonoBehaviour {
     private void RemoveMarker(ShipGun gun) {
         Destroy(_gunIdToMarkerDict[gun].gameObject);
         _gunIdToMarkerDict.Remove(gun);
+    }
+
+    private void OnDestroy() {
+        PlayerShipController.Instance.OnAcquireCamera -= AcquireShip;
+        PlayerShipController.Instance.OnReleaseCamera -= ReleaseCurrentShip;
     }
 }
