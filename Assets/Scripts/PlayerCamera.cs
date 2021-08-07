@@ -1,23 +1,17 @@
 using System;
+using ServiceLocator;
 using UnityEngine;
 
-public class PlayerCamera : MonoBehaviour {
-    private static PlayerCamera _instance;
-    public static PlayerCamera Instance => _instance;
-    public static Vector3 Position => _instance.transform.position;
+public class PlayerCamera : MonoBehaviourService {
+    public Vector3 Position => transform.position;
     
     public Camera Camera { get; private set; }
 
     public const float StandardFov = 60f;
 
 
-    private void Awake() {
-        if (_instance != null && _instance != this) {
-            Destroy(gameObject);
-        }
-        else {
-            _instance = this;
-        }
+    protected override void Awake() {
+        base.Awake();
         Camera = GetComponent<Camera>();
     }
 

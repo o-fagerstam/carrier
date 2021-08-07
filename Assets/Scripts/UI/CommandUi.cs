@@ -1,26 +1,19 @@
 ﻿using System;
 using CommandMode;
+using ServiceLocator;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI {
-    public class CommandUI : MonoBehaviour {
+    public class CommandUi : MonoBehaviourService {
         [SerializeField] private Toggle alwaysDisplaySelectionToggle;
         [SerializeField] private GameObject commandViewControlPanel;
-        private static CommandUI _instance;
-        public static CommandUI Instance => _instance;
         public bool DisplaySelection { get; private set; }
         private bool _commandModeActive;
         public event Action<bool> OnDisplaySelectionSettingsChanged;
 
-        private void Awake() {
-            if (_instance != null && _instance != this) {
-                Destroy(gameObject);
-            }
-            else {
-                _instance = this;
-            }
-
+        protected override void Awake() {
+            base.Awake();
             commandViewControlPanel.SetActive(_commandModeActive);
             
             DisplaySelection = false;

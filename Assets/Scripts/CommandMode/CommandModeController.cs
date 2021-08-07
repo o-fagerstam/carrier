@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ServiceLocator;
 using Ship;
 using Unit;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace CommandMode {
-    public class CommandModeController : MonoBehaviour {
-        private static CommandModeController _instance;
-        public static CommandModeController Instance => _instance;
+    public class CommandModeController : MonoBehaviourService {
         private PlayerCamera _playerCamera;
 
         private bool _hasControl;
@@ -25,20 +24,21 @@ namespace CommandMode {
         private Vector2 _selectionBoxEnd;
         private bool _isDraggingSelectionBox;
 
+        private PlayerShipController _playerShipController;
+
         public static event Action OnEnterCommandMode;
         public static event Action OnExitCommandMode;
 
-        private void Awake() {
-            if (_instance != null && _instance != this) {
-                Destroy(gameObject);
-            }
-            else {
-                _instance = this;
-            }
+        protected override void Awake() {
+            base.Awake();
 
             selectionBoxVisual.sizeDelta = Vector2.zero;
             
             _playerCamera = FindObjectOfType<PlayerCamera>();
+        }
+
+        private void Start() {
+            _playerShipController = MonoBehaviourServiceLocator.Current.Get<PlayerShipController>();
         }
 
         public void LateUpdate() {
@@ -48,7 +48,7 @@ namespace CommandMode {
 
             if (!_acquiredControlThisFrame && Input.GetKeyDown(KeyCode.Tab)) {
                 ReleaseCamera();
-                PlayerShipController.Instance.AcquireCamera();
+                _playerShipController.AcquireCamera();
             }
 
             if (Input.GetKeyDown(KeyCode.C) && _selectedUnits.Count == 1) {
@@ -56,7 +56,7 @@ namespace CommandMode {
                 // VERY janky cast that will have to be fixed when we make airplanes!
                 ShipMain ship = _selectedUnits.ToArray()[0] as ShipMain;
                 ship.UpdateControllerType(VehicleUserType.Human);
-                PlayerShipController.Instance.AcquireCamera();
+                _playerShipController.AcquireCamera();
             }
 
             Scroll();
@@ -96,7 +96,8 @@ namespace CommandMode {
             _hasControl = true;
             _acquiredControlThisFrame = true;
             Cursor.lockState = CursorLockMode.None;
-            GameManager.Instance.SetGameSpeed(GameManager.GameSpeed.Paused);
+            GameManager gameManager = MonoBehaviourServiceLocator.Current.Get<GameManager>();
+            gameManager.SetGameSpeed(GameManager.GameSpeed.Paused);
             _playerCamera.SetMode(PlayerCamera.CameraMode.Command);
             _playerCamera.FollowTransform(transform);
             OnEnterCommandMode?.Invoke();
@@ -105,7 +106,8 @@ namespace CommandMode {
         public void ReleaseCamera() {
             _hasControl = false;
             _playerCamera.Release();
-            GameManager.Instance.Resume();
+            GameManager gameManager = MonoBehaviourServiceLocator.Current.Get<GameManager>();
+            gameManager.Resume();
             OnExitCommandMode?.Invoke();
         }
         

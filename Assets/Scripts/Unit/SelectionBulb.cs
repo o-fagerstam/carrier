@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CommandMode;
+using ServiceLocator;
 using UI;
 using UnityEngine;
 
@@ -14,6 +15,7 @@ namespace Unit {
         private bool _isSelected;
         private bool _displayAllowed;
         private int _numOrdersLastIteration;
+        private CommandUi _commandUi;
 
         private void Awake() {
             Unit = GetComponentInParent<GameUnit>();
@@ -24,9 +26,9 @@ namespace Unit {
         }
 
         private void Start() {
-            CommandUI ui = CommandUI.Instance;
-            _displayAllowed = ui.DisplaySelection;
-            ui.OnDisplaySelectionSettingsChanged += OnUiDisplaySelectionSettingsChanged;
+            _commandUi = MonoBehaviourServiceLocator.Current.Get<CommandUi>();
+            _displayAllowed = _commandUi.DisplaySelection;
+            _commandUi.OnDisplaySelectionSettingsChanged += OnUiDisplaySelectionSettingsChanged;
             UpdateSelectionVisibility();
         }
 
@@ -66,7 +68,7 @@ namespace Unit {
         private void OnDestroy() {
             Unit.OnSelected -= OnParentSelected;
             Unit.OnDeselected -= OnParentDeselected;
-            CommandUI.Instance.OnDisplaySelectionSettingsChanged -= OnUiDisplaySelectionSettingsChanged;
+            _commandUi.OnDisplaySelectionSettingsChanged -= OnUiDisplaySelectionSettingsChanged;
         }
         
         /*

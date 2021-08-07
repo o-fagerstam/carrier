@@ -1,4 +1,5 @@
 ﻿using System;
+using ServiceLocator;
 using Ship;
 using Unity.Mathematics;
 using UnityEngine;
@@ -9,6 +10,7 @@ namespace UI {
         private ShipMain _trackedShip;
         [SerializeField] private Transform _compassRing;
         [SerializeField] private Transform _compassArrow;
+        private PlayerCamera _playerCamera;
 
         private void LateUpdate() {
             if (_isTracking) {
@@ -16,8 +18,12 @@ namespace UI {
             }
         }
 
+        private void Start() {
+            _playerCamera = MonoBehaviourServiceLocator.Current.Get<PlayerCamera>();
+        }
+
         private void UpdateCompass() {
-            Camera cam = PlayerCamera.Instance.Camera;
+            Camera cam = _playerCamera.Camera;
             float cameraAngle = cam.transform.eulerAngles.y;
             _compassRing.rotation = Quaternion.Euler(0f, 0f, cameraAngle);
             

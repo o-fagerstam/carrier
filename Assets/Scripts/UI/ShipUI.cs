@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ServiceLocator;
 using Ship;
 using UI;
 using UnityEngine;
 
-public class ShipUI : MonoBehaviour {
+public class ShipUI : MonoBehaviourService {
     private static readonly Color ReadyColor = new Color(25f / 255f, 191f / 255f, 70 / 255f);
     private static readonly Color LoadingColor = new Color(219f / 255f, 143f / 255f, 29f / 255f);
     private readonly Dictionary<ShipGun, ScreenProjectedObject> _gunIdToMarkerDict = new Dictionary<ShipGun, ScreenProjectedObject>();
@@ -14,17 +15,13 @@ public class ShipUI : MonoBehaviour {
     [SerializeField] private ScreenProjectedObject gunMarkerPrefab;
     private Vector2 uiOffset;
 
-    private static ShipUI _instance;
-    public static ShipUI Instance => _instance;
+    private PlayerCamera _playerCamera;
+    private PlayerShipController _playerShipController;
+    
     private IShipTrackingUiComponent[] _shipTrackingComponents;
 
-    private void Awake() {
-        if (_instance != null && _instance != this) {
-            Destroy(gameObject);
-        }
-        else {
-            _instance = this;
-        }
+    protected override void Awake() {
+        base.Awake();
         _canvasRectTransform = GetComponent<RectTransform>();
         _shipTrackingComponents = GetComponentsInChildren<IShipTrackingUiComponent>();
         Vector2 sizeDelta = _canvasRectTransform.sizeDelta;
@@ -32,8 +29,11 @@ public class ShipUI : MonoBehaviour {
     }
 
     private void Start() {
-        PlayerShipController.Instance.OnAcquireCamera += AcquireShip;
-        PlayerShipController.Instance.OnReleaseCamera += ReleaseCurrentShip;
+        _playerShipController = MonoBehaviourServiceLocator.Current.Get<PlayerShipController>();
+        _playerShipController.OnAcquireCamera += AcquireShip;
+        _playerShipController.OnReleaseCamera += ReleaseCurrentShip;
+
+        _playerCamera = MonoBehaviourServiceLocator.Current.Get<PlayerCamera>();
     }
 
     public void RefreshMarkers() {
@@ -50,14 +50,14 @@ public class ShipUI : MonoBehaviour {
             marker.Visible = false;
             return;
         }
-        Camera currentCamera = PlayerCamera.Instance.Camera;
-        bool angleIsValid = marker.CheckVisibleWorldPosition(currentCamera, prediction.impactPosition);
+        Camera camera = _playerCamera.Camera;
+        bool angleIsValid = marker.CheckVisibleWorldPosition(camera, prediction.impactPosition);
         if (!angleIsValid) {
             marker.Visible = false;
             return;
         }
         marker.Visible = true;
-        MoveMarkerToWorldPoint(currentCamera, marker, prediction.impactPosition);
+        MoveMarkerToWorldPoint(camera, marker, prediction.impactPosition);
         SetMarkerColor(marker, gun.IsLoaded);
     }
 
@@ -120,7 +120,7 @@ public class ShipUI : MonoBehaviour {
     }
 
     private void OnDestroy() {
-        PlayerShipController.Instance.OnAcquireCamera -= AcquireShip;
-        PlayerShipController.Instance.OnReleaseCamera -= ReleaseCurrentShip;
+        _playerShipController.OnAcquireCamera -= AcquireShip;
+        _playerShipController.OnReleaseCamera -= ReleaseCurrentShip;
     }
 }
