@@ -6,14 +6,14 @@ using Ship;
 using UI;
 using UnityEngine;
 
-public class ShipUI : MonoBehaviourService {
+public class ShipUi : MonoBehaviourService {
     private static readonly Color ReadyColor = new Color(25f / 255f, 191f / 255f, 70 / 255f);
     private static readonly Color LoadingColor = new Color(219f / 255f, 143f / 255f, 29f / 255f);
     private readonly Dictionary<ShipGun, ScreenProjectedObject> _gunIdToMarkerDict = new Dictionary<ShipGun, ScreenProjectedObject>();
     private RectTransform _canvasRectTransform;
-    [SerializeField] private GameObject _crosshair;
+    [SerializeField] private GameObject crosshair;
     [SerializeField] private ScreenProjectedObject gunMarkerPrefab;
-    private Vector2 uiOffset;
+    private Vector2 _uiOffset;
 
     private PlayerCamera _playerCamera;
     private PlayerShipController _playerShipController;
@@ -22,10 +22,10 @@ public class ShipUI : MonoBehaviourService {
 
     protected override void Awake() {
         base.Awake();
-        _canvasRectTransform = GetComponent<RectTransform>();
+        _canvasRectTransform = transform.parent.GetComponent<RectTransform>();
         _shipTrackingComponents = GetComponentsInChildren<IShipTrackingUiComponent>();
         Vector2 sizeDelta = _canvasRectTransform.sizeDelta;
-        uiOffset = new Vector2(sizeDelta.x * 0.5f, sizeDelta.y * 0.5f);
+        _uiOffset = new Vector2(sizeDelta.x * 0.5f, sizeDelta.y * 0.5f);
     }
 
     private void Start() {
@@ -37,9 +37,8 @@ public class ShipUI : MonoBehaviourService {
     }
 
     public void RefreshMarkers() {
-        foreach (ShipGun gun in _gunIdToMarkerDict.Keys) {
-            ScreenProjectedObject marker = _gunIdToMarkerDict[gun];
-            RefreshMarker(marker, gun);
+        foreach (KeyValuePair<ShipGun, ScreenProjectedObject> pair in _gunIdToMarkerDict) {
+            RefreshMarker(pair.Value, pair.Key);
         }
     }
 
@@ -75,12 +74,14 @@ public class ShipUI : MonoBehaviourService {
         foreach (ShipGun oldGun in _gunIdToMarkerDict.Keys.ToList()) {
             RemoveMarker(oldGun);
         }
-        _crosshair.SetActive(false);
+        crosshair.SetActive(false);
     }
 
     public void AcquireShip(ShipMain ship) {
         ReleaseCurrentShip();
 
+        Debug.Log($"Aqcuiring ship {ship}");
+        
         foreach (ShipGun newGun in ship.MainGuns) {
             AddMarker(newGun);
         }
@@ -89,7 +90,7 @@ public class ShipUI : MonoBehaviourService {
             component.AcquireShip(ship);
         }
 
-        _crosshair.SetActive(true);
+        crosshair.SetActive(true);
     }
 
     private void MoveMarkerToWorldPoint(Camera currentCamera, ScreenProjectedObject marker, Vector3 worldPosition) {
@@ -102,7 +103,7 @@ public class ShipUI : MonoBehaviourService {
         var distanceToCamera = (worldPosition - currentCamera.transform.position).magnitude;
         var markerScale = 1 - Mathf.Sqrt(distanceToCamera / 5000) / 2;
         marker.SetScale(markerScale);
-        marker.SetLocalPosition(proportionalPosition - uiOffset);
+        marker.SetLocalPosition(proportionalPosition - _uiOffset);
     }
 
     private static void SetMarkerColor(ScreenProjectedObject marker, bool isLoaded) {

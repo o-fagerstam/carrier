@@ -22,7 +22,7 @@ namespace Ship {
 
         public Transform swivel, stick, cameraHolderTransform;
 
-        private ShipUI _shipUi;
+        private ShipUi _shipUi;
 
         private const float ScopeMinFov = 2f;
         private const float ScopeMaxFov = 55f;
@@ -46,7 +46,7 @@ namespace Ship {
         }
 
         private void Start() {
-            _shipUi = MonoBehaviourServiceLocator.Current.Get<ShipUI>();
+            _shipUi = MonoBehaviourServiceLocator.Current.Get<ShipUi>();
         }
 
         private void LateUpdate() {
@@ -280,7 +280,7 @@ namespace Ship {
             
             shipToFollow = newShipToFollow;
             if (_shipUi == null) {
-                _shipUi = MonoBehaviourServiceLocator.Current.Get<ShipUI>();
+                _shipUi = MonoBehaviourServiceLocator.Current.Get<ShipUi>();
             }
             _shipUi.AcquireShip(newShipToFollow);
             return this;

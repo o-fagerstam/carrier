@@ -49,6 +49,8 @@ public class PlayerCamera : MonoBehaviourService {
                 PostProcessor.Instance.DisableVignette();
                 ResetFov();
                 break;
+            default:
+                throw new NotImplementedException("PlayerCamera does not support this Camera Mode");
         }
     }
 
