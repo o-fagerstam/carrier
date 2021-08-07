@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace UI {
     public class CommandUi : MonoBehaviourService {
-        [SerializeField] private Toggle alwaysDisplaySelectionToggle;
+        [SerializeField] private ImageToggleButton alwaysDisplaySelectionToggle;
         [SerializeField] private GameObject commandViewControlPanel;
         public bool DisplaySelection { get; private set; }
         private bool _commandModeActive;
@@ -17,7 +17,7 @@ namespace UI {
             commandViewControlPanel.SetActive(_commandModeActive);
             
             DisplaySelection = false;
-            alwaysDisplaySelectionToggle.onValueChanged.AddListener(OnDisplaySelectionToggleChanged);
+            alwaysDisplaySelectionToggle.OnToggleChanged += OnDisplaySelectionToggleChanged;
         }
 
         private void Start() {
@@ -26,7 +26,7 @@ namespace UI {
         }
 
         private void RecalculateDisplaySelection() {
-            DisplaySelection = _commandModeActive || alwaysDisplaySelectionToggle.isOn;
+            DisplaySelection = _commandModeActive || alwaysDisplaySelectionToggle.IsOn;
             OnDisplaySelectionSettingsChanged?.Invoke(DisplaySelection);
         }
 
