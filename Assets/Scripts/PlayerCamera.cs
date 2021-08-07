@@ -1,5 +1,6 @@
 using System;
 using ServiceLocator;
+using Ship;
 using UnityEngine;
 
 public class PlayerCamera : MonoBehaviourService {
@@ -8,6 +9,7 @@ public class PlayerCamera : MonoBehaviourService {
     public Camera Camera { get; private set; }
 
     public const float StandardFov = 60f;
+    private IPlayerCameraAcquirable _playerCameraAcquirable;
 
 
     protected override void Awake() {
@@ -21,7 +23,16 @@ public class PlayerCamera : MonoBehaviourService {
         transform.localRotation = Quaternion.identity;
     }
 
+    public void SwitchController(IPlayerCameraAcquirable target) {
+        Release();
+        
+        _playerCameraAcquirable = target;
+        _playerCameraAcquirable.AcquireCamera();
+        
+    }
+
     public void Release() {
+        _playerCameraAcquirable?.ReleaseCamera();
         transform.parent = null;
     }
 

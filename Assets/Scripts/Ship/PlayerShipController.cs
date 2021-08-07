@@ -5,7 +5,7 @@ using ServiceLocator;
 using UnityEngine;
 
 namespace Ship {
-    public class PlayerShipController : MonoBehaviourService, IShipController {
+    public class PlayerShipController : MonoBehaviourService, IShipController, IPlayerCameraAcquirable {
         public static Ray MouseRay;
         public static RaycastHit RayCastGunTargetingHit;
         public static bool RayCastMadeGunTargetingHit;
@@ -55,7 +55,7 @@ namespace Ship {
             }
 
             if (!_acquiredControlThisFrame && Input.GetKeyDown(KeyCode.Tab)) {
-                ReleaseToCommandMode();
+                _playerCamera.SwitchController(MonoBehaviourServiceLocator.Current.Get<CommandModeController>());
                 return;
             }
             
@@ -80,13 +80,6 @@ namespace Ship {
             }
         }
 
-        private void ReleaseToCommandMode() {
-            _hasControl = false;
-            _playerCamera.Release();
-            OnReleaseCamera?.Invoke();
-            MonoBehaviourServiceLocator.Current.Get<CommandModeController>().AcquireCamera();
-        }
-
         public void AcquireCamera() {
             _hasControl = true;
             _acquiredControlThisFrame = true;
@@ -101,7 +94,13 @@ namespace Ship {
 
             OnAcquireCamera?.Invoke(shipToFollow);
         }
-        
+
+        public void ReleaseCamera() {
+            _hasControl = false;
+            OnReleaseCamera?.Invoke();
+        }
+
+
         /*
          * CAMERA CONTROLLER
          */

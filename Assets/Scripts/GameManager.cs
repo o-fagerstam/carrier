@@ -11,7 +11,10 @@ public class GameManager : MonoBehaviourService {
     private void Update() {
         if (!_lateInitFinished) {
             _lateInitFinished = true;
-            MonoBehaviourServiceLocator.Current.Get<PlayerShipController>().AcquireCamera();
+            
+            PlayerShipController psc = MonoBehaviourServiceLocator.Current.Get<PlayerShipController>();
+            PlayerCamera playerCamera = MonoBehaviourServiceLocator.Current.Get<PlayerCamera>();
+            playerCamera.SwitchController(psc);
         }
     }
 

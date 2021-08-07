@@ -8,9 +8,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace CommandMode {
-    public class CommandModeController : MonoBehaviourService {
-        private PlayerCamera _playerCamera;
-
+    public class CommandModeController : MonoBehaviourService, IPlayerCameraAcquirable {
         private bool _hasControl;
         private bool _acquiredControlThisFrame;
         
@@ -25,6 +23,7 @@ namespace CommandMode {
         private bool _isDraggingSelectionBox;
 
         private PlayerShipController _playerShipController;
+        private PlayerCamera _playerCamera;
 
         public static event Action OnEnterCommandMode;
         public static event Action OnExitCommandMode;
@@ -33,11 +32,10 @@ namespace CommandMode {
             base.Awake();
 
             selectionBoxVisual.sizeDelta = Vector2.zero;
-            
-            _playerCamera = FindObjectOfType<PlayerCamera>();
         }
 
         private void Start() {
+            _playerCamera = MonoBehaviourServiceLocator.Current.Get<PlayerCamera>();
             _playerShipController = MonoBehaviourServiceLocator.Current.Get<PlayerShipController>();
         }
 
@@ -47,16 +45,14 @@ namespace CommandMode {
             }
 
             if (!_acquiredControlThisFrame && Input.GetKeyDown(KeyCode.Tab)) {
-                ReleaseCamera();
-                _playerShipController.AcquireCamera();
+                _playerCamera.SwitchController(_playerShipController);
             }
 
             if (Input.GetKeyDown(KeyCode.C) && _selectedUnits.Count == 1) {
-                ReleaseCamera();
-                // VERY janky cast that will have to be fixed when we make airplanes!
+                // VERY smelly cast that will have to be fixed when we make airplanes!
                 ShipMain ship = _selectedUnits.ToArray()[0] as ShipMain;
                 ship.UpdateControllerType(VehicleUserType.Human);
-                _playerShipController.AcquireCamera();
+                _playerCamera.SwitchController(_playerShipController);
             }
 
             Scroll();
@@ -105,7 +101,6 @@ namespace CommandMode {
 
         public void ReleaseCamera() {
             _hasControl = false;
-            _playerCamera.Release();
             GameManager gameManager = MonoBehaviourServiceLocator.Current.Get<GameManager>();
             gameManager.Resume();
             OnExitCommandMode?.Invoke();
