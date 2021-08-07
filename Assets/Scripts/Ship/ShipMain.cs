@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ServiceLocator;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -52,7 +53,7 @@ namespace Ship {
 
         public void UpdateControllerType(VehicleUserType type) {
             shipController = type switch {
-                VehicleUserType.Human => PlayerShipController.AcquireShip(this),
+                VehicleUserType.Human => MonoBehaviourServiceLocator.Current.Get<PlayerShipController>().AcquireShip(this),
                 VehicleUserType.Ai => (AiShipController) AiController,
                 VehicleUserType.None => null,
                 _ => shipController

@@ -1,10 +1,11 @@
 using System;
 using System.Linq;
 using CommandMode;
+using ServiceLocator;
 using UnityEngine;
 
 namespace Ship {
-    public class PlayerShipController : MonoBehaviour, IShipController {
+    public class PlayerShipController : MonoBehaviourService, IShipController, IPlayerCameraAcquirable {
         public static Ray MouseRay;
         public static RaycastHit RayCastGunTargetingHit;
         public static bool RayCastMadeGunTargetingHit;
@@ -21,22 +22,16 @@ namespace Ship {
 
         public Transform swivel, stick, cameraHolderTransform;
 
-        private static PlayerShipController _instance;
-        public static PlayerShipController Instance => _instance;
-        
+        private ShipUi _shipUi;
+
         private const float ScopeMinFov = 2f;
         private const float ScopeMaxFov = 55f;
 
         public event Action<ShipMain> OnAcquireCamera;
         public event Action OnReleaseCamera;
 
-        private void Awake() {
-            if (_instance != null && _instance != this) {
-                Destroy(gameObject);
-            }
-            else {
-                _instance = this;
-            }
+        protected override void Awake() {
+            base.Awake();
 
             swivel = transform.GetChild(0);
             stick = swivel.GetChild(0);
@@ -50,13 +45,17 @@ namespace Ship {
             _playerCamera = FindObjectOfType<PlayerCamera>();
         }
 
+        private void Start() {
+            _shipUi = MonoBehaviourServiceLocator.Current.Get<ShipUi>();
+        }
+
         private void LateUpdate() {
             if (!_hasControl) {
                 return;
             }
 
             if (!_acquiredControlThisFrame && Input.GetKeyDown(KeyCode.Tab)) {
-                ReleaseToCommandMode();
+                _playerCamera.SwitchController(MonoBehaviourServiceLocator.Current.Get<CommandModeController>());
                 return;
             }
             
@@ -74,18 +73,11 @@ namespace Ship {
                 }
             }
 
-            ShipUI.Instance.RefreshMarkers();
+            _shipUi.RefreshMarkers();
             
             if (_acquiredControlThisFrame) {
                 _acquiredControlThisFrame = false;
             }
-        }
-
-        private void ReleaseToCommandMode() {
-            _hasControl = false;
-            _playerCamera.Release();
-            OnReleaseCamera?.Invoke();
-            CommandModeController.Instance.AcquireCamera();
         }
 
         public void AcquireCamera() {
@@ -102,7 +94,13 @@ namespace Ship {
 
             OnAcquireCamera?.Invoke(shipToFollow);
         }
-        
+
+        public void ReleaseCamera() {
+            _hasControl = false;
+            OnReleaseCamera?.Invoke();
+        }
+
+
         /*
          * CAMERA CONTROLLER
          */
@@ -274,15 +272,18 @@ namespace Ship {
             return Input.GetKeyDown(KeyCode.Q);
         }
 
-        public static IShipController AcquireShip(ShipMain shipToFollow) {
-            if (_instance.shipToFollow != null) {
-                _instance.shipToFollow.UpdateControllerType(VehicleUserType.Ai);
+        public IShipController AcquireShip(ShipMain newShipToFollow) {
+            if (shipToFollow != null) {
+                shipToFollow.UpdateControllerType(VehicleUserType.Ai);
             }
 
             
-            _instance.shipToFollow = shipToFollow;
-            ShipUI.Instance.AcquireShip(shipToFollow);
-            return Instance;
+            shipToFollow = newShipToFollow;
+            if (_shipUi == null) {
+                _shipUi = MonoBehaviourServiceLocator.Current.Get<ShipUi>();
+            }
+            _shipUi.AcquireShip(newShipToFollow);
+            return this;
         }
     }
 }

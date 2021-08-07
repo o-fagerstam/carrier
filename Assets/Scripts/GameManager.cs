@@ -1,27 +1,20 @@
 using System;
+using ServiceLocator;
 using Ship;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour {
-    private static GameManager _instance;
-    public static GameManager Instance => _instance;
+public class GameManager : MonoBehaviourService {
     public const int PlayerTeam = 0;
     private GameSpeed _lastGameSpeed = GameSpeed.Normal;
     private bool _lateInitFinished;
-
-    private void Awake() {
-        if (_instance != null && _instance != this) {
-            Destroy(gameObject);
-        }
-        else {
-            _instance = this;
-        }
-    }
-
+    
     private void Update() {
         if (!_lateInitFinished) {
             _lateInitFinished = true;
-            PlayerShipController.Instance.AcquireCamera();
+            
+            PlayerShipController psc = MonoBehaviourServiceLocator.Current.Get<PlayerShipController>();
+            PlayerCamera playerCamera = MonoBehaviourServiceLocator.Current.Get<PlayerCamera>();
+            playerCamera.SwitchController(psc);
         }
     }
 
@@ -44,7 +37,6 @@ public class GameManager : MonoBehaviour {
     }
 
     public void Resume() {
-
         ChangeTimeScale(_lastGameSpeed);
     }
 

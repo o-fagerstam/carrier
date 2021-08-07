@@ -1,23 +1,19 @@
 using System;
+using ServiceLocator;
+using Ship;
 using UnityEngine;
 
-public class PlayerCamera : MonoBehaviour {
-    private static PlayerCamera _instance;
-    public static PlayerCamera Instance => _instance;
-    public static Vector3 Position => _instance.transform.position;
+public class PlayerCamera : MonoBehaviourService {
+    public Vector3 Position => transform.position;
     
     public Camera Camera { get; private set; }
 
     public const float StandardFov = 60f;
+    private IPlayerCameraAcquirable _playerCameraAcquirable;
 
 
-    private void Awake() {
-        if (_instance != null && _instance != this) {
-            Destroy(gameObject);
-        }
-        else {
-            _instance = this;
-        }
+    protected override void Awake() {
+        base.Awake();
         Camera = GetComponent<Camera>();
     }
 
@@ -27,7 +23,16 @@ public class PlayerCamera : MonoBehaviour {
         transform.localRotation = Quaternion.identity;
     }
 
+    public void SwitchController(IPlayerCameraAcquirable target) {
+        Release();
+        
+        _playerCameraAcquirable = target;
+        _playerCameraAcquirable.AcquireCamera();
+        
+    }
+
     public void Release() {
+        _playerCameraAcquirable?.ReleaseCamera();
         transform.parent = null;
     }
 
@@ -44,6 +49,8 @@ public class PlayerCamera : MonoBehaviour {
                 PostProcessor.Instance.DisableVignette();
                 ResetFov();
                 break;
+            default:
+                throw new NotImplementedException("PlayerCamera does not support this Camera Mode");
         }
     }
 
