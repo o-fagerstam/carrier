@@ -3,28 +3,22 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI {
-    public class ScreenProjectedObject : MonoBehaviour {
-        private Image _image;
+    public abstract class ScreenProjectedObject : MonoBehaviour {
         private RectTransform _rectTransform;
 
-        public bool Visible {
-            get => _image.enabled;
-            set => _image.enabled = value;
-        }
+        public bool Visible { get; private set; }
 
-        private void Awake() {
+
+        protected virtual void Awake() {
             _rectTransform = GetComponent<RectTransform>();
-            _image = GetComponent<Image>();
-            Visible = true;
         }
 
-        public void SetColor(Color color) {
-            _image.color = color;
+        public virtual void SetVisible(bool visible) {
+            Visible = visible;
         }
-
+        
         public void SetScale(float scale) {
-            _rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, scale * 12f);
-            _rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, scale * 12f);
+            _rectTransform.localScale = Vector3.one * scale;
         }
 
         public void SetLocalPosition(Vector2 position) {

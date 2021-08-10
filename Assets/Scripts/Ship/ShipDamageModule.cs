@@ -1,30 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using PhysicsUtilities;
+using Unit;
 using UnityEngine;
 
 namespace Ship {
-    public class ShipDamageModule : MonoBehaviour {
+    public class ShipDamageModule : DamageModule {
         private ShipMain _shipMain;
         
         public const float ShellRayMaxDistance = 70f;
-        public float maxHealth = 3000f;
-        public float health;
-        
-        public event EventHandler<OnDamageTakenArgs> OnDamageTaken;
 
         private void Awake() {
             _shipMain = GetComponent<ShipMain>();
         }
-
-        public class OnDamageTakenArgs : EventArgs {
-            public float damageTaken, healthRemaining, maxHealth;
-            public OnDamageTakenArgs(float damageTaken, float healthRemaining, float maxHealth) {
-                this.damageTaken = damageTaken;
-                this.healthRemaining = healthRemaining;
-                this.maxHealth = maxHealth;
-            }
-        }
+        
 
         public void CalculateImpact(Vector3 impactPosition, Vector3 directionVector, float shellPower) {
             var hitComponents = GenerateHitComponentsList(impactPosition, directionVector);
@@ -85,7 +74,7 @@ namespace Ship {
             }
 
             health -= totalDamage;
-            OnDamageTaken?.Invoke(this, new OnDamageTakenArgs(totalDamage, health, maxHealth));
+            InvokeOnDamageTaken(this, new OnDamageTakenArgs(totalDamage, health, maxHealth));
 
             if (health <= 0f) {
                 _shipMain.Destroy();

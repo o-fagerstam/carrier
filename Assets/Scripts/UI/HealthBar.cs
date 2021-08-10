@@ -17,7 +17,7 @@ namespace UI {
                 ReleaseShip();
             }
 
-            trackedDamageModule = ship.DamageModule;
+            trackedDamageModule = ship.ShipDamageModule;
             trackedDamageModule.OnDamageTaken += OnShipDamageTaken;
             SetSlider(trackedDamageModule.health, trackedDamageModule.maxHealth);
         }

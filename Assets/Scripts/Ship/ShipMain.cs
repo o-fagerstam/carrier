@@ -20,7 +20,7 @@ namespace Ship {
         [SerializeField] private List<WheelCollider> rudderWheels;
         
         public ShipGun[] MainGuns { get; private set; }
-        public ShipDamageModule DamageModule { get; private set; }
+        public ShipDamageModule ShipDamageModule { get; private set; }
 
         private const int maxGearLevel = 4;
         private const int minGearlevel = -2;
@@ -43,7 +43,8 @@ namespace Ship {
             
             Rigidbody.centerOfMass = Vector3.down * transform.localScale.y * 0.4f;
 
-            DamageModule = GetComponent<ShipDamageModule>();
+            ShipDamageModule = GetComponent<ShipDamageModule>();
+            DamageModule = ShipDamageModule;
             AiController = gameObject.AddComponent<AiShipController>();
         }
 
