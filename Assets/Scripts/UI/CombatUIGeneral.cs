@@ -20,11 +20,11 @@ namespace UI {
         }
 
         public void AddUnit(GameUnit gameUnit) {
-            ClassMarker marker = Instantiate(unitMarker, transform).GetComponent<ClassMarker>();
+            ClassMarker marker = Instantiate(unitMarker).GetComponent<ClassMarker>();
             _markedUnits[gameUnit] = marker;
             
-            marker.trackedTransform = gameUnit.transform;
-            marker.offset = new Vector3(0f, 20f, 0f);
+            marker.trackedUnit = gameUnit;
+            marker.worldOffset = new Vector3(0f, 20f, 0f);
             marker.onScreenOffset = new Vector3(0f, 20f, 0f);
             marker.trackedUnit = gameUnit;
 
@@ -45,7 +45,7 @@ namespace UI {
 
         private void OnDestroy() {
             foreach (ClassMarker o in _markedUnits.Values) {
-                Destroy(o.gameObject);
+                if (o != null) Destroy(o.gameObject);
             }
         }
     }

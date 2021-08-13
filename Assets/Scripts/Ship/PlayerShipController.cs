@@ -73,8 +73,6 @@ namespace Ship {
                 }
             }
 
-            _shipUi.RefreshMarkers();
-            
             if (_acquiredControlThisFrame) {
                 _acquiredControlThisFrame = false;
             }

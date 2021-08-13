@@ -1,24 +1,22 @@
-﻿using System;
-using Unit;
+﻿using Unit;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI {
-    public class ClassMarker : ScreenProjectedTrackingObject {
+    public class ClassMarker : UnitTrackingWorldSpaceMarker {
         [SerializeField] private Image _healthBar;
+        [SerializeField] private Image _backgroundImage;
         [SerializeField] private RectTransform _maskTransform;
         [SerializeField] private RectTransform _healthBarTransform; 
-        [SerializeField] private Image _backgroundImage;
-        public GameUnit trackedUnit;
+
         private float _scaleFactor = 1f;
 
-        public override void SetVisible(bool visible) {
-            base.SetVisible(visible);
+        protected override void SetVisible(bool visible) {
             _healthBar.enabled = visible;
             _backgroundImage.enabled = visible;
         }
 
-        public void SetColor(Color color) {
+        public override void SetColor(Color color) {
             _healthBar.color = color;
         }
 
@@ -26,8 +24,8 @@ namespace UI {
             base.LateUpdate();
             DamageModule d = trackedUnit.DamageModule;
             float maskOffsetFactor = Mathf.Clamp01(1f - d.health / d.maxHealth);
-            _maskTransform.localPosition = Vector2.down * (maskOffsetFactor * 20f);
-            _healthBarTransform.localPosition = Vector2.up * (maskOffsetFactor * 20f);
+            _maskTransform.localPosition = Vector2.down * (maskOffsetFactor * 5f);
+            _healthBarTransform.localPosition = Vector2.up * (maskOffsetFactor * 5f);
         }
     }
 }

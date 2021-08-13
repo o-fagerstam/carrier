@@ -7,67 +7,32 @@ using UI;
 using UnityEngine;
 
 public class ShipUi : MonoBehaviourService {
-    private static readonly Color ReadyColor = new Color(25f / 255f, 191f / 255f, 70 / 255f);
-    private static readonly Color LoadingColor = new Color(219f / 255f, 143f / 255f, 29f / 255f);
-    private readonly Dictionary<ShipGun, ScreenProjectedImage> _gunIdToMarkerDict = new Dictionary<ShipGun, ScreenProjectedImage>();
-    private RectTransform _canvasRectTransform;
+    private readonly Dictionary<ShipGun, GunTargetMarker> _gunIdToMarkerDict = new Dictionary<ShipGun, GunTargetMarker>();
     [SerializeField] private GameObject crosshair;
-    [SerializeField] private ScreenProjectedImage gunMarkerPrefab;
-    private Vector2 _uiOffset;
+    [SerializeField] private GunTargetMarker gunMarkerPrefab;
 
-    private PlayerCamera _playerCamera;
     private PlayerShipController _playerShipController;
     
     private IShipTrackingUiComponent[] _shipTrackingComponents;
 
     protected override void Awake() {
         base.Awake();
-        _canvasRectTransform = transform.parent.GetComponent<RectTransform>();
         _shipTrackingComponents = GetComponentsInChildren<IShipTrackingUiComponent>();
-        Vector2 sizeDelta = _canvasRectTransform.sizeDelta;
-        _uiOffset = new Vector2(sizeDelta.x * 0.5f, sizeDelta.y * 0.5f);
     }
 
     private void Start() {
         _playerShipController = MonoBehaviourServiceLocator.Current.Get<PlayerShipController>();
         _playerShipController.OnAcquireCamera += AcquireShip;
         _playerShipController.OnReleaseCamera += ReleaseCurrentShip;
-
-        _playerCamera = MonoBehaviourServiceLocator.Current.Get<PlayerCamera>();
     }
-
-    public void RefreshMarkers() {
-        foreach (KeyValuePair<ShipGun, ScreenProjectedImage> pair in _gunIdToMarkerDict) {
-            RefreshMarker(pair.Value, pair.Key);
-        }
-    }
-
-
-    private void RefreshMarker(ScreenProjectedImage marker, ShipGun gun) {
-        GunImpactPrediction prediction = gun.GunImpactPrediction;
-        if (!prediction.willImpact) {
-            marker.SetVisible(false);
-            return;
-        }
-        Camera camera = _playerCamera.Camera;
-        bool angleIsValid = marker.CheckVisibleWorldPosition(camera, prediction.impactPosition);
-        if (!angleIsValid) {
-            marker.SetVisible(false);
-            return;
-        }
-        marker.SetVisible(true);
-        MoveMarkerToWorldPoint(camera, marker, prediction.impactPosition);
-        SetMarkerColor(marker, gun.IsLoaded);
-    }
-
-
 
     private void AddMarker(ShipGun gun) {
         if (_gunIdToMarkerDict.ContainsKey(gun)) {
             throw new ArgumentException($"Gun with id {gun.GetInstanceID()} already has marker", nameof(gun));
         }
 
-        _gunIdToMarkerDict[gun] = Instantiate(gunMarkerPrefab, Vector3.zero, Quaternion.identity, transform);
+        _gunIdToMarkerDict[gun] = Instantiate(gunMarkerPrefab, Vector3.zero, Quaternion.identity);
+        _gunIdToMarkerDict[gun].trackedGun = gun;
     }
 
     public void ReleaseCurrentShip() {
@@ -80,8 +45,6 @@ public class ShipUi : MonoBehaviourService {
     public void AcquireShip(ShipMain ship) {
         ReleaseCurrentShip();
 
-        Debug.Log($"Aqcuiring ship {ship}");
-        
         foreach (ShipGun newGun in ship.MainGuns) {
             AddMarker(newGun);
         }
@@ -91,28 +54,6 @@ public class ShipUi : MonoBehaviourService {
         }
 
         crosshair.SetActive(true);
-    }
-
-    private void MoveMarkerToWorldPoint(Camera currentCamera, ScreenProjectedImage marker, Vector3 worldPosition) {
-        Vector2 viewPortPosition = currentCamera.WorldToViewportPoint(worldPosition);
-        Vector2 canvasSizeDelta = _canvasRectTransform.sizeDelta;
-        var proportionalPosition = new Vector2(
-            viewPortPosition.x * canvasSizeDelta.x,
-            viewPortPosition.y * canvasSizeDelta.y
-        );
-        var distanceToCamera = (worldPosition - currentCamera.transform.position).magnitude;
-        var markerScale = 1 - Mathf.Sqrt(distanceToCamera / 5000) / 2;
-        marker.SetScale(markerScale);
-        marker.SetLocalPosition(proportionalPosition - _uiOffset);
-    }
-
-    private static void SetMarkerColor(ScreenProjectedImage marker, bool isLoaded) {
-        if (isLoaded) {
-            marker.SetColor(ReadyColor);
-        }
-        else {
-            marker.SetColor(LoadingColor);
-        }
     }
 
     private void RemoveMarker(ShipGun gun) {
