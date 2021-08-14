@@ -5,6 +5,7 @@ using UnityEngine;
 public abstract class GameUnit : MonoBehaviour {
     public VehicleUserType vehicleUserType = VehicleUserType.None;
     public AiUnitController AiController { get; protected set; }
+    public DamageModule DamageModule { get; protected set; }
     public int team;
     
     public bool alive = true;

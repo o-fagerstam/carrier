@@ -8,7 +8,7 @@ namespace UI {
         [SerializeField] private Color friendlyColor;
         [SerializeField] private Color hostileColor;
         
-        private Dictionary<GameUnit, ScreenProjectedTrackingObject> _markedUnits = new Dictionary<GameUnit, ScreenProjectedTrackingObject>();
+        private Dictionary<GameUnit, ClassMarker> _markedUnits = new Dictionary<GameUnit, ClassMarker>();
 
         private void Start() {
             VehiclesManager.Instance.OnUnitAdded += AddUnit;
@@ -19,19 +19,20 @@ namespace UI {
             }
         }
 
-        public void AddUnit(GameUnit g) {
-            ScreenProjectedTrackingObject o = Instantiate(unitMarker, transform).GetComponent<ScreenProjectedTrackingObject>();
-            _markedUnits[g] = o;
+        public void AddUnit(GameUnit gameUnit) {
+            ClassMarker marker = Instantiate(unitMarker).GetComponent<ClassMarker>();
+            _markedUnits[gameUnit] = marker;
+            
+            marker.trackedUnit = gameUnit;
+            marker.worldOffset = new Vector3(0f, 20f, 0f);
+            marker.onScreenOffset = new Vector3(0f, 20f, 0f);
+            marker.trackedUnit = gameUnit;
 
-            o.trackedTransform = g.transform;
-            o.offset = new Vector3(0f, 20f, 0f);
-            o.onScreenOffset = new Vector3(0f, 20f, 0f);
-
-            if (g.team == GameManager.PlayerTeam) {
-                o.SetColor(friendlyColor);
+            if (gameUnit.team == GameManager.PlayerTeam) {
+                marker.SetColor(friendlyColor);
             }
             else {
-                o.SetColor(hostileColor);
+                marker.SetColor(hostileColor);
             }
         }
 
@@ -43,8 +44,8 @@ namespace UI {
         }
 
         private void OnDestroy() {
-            foreach (ScreenProjectedTrackingObject o in _markedUnits.Values) {
-                Destroy(o.gameObject);
+            foreach (ClassMarker o in _markedUnits.Values) {
+                if (o != null) Destroy(o.gameObject);
             }
         }
     }
