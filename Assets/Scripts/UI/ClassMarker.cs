@@ -7,9 +7,8 @@ namespace UI {
         [SerializeField] private Image _healthBar;
         [SerializeField] private Image _backgroundImage;
         [SerializeField] private RectTransform _maskTransform;
-        [SerializeField] private RectTransform _healthBarTransform; 
-
-        private float _scaleFactor = 1f;
+        [SerializeField] private RectTransform _healthBarTransform;
+        protected override float DistanceScalingPower => 3f;
 
         protected override void SetVisible(bool visible) {
             _healthBar.enabled = visible;

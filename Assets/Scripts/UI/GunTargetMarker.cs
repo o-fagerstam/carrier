@@ -9,6 +9,9 @@ namespace UI {
         
         private static readonly Color ReadyColor = new Color(25f / 255f, 191f / 255f, 70 / 255f);
         private static readonly Color LoadingColor = new Color(219f / 255f, 143f / 255f, 29f / 255f);
+
+        protected override float DistanceScalingPower => 0f;
+
         public override void SetColor(Color c) {
             image.color = c;
         }
