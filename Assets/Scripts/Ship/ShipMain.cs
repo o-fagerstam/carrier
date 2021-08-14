@@ -167,6 +167,7 @@ namespace Ship {
                 wheel.enabled = false;
             }
 
+            Rigidbody.ResetCenterOfMass();
             Rigidbody.drag = OnDestructionDrag;
             Rigidbody.AddRelativeTorque(Vector3.forward * Random.Range(-0.3f, 0.3f), ForceMode.VelocityChange);
         }
