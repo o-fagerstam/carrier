@@ -49,6 +49,25 @@ namespace Ship {
             _shipUi = MonoBehaviourServiceLocator.Current.Get<ShipUi>();
         }
 
+        private void Update()
+        {
+            if (!_hasControl) {
+                return;
+            }
+
+            shipToFollow.ReceiveSteeringInput(GetVerticalInput(), Input.GetAxis("Horizontal"));
+            shipToFollow.ReceiveAimInput(RayCastGunTargetingHit.point);
+
+            if (Input.GetMouseButton(0)) {
+                shipToFollow.ReceiveFireInput();
+            }
+
+            if (Input.GetKeyDown(KeyCode.Q)) {
+                shipToFollow.ReceiveTorpedoInput();
+            }
+
+        }
+
         private void LateUpdate() {
             if (!_hasControl) {
                 return;
@@ -76,6 +95,8 @@ namespace Ship {
             if (_acquiredControlThisFrame) {
                 _acquiredControlThisFrame = false;
             }
+            
+            
         }
 
         public void AcquireCamera() {
@@ -228,53 +249,20 @@ namespace Ship {
          * SHIP CONTROLLER
          */
 
-        public ShipGearInput GetVerticalInput() {
-            if (!_hasControl) {
-                return ShipGearInput.NoInput;
-            }
-
-            float verticalInput = Input.GetAxisRaw("Vertical");
-            if (verticalInput > 0.01f) {
+        private ShipGearInput GetVerticalInput() {
+            if (Input.GetKeyDown(KeyCode.W)) {
                 return ShipGearInput.Raise;
-            } else if (verticalInput < -0.01f) {
+            } else if (Input.GetKeyDown(KeyCode.S)) {
                 return ShipGearInput.Lower;
-            }
-            else {
+            } else {
                 return ShipGearInput.NoInput;
             }
         }
-
-        public float GetHorizontalInput() {
-            if (!_hasControl) {
-                return 0f;
-            }
-            
-            return Input.GetAxis("Horizontal");
-        }
-
-        public Vector3 GetAimPoint() {
-            return RayCastGunTargetingHit.point;
-        }
-
-        public bool GetFireInput() {
-            if (!_hasControl) {    
-                return false;
-            }
-            return Input.GetMouseButton(0);
-        }
-
-        public bool GetTorpedoInput() {
-            if (!_hasControl) {
-                return false;
-            }
-            return Input.GetKeyDown(KeyCode.Q);
-        }
-
+        
         public IShipController AcquireShip(ShipMain newShipToFollow) {
             if (shipToFollow != null) {
                 shipToFollow.UpdateControllerType(VehicleUserType.Ai);
             }
-
             
             shipToFollow = newShipToFollow;
             if (_shipUi == null) {

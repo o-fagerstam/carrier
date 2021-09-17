@@ -23,7 +23,7 @@ namespace Ship {
         public bool IsLoaded => _lastFired <= Time.time - reloadTime;
         protected Vector3 MuzzlePosition => verticalRotationPart.position + verticalRotationPart.forward * 3;
 
-        protected bool _hasAllowedFiringAngle;
+        private Vector3 _desiredFiringAngle;
         private bool _hasPredictedImpactThisTick;
         protected float _lastFired;
         private GunImpactPrediction _lastImpactPrediction;
@@ -45,22 +45,19 @@ namespace Ship {
 
         protected void Update() {
             _hasPredictedImpactThisTick = false;
-            if (parentBoat.IsActive) {
-                HandleGunControl();
+        }
+        
+        public void ReceiveAimInput (Vector3 desiredAimPoint) {
+            ProcessAim(desiredAimPoint, out _desiredFiringAngle);
+        }
+        public void ReceiveFireInput () {
+            bool hasAllowedFiringAngle = TestAllowedFiringAngle(_desiredFiringAngle);
+            if (hasAllowedFiringAngle && IsLoaded) {
+                Fire();
             }
         }
 
-        protected void HandleGunControl() {
-            Vector3 targetPoint = parentBoat.shipController.GetAimPoint();
-            HandleAim(targetPoint, out Vector3 desiredFiringAngle);
-            _hasAllowedFiringAngle = CheckAllowedFiringAngle(desiredFiringAngle);
-
-            if (parentBoat.shipController.GetFireInput()) {
-                HandleGunFire(_hasAllowedFiringAngle);
-            }
-        }
-
-        protected void HandleAim(Vector3 targetPoint, out Vector3 desiredFiringAngle) {
+        protected void ProcessAim(Vector3 targetPoint, out Vector3 desiredFiringAngle) {
             desiredFiringAngle.z = 0f;
             if (maxHorizontalRotation >= 180f) {
                 desiredFiringAngle.y = RotateTurret(targetPoint);
@@ -162,16 +159,10 @@ namespace Ship {
             return angle;
         }
 
-        protected bool CheckAllowedFiringAngle(Vector3 desiredFiringVector) {
+        protected bool TestAllowedFiringAngle(Vector3 desiredFiringVector) {
             Quaternion e = Quaternion.Euler(desiredFiringVector);
             float angleToTarget = Quaternion.Angle(e, verticalRotationPart.rotation);
             return angleToTarget < 0.02f;
-        }
-
-        protected void HandleGunFire(bool hasAllowedFiringAngle) {
-            if (CheckFiringIsLegal(hasAllowedFiringAngle)) {
-                Fire();
-            }
         }
 
         protected bool CheckFiringIsLegal(bool hasAllowedFiringAngle) {
@@ -211,6 +202,7 @@ namespace Ship {
                 return new GunImpactPrediction(false, new Vector3());
             }
         }
+
     }
 }
 
