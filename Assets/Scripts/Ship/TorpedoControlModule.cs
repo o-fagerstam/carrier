@@ -20,10 +20,9 @@ namespace Ship {
             parentShip.OnDeath += OnParentDeath;
         }
 
-        private void Update() {
+        public void ReceiveTorpedoInput () {
             if (parentShip.IsActive &&
-                _currentlyActiveLauncher < _torpedoLaunchers.Length &&
-                parentShip.shipController.GetTorpedoInput()) {
+                _currentlyActiveLauncher < _torpedoLaunchers.Length) {
                 FireTorpedo();
             }
         }
@@ -45,5 +44,6 @@ namespace Ship {
         private void OnDestroy() {
             parentShip.OnDeath -= OnParentDeath;
         }
+
     }
 }

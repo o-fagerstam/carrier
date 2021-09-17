@@ -21,6 +21,7 @@ namespace Ship {
         
         public ShipGun[] MainGuns { get; private set; }
         public ShipDamageModule ShipDamageModule { get; private set; }
+        public TorpedoControlModule TorpedoControlModule { get; private set; }
 
         private const int maxGearLevel = 4;
         private const int minGearlevel = -2;
@@ -46,6 +47,7 @@ namespace Ship {
             ShipDamageModule = GetComponent<ShipDamageModule>();
             DamageModule = ShipDamageModule;
             AiController = gameObject.AddComponent<AiShipController>();
+            TorpedoControlModule = GetComponent<TorpedoControlModule>();
         }
 
         private void Start() {
@@ -55,17 +57,11 @@ namespace Ship {
         public void UpdateControllerType(VehicleUserType type) {
             shipController = type switch {
                 VehicleUserType.Human => MonoBehaviourServiceLocator.Current.Get<PlayerShipController>().AcquireShip(this),
-                VehicleUserType.Ai => (AiShipController) AiController,
+                VehicleUserType.Ai => (AiShipController)AiController,
                 VehicleUserType.None => null,
                 _ => shipController
             };
             vehicleUserType = type;
-        }
-
-        private void Update() {
-            if (IsActive) {
-                GetInput();
-            }
         }
 
         private void FixedUpdate() {
@@ -90,24 +86,6 @@ namespace Ship {
             }
 
             ReduceHorizontalDrift();
-        }
-
-        private void GetInput() {
-            ShipGearInput gearInput = shipController.GetVerticalInput();
-            if (gearInput == ShipGearInput.Raise) {
-                _gearLevel += 1;
-                _gearLevel = Math.Min(maxGearLevel, _gearLevel);
-                OnChangeGearLevel?.Invoke(Mathf.InverseLerp(minGearlevel, maxGearLevel, _gearLevel));
-            }
-            else if (gearInput == ShipGearInput.Lower){
-                _gearLevel -= 1;
-                _gearLevel = Math.Max(minGearlevel, _gearLevel);
-                OnChangeGearLevel?.Invoke(Mathf.InverseLerp(minGearlevel, maxGearLevel, _gearLevel));
-            } else if (gearInput == ShipGearInput.Zero) {
-                _gearLevel = 0;
-                OnChangeGearLevel?.Invoke(Mathf.InverseLerp(minGearlevel, maxGearLevel, _gearLevel));
-            }
-            _rudderInput = shipController.GetHorizontalInput();
         }
 
         private void Steer() {
@@ -170,6 +148,38 @@ namespace Ship {
             Rigidbody.ResetCenterOfMass();
             Rigidbody.drag = OnDestructionDrag;
             Rigidbody.AddRelativeTorque(Vector3.forward * Random.Range(-0.3f, 0.3f), ForceMode.VelocityChange);
+        }
+        public void ReceiveSteeringInput (ShipGearInput gearInput, float rudderInput) {
+            _rudderInput += rudderInput;
+            
+            if (gearInput == ShipGearInput.Raise) {
+                _gearLevel += 1;
+                _gearLevel = Math.Min(maxGearLevel, _gearLevel);
+                OnChangeGearLevel?.Invoke(Mathf.InverseLerp(minGearlevel, maxGearLevel, _gearLevel));
+            }
+            else if (gearInput == ShipGearInput.Lower){
+                _gearLevel -= 1;
+                _gearLevel = Math.Max(minGearlevel, _gearLevel);
+                OnChangeGearLevel?.Invoke(Mathf.InverseLerp(minGearlevel, maxGearLevel, _gearLevel));
+            } else if (gearInput == ShipGearInput.Zero) {
+                _gearLevel = 0;
+                OnChangeGearLevel?.Invoke(Mathf.InverseLerp(minGearlevel, maxGearLevel, _gearLevel));
+            }
+        }
+        public void ReceiveAimInput (Vector3 desiredAimPoint) {
+            foreach (ShipGun gun in MainGuns) {
+                gun.ReceiveAimInput(desiredAimPoint);
+            }
+        }
+        public void ReceiveFireInput () {
+            foreach (ShipGun gun in MainGuns) {
+                gun.ReceiveFireInput();
+            }
+        }
+        public void ReceiveTorpedoInput () {
+            if (TorpedoControlModule != null) {
+                TorpedoControlModule.ReceiveTorpedoInput();
+            }
         }
     }
 }

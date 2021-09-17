@@ -16,10 +16,6 @@ namespace Ship {
         private bool _reachedEndOfPath;
         
         private GameUnit _currentGunTarget;
-        private Vector3 _currentAimPoint;
-
-        private ShipGearInput _currentGearInput = ShipGearInput.NoInput;
-        private float _currentRudderInput;
 
         private float _lastPathUpdateTime = float.MinValue;
         private const float PathUpdateFrequency = 5f;
@@ -35,40 +31,27 @@ namespace Ship {
 
         protected override void Update() {
             base.Update();
-            UpdateMovementInput();
-        }
-
-        public ShipGearInput GetVerticalInput() {
-            return _currentGearInput;
-        }
-
-        public float GetHorizontalInput() {
-            return _currentRudderInput;
-        }
-
-        public Vector3 GetAimPoint() {
-            if (_currentGunTarget != null) {
-                GunImpactPrediction prediction = PredictPosition(_currentGunTarget);
-                if (prediction.willImpact) {
-                    _currentAimPoint = prediction.impactPosition;
-                }
+            if (_controlledShip.vehicleUserType != VehicleUserType.Ai) {
+                return;
             }
-
-            return _currentAimPoint;
-        }
-        
-        public bool GetFireInput() {
-            return _currentGunTarget != null;
+            UpdateMovementInput();
+            UpdateAimInput();
+            _controlledShip.ReceiveFireInput();
         }
 
-        public bool GetTorpedoInput() {
-            return false; // Not yet implemented
+        public void UpdateAimInput() {
+            if (_currentGunTarget == null) {
+                return;
+            }
+            GunImpactPrediction prediction = PredictPosition(_currentGunTarget);
+            if (prediction.willImpact) {
+                _controlledShip.ReceiveAimInput(prediction.impactPosition);
+            }
         }
 
         private void UpdateMovementInput() {
             if ( _path == null) {
-                _currentGearInput = ShipGearInput.Zero;
-                _currentRudderInput = 0f;
+                _controlledShip.ReceiveSteeringInput(ShipGearInput.Zero, 0f);
                 return;
             }
 
@@ -101,31 +84,29 @@ namespace Ship {
                 -_controlledShip.maxSteerAngle,
                 _controlledShip.maxSteerAngle
             );
-            float newRudderInput = Mathf.InverseLerp(
+            float rudderInput = Mathf.InverseLerp(
                 -_controlledShip.maxSteerAngle,
                 _controlledShip.maxSteerAngle,
                 steeringAngle
             ) * 2f - 1f;
 
-            
+            ShipGearInput gearInput;
             float dotProduct = Vector3.Dot(transform.forward, moveDirection);
             if (dotProduct >= 0f) {
                 // Forward movement
-                _currentGearInput = ShipGearInput.Raise;
-                _currentRudderInput = newRudderInput;
+                gearInput = ShipGearInput.Raise;
             }
             else {
                 // Backwards movement
-                _currentGearInput = ShipGearInput.Lower;
+                gearInput = ShipGearInput.Lower;
                 if (squareDistanceToWaypoint > MaxReverseDistanceSquared) {
                     // Far away, make T turn
-                    _currentRudderInput = -newRudderInput;
-                }
-                else {
-                    // Close by, reverse to waypoint
-                    _currentRudderInput = newRudderInput;
+                    rudderInput = -rudderInput;
                 }
             }
+            _controlledShip.ReceiveSteeringInput(gearInput, rudderInput);
+            
+            
         }
 
         private void RecalculateNavPath(Vector3 targetPosition) {
@@ -217,7 +198,6 @@ namespace Ship {
             if (Time.time - _lastPathUpdateTime > PathUpdateFrequency) {
                 RecalculateNavPath(target.transform.position);
             }
-
             _currentGunTarget = target;
         }
     }
