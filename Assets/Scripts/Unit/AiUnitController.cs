@@ -5,13 +5,13 @@ using UnityEngine;
 
 namespace Unit {
     public abstract class AiUnitController : MonoBehaviour {
-        private CommandProcessor _commandProcessor;
+        protected CommandProcessor commandProcessor;
         public GameUnit ControlledUnit { get; private set; }
-        public IReadOnlyCollection<Command> CurrentCommands => _commandProcessor.CurrentCommands;
+        public IReadOnlyCollection<Command> CurrentCommands => commandProcessor.CurrentCommands;
 
         protected virtual void Awake() {
-            _commandProcessor = new CommandProcessor(this);
-            _commandProcessor.OnNewCommand += OnNewCommand;
+            commandProcessor = new CommandProcessor(this);
+            commandProcessor.OnNewCommand += OnNewCommand;
         }
 
         protected virtual void Start() {
@@ -19,19 +19,19 @@ namespace Unit {
         }
 
         protected virtual void Update() {
-            _commandProcessor.ExecuteCurrentCommand();
+            commandProcessor.ExecuteCurrentCommand();
         }
 
         public void SetCommand(Command c) {
-            _commandProcessor.SetCommand(c);
+            commandProcessor.SetCommand(c);
         }
 
         public void EnqueueCommand(Command c) {
-            _commandProcessor.EnqueueCommand(c);
+            commandProcessor.EnqueueCommand(c);
         }
 
         protected virtual void OnDestroy() {
-            _commandProcessor.OnNewCommand -= OnNewCommand;
+            commandProcessor.OnNewCommand -= OnNewCommand;
         }
 
         public abstract void OnNewCommand();
