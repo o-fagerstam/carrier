@@ -35,7 +35,7 @@ namespace Ship {
 
         protected override void Update() {
             base.Update();
-            if (_controlledShip.vehicleUserType != VehicleUserType.Ai) {
+            if (_controlledShip.vehicleUserType != VehicleUserType.Ai || !_controlledShip.alive) {
                 return;
             }
             UpdateMovementInput();
@@ -131,6 +131,7 @@ namespace Ship {
 
         private ShipMain SeekTarget() {
             IReadOnlyCollection<ShipMain> allShips = VehiclesManager.AllShips;
+            Debug.Log(string.Join(", ", allShips));
             ShipMain closestShip = null;
             float closestShipDistance = float.MaxValue;
             foreach (ShipMain ship in allShips) {
@@ -179,11 +180,11 @@ namespace Ship {
 
         public override void OnNewCommand() {
             _lastPathUpdateTime = float.MinValue;
-            _lastEnemySeekTime = float.MinValue;
         }
 
         public override void IdleCommand() {
             if (Time.time - _lastEnemySeekTime > EnemySeekFrequency) {
+                _lastEnemySeekTime = Time.time;
                 GameUnit newTarget = SeekTarget();
                 if (newTarget != null) {
                     AttackCommand attackCommand = new AttackCommand(this, newTarget);
