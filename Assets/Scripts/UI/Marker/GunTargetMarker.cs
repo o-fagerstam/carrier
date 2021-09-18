@@ -16,6 +16,10 @@ namespace UI {
             image.color = c;
         }
 
+        protected override bool IsDisplayAllowed () {
+            return true;
+        }
+
         protected override void LateUpdate() {
             GunImpactPrediction prediction = trackedGun.GunImpactPrediction;
             if (!prediction.willImpact) {

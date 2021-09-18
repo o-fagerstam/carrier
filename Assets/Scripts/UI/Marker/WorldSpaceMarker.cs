@@ -33,9 +33,11 @@ namespace UI {
                    viewPortPosition.z > 0;
         }
 
+        protected abstract bool IsDisplayAllowed ();
+
         protected virtual void LateUpdate() {
             Vector3 trackedPos = TrackedPosition;
-            bool isVisible = IsVisibleInWorldSpace(trackedPos);
+            bool isVisible = IsVisibleInWorldSpace(trackedPos) && IsDisplayAllowed();
             SetVisible(isVisible);
             
             if (!isVisible) {
