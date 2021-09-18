@@ -24,23 +24,28 @@ public class VehiclesManager : MonoBehaviour {
         }
         
         foreach (ShipMain ship in FindObjectsOfType<ShipMain>()) {
-            AddShip(ship);
+            AddUnit(ship);
         }
     }
 
-    private void AddShip(ShipMain ship) {
-        _allUnits.Add(ship);
-        _allShips.Add(ship);
+    private void AddUnit(GameUnit unit) {
+        _allUnits.Add(unit);
 
-        ship.OnDeath += RemoveShip;
-        OnUnitAdded?.Invoke(ship);
+        if (unit is ShipMain) {
+            _allShips.Add((ShipMain) unit);
+        }
+        unit.OnDeath += RemoveUnit;
+        OnUnitAdded?.Invoke(unit);
     }
 
-    private void RemoveShip(GameUnit shipUnit) {
-        ShipMain ship = (ShipMain) shipUnit; // This cast is a code smell, but I don't know how else to get inheritance to work with Actions
-        ship.OnDeath -= RemoveShip;
-        _allUnits.Remove(ship);
-        _allShips.Remove(ship);
-        OnUnitRemoved?.Invoke(ship);
+    private void RemoveUnit(GameUnit unit) {
+        unit.OnDeath -= RemoveUnit;
+        _allUnits.Remove(unit);
+        
+        if (unit is ShipMain) {
+            _allShips.Remove((ShipMain) unit);
+        }
+        
+        OnUnitRemoved?.Invoke(unit);
     }
 }
