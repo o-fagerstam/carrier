@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CommandMode;
 using Pathfinding;
 using PhysicsUtilities;
 using UnityEngine;
@@ -19,6 +20,9 @@ namespace Ship {
 
         private float _lastPathUpdateTime = float.MinValue;
         private const float PathUpdateFrequency = 5f;
+        
+        private float _lastEnemySeekTime = float.MinValue;
+        private const float EnemySeekFrequency = 5f;
 
         protected override void Awake() {
             base.Awake();
@@ -175,11 +179,21 @@ namespace Ship {
 
         public override void OnNewCommand() {
             _lastPathUpdateTime = float.MinValue;
+            _lastEnemySeekTime = float.MinValue;
         }
 
         public override void IdleCommand() {
-            _path = null;
-            _currentGunTarget = null;
+            if (Time.time - _lastEnemySeekTime > EnemySeekFrequency) {
+                GameUnit newTarget = SeekTarget();
+                if (newTarget != null) {
+                    AttackCommand attackCommand = new AttackCommand(this, newTarget);
+                    SetCommand(attackCommand);
+                }
+            } else {
+                _path = null;
+                _currentGunTarget = null;
+            }
+
         }
 
         public override void PointMoveCommand(Vector3 targetPoint) {
