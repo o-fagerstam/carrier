@@ -33,6 +33,9 @@ namespace UI {
                    viewPortPosition.z > 0;
         }
 
+        /// <summary>
+        /// Checks if marker should be allowed to display. Can be used to check conditions like only displaying marker over enemy ships.
+        /// </summary>
         protected abstract bool IsDisplayAllowed ();
 
         protected virtual void LateUpdate() {
