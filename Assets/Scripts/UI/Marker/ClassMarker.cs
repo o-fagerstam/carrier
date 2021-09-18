@@ -19,6 +19,10 @@ namespace UI {
             _healthBar.color = color;
         }
 
+        protected override bool IsDisplayAllowed () {
+            return trackedUnit.vehicleUserType != VehicleUserType.Human;
+        }
+
         protected override void LateUpdate() {
             base.LateUpdate();
             DamageModule d = trackedUnit.DamageModule;
