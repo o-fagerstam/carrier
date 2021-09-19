@@ -6,7 +6,7 @@ namespace Ship {
         public float maxEffectiveRange;
 
         protected override void Fire() {
-            _lastFired = Time.time;
+            timeOfLastFiring = Time.time;
             Quaternion spread = Quaternion.Euler(
                 Random.Range(-spreadAngle, spreadAngle),
                 Random.Range(-spreadAngle, spreadAngle),
@@ -23,6 +23,7 @@ namespace Ship {
         }
 
         protected override GunImpactPrediction PredictGunImpact() {
+            Debug.Log("PredictGunImpact");
             Vector3 origin = MuzzlePosition;
             Vector3 v0 = verticalRotationPart.forward * muzzleVelocity;
             var success = Raycasting.TraceTrajectoryUntilImpact(
@@ -36,8 +37,13 @@ namespace Ship {
                 return new GunImpactPrediction(true, hit.point);
             }
             else {
-                return new GunImpactPrediction(true, new Vector3());
+                return new GunImpactPrediction(false, new Vector3());
             }
+        }
+
+        public override bool CanPotentiallyHitPoint (Vector3 targetPoint, out float firingAngle, out float timeToImpact) {
+            bool baseCanHit = base.CanPotentiallyHitPoint(targetPoint, out firingAngle, out timeToImpact);
+            return baseCanHit && timeToImpact < maxEffectiveRange/muzzleVelocity;
         }
     }
 }

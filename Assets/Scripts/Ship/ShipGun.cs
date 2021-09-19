@@ -20,12 +20,12 @@ namespace Ship {
         public float muzzleVelocity = 100f;
         public float spreadAngle;
 
-        public bool IsLoaded => _lastFired <= Time.time - reloadTime;
+        public bool IsLoaded => timeOfLastFiring <= Time.time - reloadTime;
         protected Vector3 MuzzlePosition => verticalRotationPart.position + verticalRotationPart.forward * 3;
 
         private Vector3 _desiredFiringAngle;
         private bool _hasPredictedImpactThisTick;
-        protected float _lastFired;
+        protected float timeOfLastFiring;
         private GunImpactPrediction _lastImpactPrediction;
 
         public GunImpactPrediction GunImpactPrediction {
@@ -40,7 +40,7 @@ namespace Ship {
         }
 
         protected void Awake() {
-            _lastFired = -reloadTime;
+            timeOfLastFiring = -reloadTime;
         }
 
         protected void Update() {
@@ -159,7 +159,7 @@ namespace Ship {
             return angle;
         }
 
-        protected bool TestAllowedFiringAngle(Vector3 desiredFiringVector) {
+        private bool TestAllowedFiringAngle(Vector3 desiredFiringVector) {
             Quaternion e = Quaternion.Euler(desiredFiringVector);
             float angleToTarget = Quaternion.Angle(e, verticalRotationPart.rotation);
             return angleToTarget < 0.02f;
@@ -169,38 +169,26 @@ namespace Ship {
             return hasAllowedFiringAngle && IsLoaded;
         }
 
-        protected virtual void Fire() {
-            _lastFired = Time.time;
-            Quaternion spread = Quaternion.Euler(
-                Random.Range(-spreadAngle, spreadAngle),
-                Random.Range(-spreadAngle, spreadAngle),
-                Random.Range(-spreadAngle, spreadAngle)
+        protected abstract void Fire ();
+
+        /// <summary>
+        /// Predicts whether a shell will impact, and if so, the point of impact.
+        /// </summary>
+        protected abstract GunImpactPrediction PredictGunImpact ();
+
+        public virtual bool CanPotentiallyHitPoint (Vector3 targetPoint, out float firingAngle, out float timeToImpact) {
+            Vector3 deltaPosition = targetPoint - transform.position;
+            
+            bool canPotentiallyHitTarget = ProjectileMotion.FiringAngle(
+                deltaPosition,
+                muzzleVelocity,
+                out firingAngle,
+                minElevation,
+                maxElevation
             );
-
-            Quaternion muzzleRotation = verticalRotationPart.rotation * spread;
-
-            Shell firedShell = Instantiate(ammunitionPrefab, MuzzlePosition, muzzleRotation);
-            firedShell.shellOwner = transform.parent;
-            firedShell.Rigidbody.velocity = firedShell.transform.forward * muzzleVelocity;
-
-            Instantiate(muzzleParticleSystemPrefab, MuzzlePosition, muzzleRotation);
-        }
-
-        protected virtual GunImpactPrediction PredictGunImpact() {
-            Vector3 origin = MuzzlePosition;
-            Vector3 v0 = verticalRotationPart.forward * muzzleVelocity;
-            bool success = Raycasting.TraceTrajectoryUntilImpact(
-                origin,
-                v0,
-                out RaycastHit hit,
-                (int) LayerMasks.ShipGunTarget
-            );
-            if (success) {
-                return new GunImpactPrediction(true, hit.point);
-            }
-            else {
-                return new GunImpactPrediction(false, new Vector3());
-            }
+            
+            timeToImpact = ProjectileMotion.ExpectedTimeOfFlight(firingAngle, muzzleVelocity);
+            return canPotentiallyHitTarget;
         }
 
     }
