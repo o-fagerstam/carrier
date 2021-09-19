@@ -40,16 +40,16 @@ namespace Ship {
             }
             UpdateMovementInput();
             UpdateAimInput();
-            _controlledShip.ReceiveFireInput();
         }
 
         public void UpdateAimInput() {
             if (_currentGunTarget == null) {
                 return;
             }
-            GunImpactPrediction prediction = PredictPosition(_currentGunTarget);
+            DesiredImpactPointPrediction prediction = MovementAdjustedFiringPrediction(_currentGunTarget);
             if (prediction.willImpact) {
-                _controlledShip.ReceiveAimInput(prediction.impactPosition);
+                _controlledShip.ReceiveAimInput(prediction.desiredImpactPoint);
+                _controlledShip.ReceiveFireInput();
             }
         }
 
@@ -131,7 +131,6 @@ namespace Ship {
 
         private ShipMain SeekTarget() {
             IReadOnlyCollection<ShipMain> allShips = VehiclesManager.AllShips;
-            Debug.Log(string.Join(", ", allShips));
             ShipMain closestShip = null;
             float closestShipDistance = float.MaxValue;
             foreach (ShipMain ship in allShips) {
@@ -148,25 +147,17 @@ namespace Ship {
             return closestShip;
         }
 
-        private GunImpactPrediction PredictPosition(GameUnit target) {
+        private DesiredImpactPointPrediction MovementAdjustedFiringPrediction(GameUnit target) {
             ShipGun tracingGun = _controlledShip.MainGuns[0];
-            Vector3 deltaPosition = target.transform.position - _controlledShip.transform.position;
-            
-            bool hasValidAngle = ProjectileMotion.FiringAngle(
-                deltaPosition,
-                tracingGun.muzzleVelocity,
-                out float angle,
-                tracingGun.minElevation,
-                tracingGun.maxElevation
-            );
-            if (!hasValidAngle) {
-                return new GunImpactPrediction(false, new Vector3());
+
+            bool canPotentiallyHitTarget = tracingGun.CanPotentiallyHitPoint(target.transform.position, out float desiredAngle, out float timeOfFlight);
+            if (!canPotentiallyHitTarget) {
+                return new DesiredImpactPointPrediction(false, new Vector3());
             }
             
-            float timeOfFlight = ProjectileMotion.ExpectedTimeOfFlight(angle, tracingGun.muzzleVelocity);
             Vector3 positionOffset = target.Rigidbody.velocity * timeOfFlight;
-            
-            return new GunImpactPrediction(true, target.transform.position + positionOffset);
+
+            return new DesiredImpactPointPrediction(true, target.transform.position + positionOffset);
         }
 
         protected override void OnDestroy() {
@@ -216,4 +207,15 @@ namespace Ship {
             _currentGunTarget = target;
         }
     }
+
+    struct DesiredImpactPointPrediction {
+        public bool willImpact;
+        public Vector3 desiredImpactPoint;
+
+        public DesiredImpactPointPrediction (bool willImpact, Vector3 desiredImpactPoint) {
+            this.willImpact = willImpact;
+            this.desiredImpactPoint = desiredImpactPoint;
+        }
+    }
 }
+
