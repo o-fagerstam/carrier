@@ -23,7 +23,6 @@ namespace Ship {
         }
 
         protected override GunImpactPrediction PredictGunImpact() {
-            Debug.Log("PredictGunImpact");
             Vector3 origin = MuzzlePosition;
             Vector3 v0 = verticalRotationPart.forward * muzzleVelocity;
             var success = Raycasting.TraceTrajectoryUntilImpact(

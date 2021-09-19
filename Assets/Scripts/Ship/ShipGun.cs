@@ -39,11 +39,11 @@ namespace Ship {
             }
         }
 
-        protected void Awake() {
+        protected virtual void Awake() {
             timeOfLastFiring = -reloadTime;
         }
 
-        protected void Update() {
+        protected virtual void Update() {
             _hasPredictedImpactThisTick = false;
         }
         
@@ -163,10 +163,6 @@ namespace Ship {
             Quaternion e = Quaternion.Euler(desiredFiringVector);
             float angleToTarget = Quaternion.Angle(e, verticalRotationPart.rotation);
             return angleToTarget < 0.02f;
-        }
-
-        protected bool CheckFiringIsLegal(bool hasAllowedFiringAngle) {
-            return hasAllowedFiringAngle && IsLoaded;
         }
 
         protected abstract void Fire ();
