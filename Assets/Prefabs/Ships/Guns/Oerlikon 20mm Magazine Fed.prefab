@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 8165251244753733770}
   - component: {fileID: 5115833178108708655}
   - component: {fileID: 6997433158723646437}
-  - component: {fileID: -2683997331320779168}
+  - component: {fileID: 2335974461549056488}
+  - component: {fileID: 1632925170412865984}
   m_Layer: 0
   m_Name: Oerlikon 20mm Magazine Fed
   m_TagString: Untagged
@@ -83,7 +84,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &-2683997331320779168
+--- !u!114 &2335974461549056488
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -92,7 +93,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8798657162578268720}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38bd2a3e3c424765990c671afe03465a, type: 3}
+  m_Script: {fileID: 11500000, guid: 480c3d184db14f4cb1dd9d57d6398161, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ammunitionPrefab: {fileID: -559559837266049238, guid: 073ef962aa79b1f40a30e9f2cb1a17ad, type: 3}
@@ -105,13 +106,24 @@ MonoBehaviour:
   verticalElevationSpeed: 20
   maxElevation: 90
   minElevation: -15
-  reloadTime: 0.12
   muzzleVelocity: 820
   spreadAngle: 0.2
-  maxEffectiveRange: 300
-  bulletsInMagazine: 60
+  maxEffectiveRange: 3000
+--- !u!114 &1632925170412865984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8798657162578268720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2dbc1cc5da34f19aaffb77469f6148e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  magazineReloadTime: 8
+  roundsPerMinute: 350
   magazineSize: 60
-  timeToReload: 3
 --- !u!1001 &3221389442132983722
 PrefabInstance:
   m_ObjectHideFlags: 0

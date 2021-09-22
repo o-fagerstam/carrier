@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Ship {
     public class NavalGun : ShipGun {
         protected override void Fire () {
-            timeOfLastFiring = Time.time;
+            reloadBehavior.ConsumeAmmunition();
             Quaternion spread = Quaternion.Euler(
                 Random.Range(-spreadAngle, spreadAngle),
                 Random.Range(-spreadAngle, spreadAngle),

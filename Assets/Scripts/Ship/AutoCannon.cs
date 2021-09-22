@@ -6,7 +6,7 @@ namespace Ship {
         public float maxEffectiveRange;
 
         protected override void Fire() {
-            timeOfLastFiring = Time.time;
+            reloadBehavior.ConsumeAmmunition();
             Quaternion spread = Quaternion.Euler(
                 Random.Range(-spreadAngle, spreadAngle),
                 Random.Range(-spreadAngle, spreadAngle),

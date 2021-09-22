@@ -47,7 +47,7 @@ namespace Ship {
             ShipDamageModule = GetComponent<ShipDamageModule>();
             DamageModule = ShipDamageModule;
             AiController = gameObject.AddComponent<AiShipController>();
-            TorpedoControlModule = GetComponent<TorpedoControlModule>();
+            TorpedoControlModule = GetComponentInChildren<TorpedoControlModule>();
         }
 
         private void Start() {
