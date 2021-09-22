@@ -16,17 +16,17 @@ namespace Ship {
         public float maxElevation;
         public float minElevation;
         
-        [SerializeField] protected float reloadTime = 3f;
         public float muzzleVelocity = 100f;
         public float spreadAngle;
-
-        public bool IsLoaded => timeOfLastFiring <= Time.time - reloadTime;
+        
         protected Vector3 MuzzlePosition => verticalRotationPart.position + verticalRotationPart.forward * 3;
 
         private Vector3 _desiredFiringAngle;
         private bool _hasPredictedImpactThisTick;
-        protected float timeOfLastFiring;
         private GunImpactPrediction _lastImpactPrediction;
+
+        protected IReloadBehavior reloadBehavior;
+        public bool IsLoaded => reloadBehavior.IsLoaded();
 
         public GunImpactPrediction GunImpactPrediction {
             get {
@@ -40,7 +40,7 @@ namespace Ship {
         }
 
         protected virtual void Awake() {
-            timeOfLastFiring = -reloadTime;
+            reloadBehavior = GetComponent<IReloadBehavior>();
         }
 
         protected virtual void Update() {
@@ -52,7 +52,7 @@ namespace Ship {
         }
         public void ReceiveFireInput () {
             bool hasAllowedFiringAngle = TestAllowedFiringAngle(_desiredFiringAngle);
-            if (hasAllowedFiringAngle && IsLoaded) {
+            if (hasAllowedFiringAngle && reloadBehavior.IsLoaded()) {
                 Fire();
             }
         }

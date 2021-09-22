@@ -871,6 +871,10 @@ PrefabInstance:
       propertyPath: parentBoat
       value: 
       objectReference: {fileID: 5643515800464806579}
+    - target: {fileID: 2335974461549056488, guid: 3be36533905db614ca0030a5da2a1049, type: 3}
+      propertyPath: parentBoat
+      value: 
+      objectReference: {fileID: 5643515800464806579}
     - target: {fileID: 4120863068565446555, guid: 3be36533905db614ca0030a5da2a1049, type: 3}
       propertyPath: parentBoat
       value: 
@@ -1395,6 +1399,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 5643515800464806578}
     m_Modifications:
     - target: {fileID: -6718873321342910797, guid: 3be36533905db614ca0030a5da2a1049, type: 3}
+      propertyPath: parentBoat
+      value: 
+      objectReference: {fileID: 5643515800464806579}
+    - target: {fileID: 2335974461549056488, guid: 3be36533905db614ca0030a5da2a1049, type: 3}
       propertyPath: parentBoat
       value: 
       objectReference: {fileID: 5643515800464806579}

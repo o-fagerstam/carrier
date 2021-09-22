@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5115833178108708655}
   - component: {fileID: 6997433158723646437}
   - component: {fileID: 4120863068565446555}
+  - component: {fileID: 2121178424846023311}
   m_Layer: 0
   m_Name: Oerlikon 20mm Belt Fed
   m_TagString: Untagged
@@ -105,10 +106,22 @@ MonoBehaviour:
   verticalElevationSpeed: 20
   maxElevation: 90
   minElevation: -15
-  reloadTime: 0.12
   muzzleVelocity: 820
   spreadAngle: 0.2
   maxEffectiveRange: 3000
+--- !u!114 &2121178424846023311
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8798657162578268720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b629d44108d4378b4f1d428fef3a0e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  roundsPerMinute: 350
 --- !u!1001 &3221389442132983722
 PrefabInstance:
   m_ObjectHideFlags: 0
